@@ -1,0 +1,130 @@
+import math
+import matplotlib.pyplot as plt
+from node import *
+from segment import *
+class Graph:
+    def __init__(self):
+        self.nodes = []
+        self.segments = []
+
+def AddNode(g,n):
+    for node in g.nodes:
+        if node.name == n.name:
+            return False
+    g.nodes.append(n)
+    return True
+
+
+def AddSegment(g, name, nameOriginNode, nameDestinationNode):
+    origin = next((n for n in g.nodes if n.name == nameOriginNode), None)
+    destination = next((n for n in g.nodes if n.name == nameDestinationNode), None)
+
+    if origin is None or destination is None:
+        return False
+
+    seg = Segment(name, origin, destination)
+    g.segments.append(seg)
+    AddNeighbor(origin, destination)
+    return True
+
+
+def GetClosest(g,x,y):
+    mas_cercano=None
+    dist_corta=None
+
+    for node in g.nodes:
+        dx=node.x-x
+        dy=node.y-y
+        distancia=(dx**2+dy**2)**0.5
+
+        if dist_corta== None or distancia < dist_corta:
+            dist_corta=distancia
+            mas_cercano=node
+
+    return mas_cercano
+
+
+
+def Plot(g):
+    plt.figure()
+    for segment in g.segments:
+        x_values = [segment.origin.x, segment.destination.x]
+        y_values = [segment.origin.y, segment.destination.y]
+        plt.plot(x_values, y_values, 'k-')
+        mid_x = (segment.origin.x + segment.destination.x)/2
+        mid_y = (segment.origin.y + segment.destination.y)/2
+        plt.text(mid_x, mid_y, f"{segment.cost:.1f}", color = "black", fontsize = 8, ha = "center")
+
+    for node in g.nodes:
+        plt.plot(node.x, node.y, 'ko')
+        plt.text(node.x, node.y, node.name, fontsize = 9, ha = "right", va = "bottom")
+
+    plt.title("Graph")
+    plt.axis("equal")
+    plt.grid(True)
+    plt.show()
+
+def PlotNode(g, nameOrigin):
+    origin = next((n for n in g.nodes if n.name == nameOrigin), None)
+    if origin is None:
+        return False
+
+    plt.figure()
+
+    for segment in g.segments:
+        if segment.origin == origin and segment.destination in origin.neighbors:
+            color = "r"
+        else:
+            color = "k"
+        x_values = [segment.origin.x, segment.destination.x]
+        y_values = [segment.origin.y, segment.destination.y]
+        plt.plot(x_values, y_values, color)
+        mid_x = (segment.origin.x + segment.destination.x)/2
+        mid_y = (segment.origin.y + segment.destination.y)/2
+        plt.text(mid_x, mid_y, f"{segment.cost:.1f}", color = "black", fontsize = 8, ha = "center")
+
+    for node in g.nodes:
+        if node == origin:
+            plt.plot(node.x, node.y, "bo")
+        elif node in origin.neighbors:
+            plt.plot(node.x, node.y, "go")
+        else:
+            plt.plot(node.x, node.y, "ko")
+        plt.text(node.x, node.y, node.name, fontsize = 9, ha = "right", va = "bottom")
+
+    plt.title(f"Node: {origin.name} and its neighbors")
+    plt.axis("equal")
+    plt.grid(True)
+    plt.show
+
+def LoadGraphFromFile(filename):
+    g = Graph()
+    try:
+        with open(filename, "r") as file:
+            mode = None
+            for line in file:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    if "NODE" in line.upper():
+                        mode = "nodes"
+                    elif "SEGMENT" in line.upper():
+                        mode = "segments"
+                    continue
+
+                if mode == "nodes":
+                    parts = line.split()
+                    if len(parts) != 3:
+                        continue
+                    name, x, y = parts
+                    AddNode(g, Node(name, float(x), float(y)))
+                elif mode == "segments":
+                    parts = line.split()
+                    if len(parts) != 3:
+                        continue
+                    seg_name, origin, dest = parts
+                    AddSegment(g, seg_name, origin, dest)
+
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found.")
+        return None
+    return g
