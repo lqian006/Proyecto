@@ -128,3 +128,18 @@ def LoadGraphFromFile(filename):
         print(f"Error: File '{filename}' not found.")
         return None
     return g
+
+def DeleteNode(g, name):
+    node = next((n for n in g.nodes if n.name == name), None)
+    if not node:
+        return False
+    g.nodes.remove(node)
+    g.segments = [s for s in g.segments if s.origin != node and s.destination != node]
+    return True
+
+def SaveGraphToFile(g, filename):
+    with open(filename, 'w') as f:
+        for node in g.nodes:
+            f.write(f"NODE {node.name} {node.x} {node.y}\n")
+        for seg in g.segments:
+            f.write(f"SEGMENT {seg.name} {seg.origin.name} {seg.destination.name}\n")

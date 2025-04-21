@@ -1,9 +1,10 @@
 import tkinter as tk
-from tkinter import filedialog, ttk, messagebox
+from tkinter import filedialog, ttk, messagebox, simpledialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 from node import *
 from test_graph import *
+from graph import *
 
 class GraphApp:
     def __init__(self, root):
@@ -82,3 +83,85 @@ if __name__ == "__main__":
     app = GraphApp(root)
     create_widgets(app)
     root.mainloop()
+
+ventana = tk.Tk()
+ventana.title("Editor de Grafos")
+
+fig, ax = plt.subplots()
+canvas = FigureCanvasTkAgg(fig, master=ventana)
+canvas.get_tk_widget().pack()
+
+G = Graph()
+modo = None
+nodo_temp = None
+
+def actualizar_grafo():
+    ax.clear()
+    Plot(G)
+    canvas.draw()
+
+def nuevo_grafo():
+    global G
+    G = Graph()
+    actualizar_grafo()
+
+def guardar_grafo():
+    archivo = filedialog.asksaveasfilename(defaultextension=".txt")
+    if archivo:
+        SaveGraphToFile(G, archivo)
+
+def seleccionar_modo_agregar_nodo():
+    global modo
+    modo = "agregar_nodo"
+    messagebox.showinfo("Modo", "Haz clic en el grafo para añadir un nodo.")
+
+def seleccionar_modo_eliminar_nodo():
+    global modo
+    modo = "eliminar_nodo"
+    messagebox.showinfo("Modo", "Haz clic en un nodo para eliminarlo.")
+
+def seleccionar_modo_agregar_segmento():
+    global modo, nodo_temp
+    modo = "agregar_segmento"
+    nodo_temp = None
+    messagebox.showinfo("Modo", "Selecciona dos nodos consecutivos para conectar.")
+
+def obtener_nodo_mas_cercano(x, y):
+    return GetClosest(G, x, y)
+
+def click_en_canvas(event):
+    global nodo_temp
+    if modo == "agregar_nodo":
+        nombre = simpledialog.askstring("Nombre del nodo", "Introduce el nombre del nodo:")
+        if nombre:
+            AddNode(G, Node(nombre, event.xdata, event.ydata))
+            actualizar_grafo()
+
+    elif modo == "eliminar_nodo":
+        n = GetClosest(G, event.xdata, event.ydata)
+        if n:
+            DeleteNode(G, n.name)
+            actualizar_grafo()
+
+    elif modo == "agregar_segmento":
+        n = GetClosest(G, event.xdata, event.ydata)
+        if nodo_temp is None:
+            nodo_temp = n
+        else:
+            nombre = f"{nodo_temp.name}_{n.name}"
+            AddSegment(G, nombre, nodo_temp.name, n.name)
+            nodo_temp = None
+            actualizar_grafo()
+
+canvas.mpl_connect('button_press_event', click_en_canvas)
+
+frame = tk.Frame(ventana)
+frame.pack()
+
+tk.Button(frame, text="Nuevo grafo", command=nuevo_grafo).pack(side=tk.LEFT)
+tk.Button(frame, text="Guardar grafo", command=guardar_grafo).pack(side=tk.LEFT)
+tk.Button(frame, text="Añadir nodo", command=seleccionar_modo_agregar_nodo).pack(side=tk.LEFT)
+tk.Button(frame, text="Eliminar nodo", command=seleccionar_modo_eliminar_nodo).pack(side=tk.LEFT)
+tk.Button(frame, text="Añadir segmento", command=seleccionar_modo_agregar_segmento).pack(side=tk.LEFT)
+
+ventana.mainloop()
