@@ -43,24 +43,38 @@ def CreateGraph_1 ():
     return G
 
 
-
-print("Probando el grafo...")
-G = CreateGraph_1()
-Plot(G)
-PlotNode(G, "C")
-n = GetClosest(G, 15, 5)
-print(n.name)  # La respuesta debe ser J
-n = GetClosest(G, 8, 19)
-print(n.name)  # La respuesta debe ser B
-
 def CreateGraph_2():
+   G = Graph()
+   AddNode(G, Node("A", 10, 20))
+   AddNode(G, Node("B", 0, 0))
+   AddNode(G, Node("C", 20, 0))
+   AddSegment(G, "AB", "A", "B")
+   AddSegment(G, "AC", "A", "C")
+   AddSegment(G, "CB", "C", "B")
+   return G
+
+
+def CreateGraph_3():
     print("\nProbando carga de grafo desde archivo...")
     G2 = LoadGraphFromFile("Datos.txt")
-    if G2:
-        Plot(G2)
-        PlotNode(G2, "B")
-        closest = GetClosest(G2, 4, 2)
-        print("Nodo más cercano a (4,2):", closest.name)
+    return G2
 
-CreateGraph_2()
 
+
+if __name__ == "__main__":
+    #Ejecuta el primer grafo
+    G = CreateGraph_1()
+    Plot(G)
+    PlotNode(G, "C")
+    n = GetClosest(G, 15, 5)
+    print(n.name)  # Debe ser J
+    n = GetClosest(G, 8, 19)
+    print(n.name)  # Debe ser B
+
+    #Ejecuta el segundo grafo
+    G1 = CreateGraph_2()
+    Plot(G1)
+
+    #Ejecuta el terer grafo
+    G2 = CreateGraph_3()
+    Plot(G2)

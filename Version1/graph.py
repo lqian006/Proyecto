@@ -25,6 +25,7 @@ def AddSegment(g, name, nameOriginNode, nameDestinationNode):
     seg = Segment(name, origin, destination)
     g.segments.append(seg)
     AddNeighbor(origin, destination)
+    AddNeighbor(destination, origin)
     return True
 
 
@@ -64,6 +65,8 @@ def Plot(g):
     plt.grid(True)
     plt.show()
 
+
+
 def PlotNode(g, nameOrigin):
     origin = next((n for n in g.nodes if n.name == nameOrigin), None)
     if origin is None:
@@ -72,16 +75,22 @@ def PlotNode(g, nameOrigin):
     plt.figure()
 
     for segment in g.segments:
-        if segment.origin == origin and segment.destination in origin.neighbors:
+
+        if (segment.origin == origin and segment.destination in origin.neighbors) or \
+                (segment.destination == origin and segment.origin in origin.neighbors):
             color = "r"
         else:
             color = "k"
+
         x_values = [segment.origin.x, segment.destination.x]
         y_values = [segment.origin.y, segment.destination.y]
         plt.plot(x_values, y_values, color)
-        mid_x = (segment.origin.x + segment.destination.x)/2
-        mid_y = (segment.origin.y + segment.destination.y)/2
-        plt.text(mid_x, mid_y, f"{segment.cost:.1f}", color = "black", fontsize = 8, ha = "center")
+
+
+        mid_x = (segment.origin.x + segment.destination.x) / 2
+        mid_y = (segment.origin.y + segment.destination.y) / 2
+        plt.text(mid_x, mid_y, f"{segment.cost:.1f}", color="black", fontsize=8, ha="center")
+
 
     for node in g.nodes:
         if node == origin:
@@ -90,12 +99,15 @@ def PlotNode(g, nameOrigin):
             plt.plot(node.x, node.y, "go")
         else:
             plt.plot(node.x, node.y, "ko")
-        plt.text(node.x, node.y, node.name, fontsize = 9, ha = "right", va = "bottom")
 
-    plt.title(f"Node: {origin.name} and its neighbors")
+
+        plt.text(node.x, node.y, node.name, fontsize=9, ha="right", va="bottom")
+
+    plt.title(f"Vecinos del nodo {origin.name}")
     plt.axis("equal")
     plt.grid(True)
-    plt.show
+    plt.show()
+
 
 def LoadGraphFromFile(filename):
     g = Graph()
@@ -128,6 +140,8 @@ def LoadGraphFromFile(filename):
         print(f"Error: File '{filename}' not found.")
         return None
     return g
+
+
 
 def DeleteNode(g, name):
     node = next((n for n in g.nodes if n.name == name), None)

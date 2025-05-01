@@ -1,0 +1,23 @@
+#NODE
+
+A 0 0
+B 0 20
+C 20 0
+D 20 20
+
+#SEGMENT
+
+AB A B
+AC A C
+DB D B
+DC D C
+
+
+
+
+
+Definimos la ecuacion
+def para leer los nodos y las coordenadas para la ecuacion y que lo calcule
+que lea los segmentos(de la ecuaion) y sus posibilicades para llegar al nodo
+comparamos, si el camino1<camino2, es el camino 1.
+ya tenemos el camino más corto

@@ -1,3 +1,28 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import tkinter as tk
 from tkinter import filedialog, ttk, messagebox, simpledialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -129,6 +154,7 @@ def seleccionar_modo_agregar_segmento():
 def obtener_nodo_mas_cercano(x, y):
     return GetClosest(G, x, y)
 
+
 def click_en_canvas(event):
     global nodo_temp
     if modo == "agregar_nodo":
@@ -155,13 +181,16 @@ def click_en_canvas(event):
 
 canvas.mpl_connect('button_press_event', click_en_canvas)
 
+
 frame = tk.Frame(ventana)
 frame.pack()
+
 
 tk.Button(frame, text="Nuevo grafo", command=nuevo_grafo).pack(side=tk.LEFT)
 tk.Button(frame, text="Guardar grafo", command=guardar_grafo).pack(side=tk.LEFT)
 tk.Button(frame, text="Añadir nodo", command=seleccionar_modo_agregar_nodo).pack(side=tk.LEFT)
 tk.Button(frame, text="Eliminar nodo", command=seleccionar_modo_eliminar_nodo).pack(side=tk.LEFT)
 tk.Button(frame, text="Añadir segmento", command=seleccionar_modo_agregar_segmento).pack(side=tk.LEFT)
+
 
 ventana.mainloop()
