@@ -5,6 +5,9 @@ from graph import *
 from node import *
 import matplotlib.pyplot as plt
 from matplotlib.backend_bases import MouseEvent
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+
 
 grafo1 = CreateGraph_1()
 grafo2 = CreateGraph_2()
@@ -13,7 +16,7 @@ grafo4 = Graph()
 
 
 grafos = {"Grafo 1 (Step 3)": grafo1, "Grafo 2 (Inventado)": grafo2, "Grafo 3 (Desde fichero)": grafo3, "Grafo 4 (Personal)": grafo4}
-grafo_actual = grafo1  # grafo por defecto
+g = grafo1  # grafo por defecto
 
 def on_click(event):
     if event.inaxes:
@@ -23,15 +26,16 @@ def on_click(event):
 
 
 def seleccionar_grafo(event):
-    global grafo_actual
+    global g
     seleccion = combo_grafos.get()
-    grafo_actual = grafos[seleccion]
+    g = grafos[seleccion]
 
 
 def mostrar_vecinos():
     nodo = entry_vecino.get().strip()
     if nodo:
-        PlotNode(grafo_actual, nodo)
+        PlotNode(g, nodo)
+        mostrar_grafo()
 
 
 def añadir_nodo():
@@ -44,24 +48,35 @@ def añadir_nodo():
         return
 
     if nombre:
-        AddNode(grafo_actual, Node(nombre, x, y))
+        AddNode(g, Node(nombre, x, y))
+        mostrar_grafo()
 
 
 def añadir_segmento():
     origen = entry_origen.get().strip()
     destino = entry_destino.get().strip()
     if origen and destino:
-        AddSegment(grafo_actual, origen + destino, origen, destino)
+        AddSegment(g, origen + destino, origen, destino)
+        mostrar_grafo()
 
 
 def eliminar_nodo():
     nombre = entry_borrar.get().strip()
     if nombre:
-        DeleteNode(grafo_actual, nombre)
+        DeleteNode(g, nombre)
+        mostrar_grafo()
 
 
 def mostrar_grafo():
-    Plot(grafo_actual)
+    fig, ax = plt.subplots()
+    Plot(g)
+    canvas_actual=FigureCanvasTkAgg(fig, master=graph_frame)
+    canvas_widget = canvas_actual.get_tk_widget()
+    canvas_widget.config(width=735, height=720)
+    canvas_widget.grid(row=0, column=1, padx=5, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+
+    canvas_actual.draw()
+
 
 
 def guardar_grafo():
@@ -70,101 +85,105 @@ def guardar_grafo():
         nombre_archivo = "grafo_guardado.txt"
     if not nombre_archivo.endswith(".txt"):
         nombre_archivo += ".txt"
-    SaveGraphToFile(grafo_actual, nombre_archivo)
+    SaveGraphToFile(g, nombre_archivo)
     messagebox.showinfo("Guardado", f"Grafo guardado en {nombre_archivo}")
-
-def CambioColor():
-    plt.figure()
-
-    if not grafo_actual.nodes:
-        return
-
-    # Calcular el centro horizontal del grafo
-
-    min_x = min(node.x for node in grafo_actual.nodes)
-    max_x = max(node.x for node in grafo_actual.nodes)
-    centro = (min_x + max_x) / 2
-
-
-    for segment in grafo_actual.segments:
-        if segment.origin.x < centro:
-            color = "red"
-        else:
-            color = "black"
-
-        x_values = [segment.origin.x, segment.destination.x]
-        y_values = [segment.origin.y, segment.destination.y]
-        plt.plot(x_values, y_values, color)
-
-        mid_x = (segment.origin.x + segment.destination.x) / 2
-        mid_y = (segment.origin.y + segment.destination.y) / 2
-        plt.text(mid_x, mid_y, f"{segment.cost:.1f}", fontsize=8, ha="center")
-
-
-    for node in grafo_actual.nodes:
-        plt.plot(node.x, node.y, "ko")
-        plt.text(node.x, node.y, node.name, fontsize=9, ha="right", va="bottom")
-
-    plt.title("Segmentos con origen a la izquierda están en rojo")
-    plt.axis("equal")
-    plt.grid(True)
-    plt.show()
 
 
 
 # --------- INTERFAZ ---------
 root = tk.Tk()
 root.title("Editor de Grafos")
-root.geometry("600x700")
+root.geometry("1150x750")
+
+root.columnconfigure(0,weight=1)
+root.columnconfigure(1, weight=10)
+
+button_graph_frame = tk.LabelFrame(root, text="Opciones")
+button_graph_frame.grid(row=0, column=0, padx=20, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+
+button_graph_frame.rowconfigure(0, weight=1)
+button_graph_frame.rowconfigure(1, weight=1)
+button_graph_frame.rowconfigure(2, weight=1)
+button_graph_frame.rowconfigure(3, weight=1)
+button_graph_frame.rowconfigure(4, weight=1)
+button_graph_frame.rowconfigure(5, weight=1)
+button_graph_frame.rowconfigure(6, weight=1)
+button_graph_frame.rowconfigure(7, weight=1)
+button_graph_frame.rowconfigure(8, weight=1)
+button_graph_frame.rowconfigure(9, weight=1)
+button_graph_frame.rowconfigure(10, weight=1)
+button_graph_frame.rowconfigure(11, weight=1)
+button_graph_frame.rowconfigure(12, weight=1)
+button_graph_frame.rowconfigure(13, weight=1)
+button_graph_frame.rowconfigure(14, weight=1)
+button_graph_frame.rowconfigure(15, weight=1)
+button_graph_frame.rowconfigure(16, weight=1)
+button_graph_frame.rowconfigure(17, weight=1)
+button_graph_frame.rowconfigure(18, weight=1)
+button_graph_frame.rowconfigure(19, weight=1)
+button_graph_frame.rowconfigure(20, weight=1)
+button_graph_frame.rowconfigure(21, weight=1)
+button_graph_frame.columnconfigure(0, weight=1)
+
 
 # Selector de grafo
-tk.Label(root, text="Selecciona un grafo:").pack()
-combo_grafos = ttk.Combobox(root, values=list(grafos.keys()))
+tk.Label(button_graph_frame, text="Selecciona un grafo").grid(row=0, column=0, padx=5, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+combo_grafos = ttk.Combobox(button_graph_frame, values=list(grafos.keys()))
 combo_grafos.set("Grafo 1 (Step 3)")
-combo_grafos.pack(pady=5)
+combo_grafos.grid(row=1, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
 combo_grafos.bind("<<ComboboxSelected>>", seleccionar_grafo)
 
 # Mostrar grafo
-tk.Button(root, text="Mostrar grafo", command=mostrar_grafo).pack(pady=5)
+tk.Button(button_graph_frame, text="Mostrar grafo", command=mostrar_grafo).grid(row=2, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
 
 # Vecinos
-tk.Label(root, text="Ver vecinos de nodo:").pack()
-entry_vecino = tk.Entry(root)
-entry_vecino.pack()
-tk.Button(root, text="Ver vecinos", command=mostrar_vecinos).pack(pady=5)
+tk.Label(button_graph_frame, text="Ver vecinos de nodo:").grid(row=3, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+entry_vecino = tk.Entry(button_graph_frame)
+entry_vecino.grid(row=4, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+tk.Button(button_graph_frame, text="Ver vecinos", command=mostrar_vecinos).grid(row=5, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
 
 # Añadir nodo
-tk.Label(root, text="Añadir nodo (Nombre, X, Y):").pack()
-entry_nombre = tk.Entry(root)
-entry_nombre.pack()
-entry_x = tk.Entry(root)
-entry_x.pack()
-entry_y = tk.Entry(root)
-entry_y.pack()
-tk.Button(root, text="Añadir nodo", command=añadir_nodo).pack(pady=5)
+tk.Label(button_graph_frame, text="Añadir nodo (Nombre, X, Y):").grid(row=6, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+entry_nombre = tk.Entry(button_graph_frame)
+entry_nombre.grid(row=7, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+entry_x = tk.Entry(button_graph_frame)
+entry_x.grid(row=8, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+entry_y = tk.Entry(button_graph_frame)
+entry_y.grid(row=9, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+tk.Button(button_graph_frame, text="Añadir nodo", command=añadir_nodo).grid(row=10, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
 
 # Añadir segmento
-tk.Label(root, text="Añadir segmento (Origen, Destino):").pack()
-entry_origen = tk.Entry(root)
-entry_origen.pack()
-entry_destino = tk.Entry(root)
-entry_destino.pack()
-tk.Button(root, text="Añadir segmento", command=añadir_segmento).pack(pady=5)
+tk.Label(button_graph_frame, text="Añadir segmento (Origen, Destino):").grid(row=11, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+entry_origen = tk.Entry(button_graph_frame)
+entry_origen.grid(row=12, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+entry_destino = tk.Entry(button_graph_frame)
+entry_destino.grid(row=13, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+tk.Button(button_graph_frame, text="Añadir segmento", command=añadir_segmento).grid(row=15, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
 
 # Eliminar nodo
-tk.Label(root, text="Eliminar nodo:").pack()
-entry_borrar = tk.Entry(root)
-entry_borrar.pack()
-tk.Button(root, text="Eliminar nodo", command=eliminar_nodo).pack(pady=5)
+tk.Label(button_graph_frame, text="Eliminar nodo:").grid(row=16, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+entry_borrar = tk.Entry(button_graph_frame)
+entry_borrar.grid(row=17, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+tk.Button(button_graph_frame, text="Eliminar nodo", command=eliminar_nodo).grid(row=18, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
 
 # Guardar grafo
-tk.Label(root, text="Guardar grafo como (.txt):").pack()
-entry_guardar = tk.Entry(root)
+tk.Label(button_graph_frame, text="Guardar grafo como (.txt):").grid(row=19, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+entry_guardar = tk.Entry(button_graph_frame)
 entry_guardar.insert(0, "grafo_guardado")
-entry_guardar.pack()
-tk.Button(root, text="Guardar grafo", command=guardar_grafo).pack(pady=10)
+entry_guardar.grid(row=20, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+tk.Button(button_graph_frame, text="Guardar grafo", command=guardar_grafo).grid(row=21, column=0, padx=50, pady=20, sticky=tk.N +tk.E +tk.W +tk.S)
 
-# Cambiar color
-tk.Button(root, text="Cambiar color de segmentos izquierdos", command=CambioColor).pack(pady=5)
+
+
+# --- PARTE DERECHA DE LA INTERFAZ ---
+
+graph_frame = tk.LabelFrame(root, text="Grafo")
+graph_frame.grid(row=0, column=1, rowspan=1, padx=20, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+
+graph_frame.rowconfigure(0, weight=1)
+graph_frame.rowconfigure(1, weight=1)
+graph_frame.columnconfigure(0, weight=1)
+
+
 
 root.mainloop()

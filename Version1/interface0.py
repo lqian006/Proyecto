@@ -1,28 +1,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import tkinter as tk
 from tkinter import filedialog, ttk, messagebox, simpledialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg

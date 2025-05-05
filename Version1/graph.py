@@ -47,7 +47,7 @@ def GetClosest(g,x,y):
 
 
 def Plot(g):
-    plt.figure()
+
     for segment in g.segments:
         x_values = [segment.origin.x, segment.destination.x]
         y_values = [segment.origin.y, segment.destination.y]
@@ -63,7 +63,7 @@ def Plot(g):
     plt.title("Graph")
     plt.axis("equal")
     plt.grid(True)
-    plt.show()
+
 
 
 

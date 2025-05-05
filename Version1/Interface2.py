@@ -32,7 +32,7 @@ root.rowconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
 root.rowconfigure(2, weight=1)
 
-button_graph_frame = tk.LabelFrame(root, text="Graphic")
+button_graph_frame = tk.LabelFrame(root, text="Opciones")
 button_graph_frame.grid(row=0, column=0, padx=5, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
 
 button_graph_frame.rowconfigure(0, weight=1)
@@ -71,3 +71,4 @@ button3 = tk.Button(button_graph_frame, text="Fichero Datos",command = Grafo_Dat
 button3.grid(row=0, column=0, padx=5, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
 
 
+root.mainloop()
