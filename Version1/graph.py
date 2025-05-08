@@ -72,7 +72,6 @@ def PlotNode(g, nameOrigin):
     if origin is None:
         return False
 
-    plt.figure()
 
     for segment in g.segments:
 
@@ -106,7 +105,7 @@ def PlotNode(g, nameOrigin):
     plt.title(f"Vecinos del nodo {origin.name}")
     plt.axis("equal")
     plt.grid(True)
-    plt.show()
+
 
 
 def LoadGraphFromFile(filename):
