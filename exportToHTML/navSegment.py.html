@@ -1,0 +1,44 @@
+<html>
+<head>
+<title>navSegment.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+navSegment.py</font>
+</center></td></tr></table>
+<pre><span class="s0">class </span><span class="s1">NavSegment</span><span class="s2">:</span>
+    <span class="s0">def </span><span class="s1">__init__</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">OriginNumber</span><span class="s2">, </span><span class="s1">DestinationNumber</span><span class="s2">, </span><span class="s1">Distance</span><span class="s2">):</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">OriginNumber </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">OriginNumber</span><span class="s2">)</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">DestinationNumber </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">DestinationNumber</span><span class="s2">)</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">Distance </span><span class="s2">=</span><span class="s1">float</span><span class="s2">(</span><span class="s1">Distance</span><span class="s2">)</span>
+
+<span class="s1">lista_segmentos</span><span class="s2">=[]</span>
+
+<span class="s0">with </span><span class="s1">open</span><span class="s2">(</span><span class="s3">&quot;Cat_seg.txt&quot;</span><span class="s2">, </span><span class="s3">&quot;r&quot;</span><span class="s2">, </span><span class="s1">encoding</span><span class="s2">=</span><span class="s3">&quot;utf-8&quot;</span><span class="s2">) </span><span class="s0">as </span><span class="s1">f</span><span class="s2">:</span>
+    <span class="s0">for </span><span class="s1">line </span><span class="s0">in </span><span class="s1">f</span><span class="s2">:</span>
+        <span class="s1">datos </span><span class="s2">= </span><span class="s1">line</span><span class="s2">.</span><span class="s1">strip</span><span class="s2">().</span><span class="s1">split</span><span class="s2">()</span>
+        <span class="s0">if </span><span class="s1">len</span><span class="s2">(</span><span class="s1">datos</span><span class="s2">) != </span><span class="s4">3</span><span class="s2">:</span>
+            <span class="s0">continue</span>
+        <span class="s0">try</span><span class="s2">:</span>
+            <span class="s1">origin </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">datos</span><span class="s2">[</span><span class="s4">0</span><span class="s2">])</span>
+            <span class="s1">dest </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">datos</span><span class="s2">[</span><span class="s4">1</span><span class="s2">])</span>
+            <span class="s1">dist </span><span class="s2">= </span><span class="s1">float</span><span class="s2">(</span><span class="s1">datos</span><span class="s2">[</span><span class="s4">2</span><span class="s2">])</span>
+            <span class="s1">segmento </span><span class="s2">= </span><span class="s1">NavSegment</span><span class="s2">(</span><span class="s1">origin</span><span class="s2">, </span><span class="s1">dest</span><span class="s2">, </span><span class="s1">dist</span><span class="s2">)</span>
+            <span class="s1">lista_segmentos</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s1">segmento</span><span class="s2">)</span>
+        <span class="s0">except </span><span class="s1">ValueError</span><span class="s2">:</span>
+            <span class="s0">continue</span>
+
+
+</pre>
+</body>
+</html>

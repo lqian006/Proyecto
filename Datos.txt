@@ -1,0 +1,13 @@
+#NODE
+
+A 0 0
+B 0 20
+C 20 0
+D 20 20
+
+#SEGMENT
+
+AB A B
+AC A C
+DB D B
+DC D C

@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>export_kml.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+export_kml.py</font>
+</center></td></tr></table>
+<pre><span class="s0">def </span><span class="s1">generar_kml_punto</span><span class="s2">(</span><span class="s1">nombre</span><span class="s2">, </span><span class="s1">lat</span><span class="s2">, </span><span class="s1">lon</span><span class="s2">):</span>
+   <span class="s0">return </span><span class="s3">f&quot;&quot;&quot;</span>
+<span class="s3">&lt;Placemark&gt;</span>
+   <span class="s3">&lt;name&gt;</span><span class="s0">{</span><span class="s1">nombre</span><span class="s0">}</span><span class="s3">&lt;/name&gt;</span>
+   <span class="s3">&lt;Point&gt;</span>
+       <span class="s3">&lt;coordinates&gt;</span><span class="s0">{</span><span class="s1">lon</span><span class="s0">}</span><span class="s3">,</span><span class="s0">{</span><span class="s1">lat</span><span class="s0">}</span><span class="s3">,0&lt;/coordinates&gt;</span>
+   <span class="s3">&lt;/Point&gt;</span>
+<span class="s3">&lt;/Placemark&gt;</span>
+<span class="s3">&quot;&quot;&quot;</span>
+
+
+<span class="s0">def </span><span class="s1">generar_kml_ruta</span><span class="s2">(</span><span class="s1">nombre</span><span class="s2">,</span><span class="s1">coordenadas</span><span class="s2">):</span>
+   <span class="s1">coord_str </span><span class="s2">= </span><span class="s3">&quot;&quot;</span><span class="s2">.</span><span class="s1">join</span><span class="s2">([</span><span class="s3">f&quot;</span><span class="s0">{</span><span class="s1">lon</span><span class="s0">}</span><span class="s3">,</span><span class="s0">{</span><span class="s1">lat</span><span class="s0">}</span><span class="s3">,0&quot; </span><span class="s0">for </span><span class="s1">lat</span><span class="s2">, </span><span class="s1">lon </span><span class="s0">in </span><span class="s1">coordenadas</span><span class="s2">])</span>
+   <span class="s0">return </span><span class="s3">f&quot;&quot;&quot;</span>
+<span class="s3">&lt;Placemark&gt;</span>
+   <span class="s3">&lt;name&gt;</span><span class="s0">{</span><span class="s1">nombre</span><span class="s0">}</span><span class="s3">&lt;/name&gt;</span>
+   <span class="s3">&lt;LineString&gt;</span>
+       <span class="s3">&lt;coordinates&gt;</span><span class="s0">{</span><span class="s1">coord_str</span><span class="s0">}</span><span class="s3">&lt;/coordinates&gt;</span>
+   <span class="s3">&lt;/LineString&gt;</span>
+<span class="s3">&lt;/Placemark&gt;</span>
+<span class="s3">&quot;&quot;&quot;</span>
+
+
+<span class="s0">def </span><span class="s1">guardar_kml</span><span class="s2">(</span><span class="s1">nombre_archivo</span><span class="s2">, </span><span class="s1">elementos_kml</span><span class="s2">):</span>
+    <span class="s0">with </span><span class="s1">open</span><span class="s2">(</span><span class="s1">nombre_archivo</span><span class="s2">, </span><span class="s3">&quot;w&quot;</span><span class="s2">) </span><span class="s0">as </span><span class="s1">f</span><span class="s2">:</span>
+        <span class="s1">f</span><span class="s2">.</span><span class="s1">write</span><span class="s2">(</span><span class="s3">&quot;&quot;&quot;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt; 
+&lt;kml xmlns=&quot;http://www.opengis.net/kml/2.2&quot;&gt; 
+&lt;Document&gt; 
+&quot;&quot;&quot;</span><span class="s2">)</span>
+        <span class="s0">for </span><span class="s1">elemento </span><span class="s0">in </span><span class="s1">elementos_kml</span><span class="s2">:</span>
+            <span class="s1">f</span><span class="s2">.</span><span class="s1">write</span><span class="s2">(</span><span class="s1">elemento</span><span class="s2">)</span>
+        <span class="s1">f</span><span class="s2">.</span><span class="s1">write</span><span class="s2">(</span><span class="s3">&quot;&lt;/Document&gt;&lt;/kml&gt;&quot;</span><span class="s2">)</span>
+
+<span class="s0">def </span><span class="s1">exportar_airspace_kml</span><span class="s2">(</span><span class="s1">nombre_archivo</span><span class="s2">, </span><span class="s1">airspace</span><span class="s2">):</span>
+    <span class="s1">elementos </span><span class="s2">= []</span>
+
+    <span class="s0">for </span><span class="s1">np </span><span class="s0">in </span><span class="s1">airspace</span><span class="s2">.</span><span class="s1">NavPoints</span><span class="s2">:</span>
+        <span class="s1">elementos</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s1">generar_kml_punto</span><span class="s2">(</span><span class="s1">np</span><span class="s2">.</span><span class="s1">name</span><span class="s2">,</span><span class="s1">np</span><span class="s2">.</span><span class="s1">lat</span><span class="s2">,</span><span class="s1">np</span><span class="s2">.</span><span class="s1">lon</span><span class="s2">))</span>
+
+    <span class="s0">for </span><span class="s1">ap </span><span class="s0">in </span><span class="s1">airspace</span><span class="s2">.</span><span class="s1">NavAirports</span><span class="s2">:</span>
+        <span class="s0">if </span><span class="s1">ap</span><span class="s2">.</span><span class="s1">SIDs</span><span class="s2">:</span>
+            <span class="s1">sid_name </span><span class="s2">= </span><span class="s1">ap</span><span class="s2">.</span><span class="s1">SIDs</span><span class="s2">[</span><span class="s4">0</span><span class="s2">]</span>
+            <span class="s1">sid_point </span><span class="s2">= </span><span class="s1">next</span><span class="s2">((</span><span class="s1">p </span><span class="s0">for </span><span class="s1">p </span><span class="s0">in </span><span class="s1">airspace</span><span class="s2">.</span><span class="s1">NavPoints </span><span class="s0">if </span><span class="s1">p</span><span class="s2">.</span><span class="s1">name </span><span class="s2">== </span><span class="s1">sid_name</span><span class="s2">), </span><span class="s0">None</span><span class="s2">)</span>
+            <span class="s0">if </span><span class="s1">sid_point</span><span class="s2">:</span>
+                <span class="s1">elementos</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s1">generar_kml_punto</span><span class="s2">(</span><span class="s1">ap</span><span class="s2">.</span><span class="s1">name </span><span class="s2">+ </span><span class="s3">&quot;(AP)&quot;</span><span class="s2">, </span><span class="s1">sid_point</span><span class="s2">.</span><span class="s1">lat</span><span class="s2">, </span><span class="s1">sid_point</span><span class="s2">.</span><span class="s1">lon</span><span class="s2">))</span>
+
+    <span class="s1">guardar_kml</span><span class="s2">(</span><span class="s1">nombre_archivo</span><span class="s2">, </span><span class="s1">elementos</span><span class="s2">)</span>
+
+
+</pre>
+</body>
+</html>

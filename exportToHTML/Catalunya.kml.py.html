@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>Catalunya.kml.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Catalunya.kml.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">export_kml </span><span class="s0">import </span><span class="s2">*</span>
+
+<span class="s1">elementos </span><span class="s2">= []</span>
+
+<span class="s0">for </span><span class="s1">np </span><span class="s0">in </span><span class="s1">airSpace</span><span class="s2">.</span><span class="s1">NavPoints</span><span class="s2">:</span>
+    <span class="s1">elementos</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s1">generar_kml_punto</span><span class="s2">(</span><span class="s1">np</span><span class="s2">.</span><span class="s1">name</span><span class="s2">,</span><span class="s1">np</span><span class="s2">.</span><span class="s1">lat</span><span class="s2">,</span><span class="s1">np</span><span class="s2">.</span><span class="s1">lon</span><span class="s2">))</span>
+
+<span class="s1">guardar_kml</span><span class="s2">(</span><span class="s3">&quot;Catalunya.kml&quot;</span><span class="s2">, </span><span class="s1">elementos</span><span class="s2">)</span></pre>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<html>
+<head>
+<title>navAirport.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+navAirport.py</font>
+</center></td></tr></table>
+<pre><span class="s0">class </span><span class="s1">NavAirport</span><span class="s2">:</span>
+    <span class="s0">def </span><span class="s1">__init__</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">Name_airport</span><span class="s2">, </span><span class="s1">SIDs</span><span class="s2">, </span><span class="s1">STARs</span><span class="s2">):</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">Name_airport </span><span class="s2">= </span><span class="s1">Name_airport</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">SIDs </span><span class="s2">= </span><span class="s1">SIDs</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">STARs </span><span class="s2">= </span><span class="s1">STARs</span>
+
+<span class="s1">lista_aeropuertos</span><span class="s2">=[]</span>
+
+<span class="s0">with </span><span class="s1">open</span><span class="s2">(</span><span class="s3">&quot;Cat_aer.txt&quot;</span><span class="s2">, </span><span class="s3">&quot;r&quot;</span><span class="s2">, </span><span class="s1">encoding</span><span class="s2">=</span><span class="s3">&quot;utf-8&quot;</span><span class="s2">) </span><span class="s0">as </span><span class="s1">f</span><span class="s2">:</span>
+    <span class="s1">lines</span><span class="s2">=[</span><span class="s1">line</span><span class="s2">.</span><span class="s1">strip</span><span class="s2">() </span><span class="s0">for </span><span class="s1">line </span><span class="s0">in </span><span class="s1">f </span><span class="s0">if </span><span class="s1">line</span><span class="s2">.</span><span class="s1">strip</span><span class="s2">()]</span>
+    <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s4">0</span><span class="s2">,</span><span class="s1">len</span><span class="s2">(</span><span class="s1">lines</span><span class="s2">),</span><span class="s4">3</span><span class="s2">):</span>
+        <span class="s1">Name_airport</span><span class="s2">=</span><span class="s1">lines</span><span class="s2">[</span><span class="s1">i</span><span class="s2">]</span>
+        <span class="s1">SIDs</span><span class="s2">=</span><span class="s1">lines</span><span class="s2">[</span><span class="s1">i</span><span class="s2">+</span><span class="s4">1</span><span class="s2">]</span>
+        <span class="s1">STARs</span><span class="s2">=</span><span class="s1">lines</span><span class="s2">[</span><span class="s1">i</span><span class="s2">+</span><span class="s4">2</span><span class="s2">]</span>
+        <span class="s1">aeropuerto </span><span class="s2">= </span><span class="s1">NavAirport</span><span class="s2">(</span><span class="s1">Name_airport</span><span class="s2">, </span><span class="s1">SIDs</span><span class="s2">, </span><span class="s1">STARs</span><span class="s2">)</span>
+        <span class="s1">lista_aeropuertos</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s1">aeropuerto</span><span class="s2">)</span>
+</pre>
+</body>
+</html>

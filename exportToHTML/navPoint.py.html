@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>navPoint.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+navPoint.py</font>
+</center></td></tr></table>
+<pre><span class="s0">class </span><span class="s1">NavPoint</span><span class="s2">:</span>
+    <span class="s0">def </span><span class="s1">__init__</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">number</span><span class="s2">, </span><span class="s1">name</span><span class="s2">, </span><span class="s1">latitude</span><span class="s2">, </span><span class="s1">longitude</span><span class="s2">):</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">number </span><span class="s2">= </span><span class="s1">number</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">name </span><span class="s2">= </span><span class="s1">name</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">latitude </span><span class="s2">= </span><span class="s1">latitude</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">longitude </span><span class="s2">= </span><span class="s1">longitude</span>
+
+
+<span class="s1">lista_navpoints </span><span class="s2">= []</span>
+
+<span class="s0">with </span><span class="s1">open</span><span class="s2">(</span><span class="s3">&quot;Cat_nav.txt&quot;</span><span class="s2">, </span><span class="s3">&quot;r&quot;</span><span class="s2">, </span><span class="s1">encoding</span><span class="s2">=</span><span class="s3">&quot;utf-8&quot;</span><span class="s2">) </span><span class="s0">as </span><span class="s1">f</span><span class="s2">:</span>
+    <span class="s0">for </span><span class="s1">line </span><span class="s0">in </span><span class="s1">f</span><span class="s2">:</span>
+        <span class="s1">datos </span><span class="s2">= </span><span class="s1">line</span><span class="s2">.</span><span class="s1">strip</span><span class="s2">().</span><span class="s1">split</span><span class="s2">()</span>
+        <span class="s1">number </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">datos</span><span class="s2">[</span><span class="s4">0</span><span class="s2">])</span>
+        <span class="s1">name </span><span class="s2">= </span><span class="s1">datos</span><span class="s2">[</span><span class="s4">1</span><span class="s2">]</span>
+        <span class="s1">latitude </span><span class="s2">= </span><span class="s1">float</span><span class="s2">(</span><span class="s1">datos</span><span class="s2">[</span><span class="s4">2</span><span class="s2">])</span>
+        <span class="s1">longitude </span><span class="s2">= </span><span class="s1">float</span><span class="s2">(</span><span class="s1">datos</span><span class="s2">[</span><span class="s4">3</span><span class="s2">])</span>
+        <span class="s1">punto </span><span class="s2">= </span><span class="s1">NavPoint</span><span class="s2">(</span><span class="s1">number</span><span class="s2">, </span><span class="s1">name</span><span class="s2">, </span><span class="s1">latitude</span><span class="s2">, </span><span class="s1">longitude</span><span class="s2">)</span>
+        <span class="s1">lista_navpoints</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s1">punto</span><span class="s2">)</span>
+
+
+
+</pre>
+</body>
+</html>
