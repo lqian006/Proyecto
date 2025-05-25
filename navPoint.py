@@ -17,15 +17,3 @@ with open("Cat_nav.txt", "r", encoding="utf-8") as f:
         longitude = float(datos[3])
         punto = NavPoint(number, name, latitude, longitude)
         lista_navpoints.append(punto)
-
-
-x=int(input("Introduce un número de navpoint: "))
-
-for punto in lista_navpoints:
-    if punto.number == x:
-        print("Nombre:", punto.name)
-        print("Latitud:", punto.latitude)
-        print("Longitud:", punto.longitude)
-        break
-else:
-    print("Ese navpoint no existe.")

@@ -1,16 +1,21 @@
-import math
 class NavSegment:
     def __init__(self, OriginNumber, DestinationNumber, Distance):
-        self.OriginNumber = OriginNumber
-        self.DestinationNumber = DestinationNumber
-        self.Distance = Distance
+        self.OriginNumber = int(OriginNumber)
+        self.DestinationNumber = int(DestinationNumber)
+        self.Distance =float(Distance)
 
-def Distance(OriginNumber, DestinationNumber):
-    return math.sqrt((DestinationNumber.x - OriginNumber.x) ** 2 + (DestinationNumber.y - OriginNumber.y) ** 2)
+lista_segmentos=[]
 
-class Node:
-    def __init__(self, name: str, x: float, y: float):
-        self.name = name
-        self.x = x
-        self.y = y
-        self.neighbors = []
+with open("Cat_seg.txt", "r", encoding="utf-8") as f:
+    for line in f:
+        datos = line.strip().split()
+        if len(datos) != 3:
+            continue
+        try:
+            OriginNumber = int(datos[0])
+            DestinationNumber = int(datos[1])
+            Distance = float(datos[2])
+            segmento = NavSegment(OriginNumber, DestinationNumber, Distance)
+            lista_segmentos.append(segmento)
+        except ValueError:
+            continue

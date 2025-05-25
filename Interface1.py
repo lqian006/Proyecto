@@ -7,6 +7,11 @@ from node import *
 import matplotlib.pyplot as plt
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from airspace import LoadAirSpace
+from export_kml import exportar_airspace_kml
+import time
+
+nodos_bloqueados = []
 
 modo_click = None
 segmento_click = []
@@ -157,8 +162,49 @@ def eliminar_segmento():
        DeleteSegment(g, nombre)
        mostrar_grafo()
 
+def exportar_airspace():
+    try:
+        airspace = LoadAirSpace("Cat_nav.txt", "Cat_seg.txt", "Cat_aer.txt")
+        exportar_airspace_kml("airspace_cat.kml", airspace)
+        messagebox.showinfo("Completado", "El airspace ha sido exportado como airspace_cat.kml")
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
 
+#Funcionalidad Extra: Bloquear Nodos
+def bloquear_nodo():
+    nombre = entry_bloqueo.get().strip()
+    if nombre and nombre not in nodos_bloqueados
+        nodos_bloqueados.append(nombre)
+        messagebox.showinfo("Bloqueado",f"Nodo{nombre} bloqueado.")
 
+def desbloquar_nodo():
+    nombre = entry_bloqueo.get().strip()
+    if nombre in nodos_bloqueados
+        nodos_bloqueados.remove(nombre)
+        messagebox.showinfo("Desbloqueado", f"Nodo{nombre} desbloqueado.")
+
+#Funcionalidad Extra2: Simulación de rutas
+
+def simular_ruta():
+    origen = entry_origen.get().strip()
+    destino = entry_destino.get().strip()
+    if origen and destino:
+        path =FindShortestPath(g, origen, destino, bloqueados= nodos_bloqueados)
+        if not path:
+            messagebox.showinfo("Ruta", "No hay rutas posibles.")
+            return
+        fig, ax = plt.subplots()
+        for i in range(len(path.nodes) -1):
+            n1 = path.nodes[i]
+            n2 = path.nodes [i+1]
+            ax.plot([n1.x,n2.x],[n1.y,n2.y], 'r-')
+            ax.plot(n1.x,n1.y,'bo')
+            ax.text(n1.x,n1.y,n1.name)
+            plt.pause(0.5)
+        nF = path.nodes[-1]
+        ax.plot(nF.x,nF.y,'bo')
+        ax.text(nF.x, nF.y, nF.name)
+        plt.show()
 # --------- INTERFAZ ---------
 root = tk.Tk()
 root.title("Editor de Grafos")
@@ -224,13 +270,40 @@ entry_borrar = tk.Entry(button_graph_frame)
 entry_borrar.grid(row=18, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
 tk.Button(button_graph_frame, text="Eliminar nodo", command=eliminar_nodo).grid(row=19, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
 
-# Guardar grafo
-tk.Label(button_graph_frame, text="Escribe el nombre del fichero:").grid(row=20, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
-entry_guardar = tk.Entry(button_graph_frame)
-entry_guardar.grid(row=21, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
-tk.Button(button_graph_frame, text="Guardar grafo", command=guardar_grafo).grid(row=22, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+# Eliminar Segmento
+tk.Label(button_graph_frame, text="Eliminar segmento:").grid(row=20, column=0, padx=50, pady=5,                                                      sticky=tk.N + tk.E + tk.W + tk.S)
+entry_borrarseg = tk.Entry(button_graph_frame)
+entry_borrarseg.grid(row=21, column=0, padx=50, pady=5, sticky=tk.N + tk.E + tk.W + tk.S)
+tk.Button(button_graph_frame, text="Eliminar segmento", command=eliminar_segmento).grid(row=22, column=0, padx=50, pady=5,
+                                                                                sticky=tk.N + tk.E + tk.W + tk.S)
 
-tk.Button(button_graph_frame, text="Cargar grafo desde fichero", command=cargar_grafo_desde_fichero).grid(row=23, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+
+# Guardar grafo
+tk.Label(button_graph_frame, text="Escribe el nombre del fichero:").grid(row=23, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+entry_guardar = tk.Entry(button_graph_frame)
+entry_guardar.grid(row=24, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+tk.Button(button_graph_frame, text="Guardar grafo", command=guardar_grafo).grid(row=25, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+
+tk.Button(button_graph_frame, text="Cargar grafo desde fichero", command=cargar_grafo_desde_fichero).grid(row=26, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S)
+
+# Exportar AirSpace
+tk.Label(button_graph_frame, text="Exportar el espacio aereo:").grid(row=27, column 0, padx=50, sticky= tk.N +tk.E +tk.W +tk.S)
+entry_exportar = tk.Entry(button_graph_frame)
+entry_exportar.grid(row=28, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S))
+tk.Button(button_graph_frame, text="Exportar el espacio aereo:", command=exportar_airspace).grid(row=29, column=0, padx=50, pady=5, sticky= tk.N +tk.E +tk.W +tk.S)
+
+
+# Bloquear Nodo
+tk.Label(button_graph_frame, text="Seleccionar nodo a bloquear:").grid(row=30, column 0, padx=50, sticky= tk.N +tk.E +tk.W +tk.S)
+entry_exportar = tk.Entry(button_graph_frame)
+entry_exportar.grid(row=31, column=0, padx=50, pady=5, sticky=tk.N +tk.E +tk.W +tk.S))
+tk.Button(button_graph_frame, text="Bloquear Nodo", command=bloquear_nodo).grid(row=32, column=0, padx=50, pady=5, sticky= tk.N +tk.E +tk.W +tk.S)
+tk.Button(button_graph_frame, text="Desbloquear Nodo", command=desbloquear_nodo).grid(row=33, column=0, padx=50, pady=5, sticky= tk.N +tk.E +tk.W +tk.S)
+
+
+
+
+
 
 
 
@@ -246,6 +319,5 @@ graph_frame.columnconfigure(0, weight=1)
 
 
 root.mainloop()
-
 
 

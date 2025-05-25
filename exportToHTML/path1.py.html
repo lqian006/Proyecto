@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>path1.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #5f826b; font-style: italic;}
+.s5 { color: #2aacb8;}
+.s6 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+path1.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">node </span><span class="s0">import </span><span class="s1">Distance</span>
+
+<span class="s0">class </span><span class="s1">Path</span><span class="s2">:</span>
+    <span class="s0">def </span><span class="s1">__init__</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">nodes</span><span class="s2">, </span><span class="s1">real_cost</span><span class="s2">, </span><span class="s1">estimated_cost</span><span class="s2">):</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">nodes </span><span class="s2">= </span><span class="s1">nodes  </span><span class="s3"># Lista de objetos Node</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">real_cost </span><span class="s2">= </span><span class="s1">real_cost  </span><span class="s3"># Coste real acumulado</span>
+        <span class="s1">self</span><span class="s2">.</span><span class="s1">estimated_cost </span><span class="s2">= </span><span class="s1">estimated_cost  </span><span class="s3"># Estimación heurística hasta destino</span>
+
+    <span class="s0">def </span><span class="s1">total_cost</span><span class="s2">(</span><span class="s1">self</span><span class="s2">):</span>
+        <span class="s0">return </span><span class="s1">self</span><span class="s2">.</span><span class="s1">real_cost </span><span class="s2">+ </span><span class="s1">self</span><span class="s2">.</span><span class="s1">estimated_cost</span>
+
+<span class="s3"># ------------------------</span>
+<span class="s3"># FUNCIONES AUXILIARES</span>
+<span class="s3"># ------------------------</span>
+
+<span class="s0">def </span><span class="s1">ContainsNode</span><span class="s2">(</span><span class="s1">path</span><span class="s2">, </span><span class="s1">node</span><span class="s2">):</span>
+    <span class="s4">&quot;&quot;&quot;Devuelve True si el nodo ya está en el camino (evita bucles)&quot;&quot;&quot;</span>
+    <span class="s0">return </span><span class="s1">node </span><span class="s0">in </span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span>
+
+<span class="s0">def </span><span class="s1">AddNodeToPath</span><span class="s2">(</span><span class="s1">path</span><span class="s2">, </span><span class="s1">node</span><span class="s2">, </span><span class="s1">cost</span><span class="s2">):</span>
+    <span class="s4">&quot;&quot;&quot;Crea un nuevo camino agregando un nodo al camino existente&quot;&quot;&quot;</span>
+    <span class="s1">new_nodes </span><span class="s2">= </span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes </span><span class="s2">+ [</span><span class="s1">node</span><span class="s2">]</span>
+    <span class="s1">new_real_cost </span><span class="s2">= </span><span class="s1">path</span><span class="s2">.</span><span class="s1">real_cost </span><span class="s2">+ </span><span class="s1">cost</span>
+    <span class="s0">return </span><span class="s1">Path</span><span class="s2">(</span><span class="s1">new_nodes</span><span class="s2">, </span><span class="s1">new_real_cost</span><span class="s2">, </span><span class="s5">0.0</span><span class="s2">)  </span><span class="s3"># El estimated_cost se actualiza aparte</span>
+
+<span class="s0">def </span><span class="s1">CostToNode</span><span class="s2">(</span><span class="s1">path</span><span class="s2">, </span><span class="s1">node</span><span class="s2">):</span>
+    <span class="s4">&quot;&quot;&quot;Devuelve el coste real desde el origen hasta el nodo indicado&quot;&quot;&quot;</span>
+    <span class="s0">if </span><span class="s1">node </span><span class="s0">not in </span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s2">-</span><span class="s5">1</span>
+
+    <span class="s1">cost </span><span class="s2">= </span><span class="s5">0.0</span>
+    <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s1">len</span><span class="s2">(</span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span><span class="s2">) - </span><span class="s5">1</span><span class="s2">):</span>
+        <span class="s0">if </span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span><span class="s2">[</span><span class="s1">i </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">] == </span><span class="s1">node</span><span class="s2">:</span>
+            <span class="s1">cost </span><span class="s2">+= </span><span class="s1">Distance</span><span class="s2">(</span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span><span class="s2">[</span><span class="s1">i</span><span class="s2">], </span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span><span class="s2">[</span><span class="s1">i </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">])</span>
+            <span class="s0">break</span>
+        <span class="s0">else</span><span class="s2">:</span>
+            <span class="s1">cost </span><span class="s2">+= </span><span class="s1">Distance</span><span class="s2">(</span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span><span class="s2">[</span><span class="s1">i</span><span class="s2">], </span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span><span class="s2">[</span><span class="s1">i </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">])</span>
+    <span class="s0">return </span><span class="s1">cost</span>
+
+<span class="s0">def </span><span class="s1">PlotPath</span><span class="s2">(</span><span class="s1">graph</span><span class="s2">, </span><span class="s1">path</span><span class="s2">):</span>
+    <span class="s4">&quot;&quot;&quot;Dibuja el camino sobre el grafo&quot;&quot;&quot;</span>
+    <span class="s0">import </span><span class="s1">matplotlib</span><span class="s2">.</span><span class="s1">pyplot </span><span class="s0">as </span><span class="s1">plt</span>
+
+    <span class="s3"># Dibuja todos los nodos y segmentos</span>
+    <span class="s1">graph</span><span class="s2">.</span><span class="s1">Plot</span><span class="s2">()</span>
+
+    <span class="s3"># Dibuja el camino en rojo</span>
+    <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range</span><span class="s2">(</span><span class="s1">len</span><span class="s2">(</span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span><span class="s2">) - </span><span class="s5">1</span><span class="s2">):</span>
+        <span class="s1">n1 </span><span class="s2">= </span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span><span class="s2">[</span><span class="s1">i</span><span class="s2">]</span>
+        <span class="s1">n2 </span><span class="s2">= </span><span class="s1">path</span><span class="s2">.</span><span class="s1">nodes</span><span class="s2">[</span><span class="s1">i </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">]</span>
+        <span class="s1">plt</span><span class="s2">.</span><span class="s1">plot</span><span class="s2">([</span><span class="s1">n1</span><span class="s2">.</span><span class="s1">x</span><span class="s2">, </span><span class="s1">n2</span><span class="s2">.</span><span class="s1">x</span><span class="s2">], [</span><span class="s1">n1</span><span class="s2">.</span><span class="s1">y</span><span class="s2">, </span><span class="s1">n2</span><span class="s2">.</span><span class="s1">y</span><span class="s2">], </span><span class="s6">'r-'</span><span class="s2">, </span><span class="s1">linewidth</span><span class="s2">=</span><span class="s5">2</span><span class="s2">)</span>
+
+    <span class="s1">plt</span><span class="s2">.</span><span class="s1">title</span><span class="s2">(</span><span class="s6">&quot;Camino más corto&quot;</span><span class="s2">)</span>
+    <span class="s1">plt</span><span class="s2">.</span><span class="s1">show</span><span class="s2">()</span></pre>
+</body>
+</html>

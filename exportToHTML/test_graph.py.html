@@ -1,0 +1,102 @@
+<html>
+<head>
+<title>test_graph.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+.s5 { color: #7a7e85;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+test_graph.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">graph </span><span class="s0">import </span><span class="s2">*</span>
+<span class="s0">from </span><span class="s1">node </span><span class="s0">import </span><span class="s1">Node</span>
+<span class="s0">def </span><span class="s1">CreateGraph_1 </span><span class="s2">():</span>
+    <span class="s1">G </span><span class="s2">= </span><span class="s1">Graph</span><span class="s2">()</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;A&quot;</span><span class="s2">,</span><span class="s4">1</span><span class="s2">,</span><span class="s4">20</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;B&quot;</span><span class="s2">,</span><span class="s4">8</span><span class="s2">,</span><span class="s4">17</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;C&quot;</span><span class="s2">,</span><span class="s4">15</span><span class="s2">,</span><span class="s4">20</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;D&quot;</span><span class="s2">,</span><span class="s4">18</span><span class="s2">,</span><span class="s4">15</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;E&quot;</span><span class="s2">,</span><span class="s4">2</span><span class="s2">,</span><span class="s4">4</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;F&quot;</span><span class="s2">,</span><span class="s4">6</span><span class="s2">,</span><span class="s4">5</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;G&quot;</span><span class="s2">,</span><span class="s4">12</span><span class="s2">,</span><span class="s4">12</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;H&quot;</span><span class="s2">,</span><span class="s4">10</span><span class="s2">,</span><span class="s4">3</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;I&quot;</span><span class="s2">,</span><span class="s4">19</span><span class="s2">,</span><span class="s4">1</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;J&quot;</span><span class="s2">,</span><span class="s4">13</span><span class="s2">,</span><span class="s4">5</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;K&quot;</span><span class="s2">,</span><span class="s4">3</span><span class="s2">,</span><span class="s4">15</span><span class="s2">))</span>
+    <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;L&quot;</span><span class="s2">,</span><span class="s4">4</span><span class="s2">,</span><span class="s4">10</span><span class="s2">))</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;AB&quot;</span><span class="s2">, </span><span class="s3">&quot;A&quot;</span><span class="s2">, </span><span class="s3">&quot;B&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;AE&quot;</span><span class="s2">, </span><span class="s3">&quot;A&quot;</span><span class="s2">, </span><span class="s3">&quot;E&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;AK&quot;</span><span class="s2">, </span><span class="s3">&quot;A&quot;</span><span class="s2">, </span><span class="s3">&quot;K&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;BA&quot;</span><span class="s2">, </span><span class="s3">&quot;B&quot;</span><span class="s2">, </span><span class="s3">&quot;A&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;BC&quot;</span><span class="s2">, </span><span class="s3">&quot;B&quot;</span><span class="s2">, </span><span class="s3">&quot;C&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;BF&quot;</span><span class="s2">, </span><span class="s3">&quot;B&quot;</span><span class="s2">, </span><span class="s3">&quot;F&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;BK&quot;</span><span class="s2">, </span><span class="s3">&quot;B&quot;</span><span class="s2">, </span><span class="s3">&quot;K&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;BG&quot;</span><span class="s2">, </span><span class="s3">&quot;B&quot;</span><span class="s2">, </span><span class="s3">&quot;G&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;CD&quot;</span><span class="s2">, </span><span class="s3">&quot;C&quot;</span><span class="s2">, </span><span class="s3">&quot;D&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;CG&quot;</span><span class="s2">, </span><span class="s3">&quot;C&quot;</span><span class="s2">, </span><span class="s3">&quot;G&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;DG&quot;</span><span class="s2">, </span><span class="s3">&quot;D&quot;</span><span class="s2">, </span><span class="s3">&quot;G&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;DH&quot;</span><span class="s2">, </span><span class="s3">&quot;D&quot;</span><span class="s2">, </span><span class="s3">&quot;H&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;DI&quot;</span><span class="s2">, </span><span class="s3">&quot;D&quot;</span><span class="s2">, </span><span class="s3">&quot;I&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;EF&quot;</span><span class="s2">, </span><span class="s3">&quot;E&quot;</span><span class="s2">, </span><span class="s3">&quot;F&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;FL&quot;</span><span class="s2">, </span><span class="s3">&quot;F&quot;</span><span class="s2">, </span><span class="s3">&quot;L&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;GB&quot;</span><span class="s2">, </span><span class="s3">&quot;G&quot;</span><span class="s2">, </span><span class="s3">&quot;B&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;GF&quot;</span><span class="s2">, </span><span class="s3">&quot;G&quot;</span><span class="s2">, </span><span class="s3">&quot;F&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;GH&quot;</span><span class="s2">, </span><span class="s3">&quot;G&quot;</span><span class="s2">, </span><span class="s3">&quot;H&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;ID&quot;</span><span class="s2">, </span><span class="s3">&quot;I&quot;</span><span class="s2">, </span><span class="s3">&quot;D&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;IJ&quot;</span><span class="s2">, </span><span class="s3">&quot;I&quot;</span><span class="s2">, </span><span class="s3">&quot;J&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;JI&quot;</span><span class="s2">, </span><span class="s3">&quot;J&quot;</span><span class="s2">, </span><span class="s3">&quot;I&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;KA&quot;</span><span class="s2">, </span><span class="s3">&quot;K&quot;</span><span class="s2">, </span><span class="s3">&quot;A&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;KL&quot;</span><span class="s2">, </span><span class="s3">&quot;K&quot;</span><span class="s2">, </span><span class="s3">&quot;L&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;LK&quot;</span><span class="s2">, </span><span class="s3">&quot;L&quot;</span><span class="s2">, </span><span class="s3">&quot;K&quot;</span><span class="s2">)</span>
+    <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;LF&quot;</span><span class="s2">, </span><span class="s3">&quot;L&quot;</span><span class="s2">, </span><span class="s3">&quot;F&quot;</span><span class="s2">)</span>
+
+    <span class="s0">return </span><span class="s1">G</span>
+
+
+<span class="s0">def </span><span class="s1">CreateGraph_2</span><span class="s2">():</span>
+   <span class="s1">G </span><span class="s2">= </span><span class="s1">Graph</span><span class="s2">()</span>
+   <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;A&quot;</span><span class="s2">, </span><span class="s4">10</span><span class="s2">, </span><span class="s4">20</span><span class="s2">))</span>
+   <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;B&quot;</span><span class="s2">, </span><span class="s4">0</span><span class="s2">, </span><span class="s4">0</span><span class="s2">))</span>
+   <span class="s1">AddNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;C&quot;</span><span class="s2">, </span><span class="s4">20</span><span class="s2">, </span><span class="s4">0</span><span class="s2">))</span>
+   <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;AB&quot;</span><span class="s2">, </span><span class="s3">&quot;A&quot;</span><span class="s2">, </span><span class="s3">&quot;B&quot;</span><span class="s2">)</span>
+   <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;AC&quot;</span><span class="s2">, </span><span class="s3">&quot;A&quot;</span><span class="s2">, </span><span class="s3">&quot;C&quot;</span><span class="s2">)</span>
+   <span class="s1">AddSegment</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;CB&quot;</span><span class="s2">, </span><span class="s3">&quot;C&quot;</span><span class="s2">, </span><span class="s3">&quot;B&quot;</span><span class="s2">)</span>
+   <span class="s0">return </span><span class="s1">G</span>
+
+
+<span class="s0">def </span><span class="s1">CreateGraph_3</span><span class="s2">():</span>
+    <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;</span><span class="s0">\n</span><span class="s3">Probando carga de grafo desde archivo...&quot;</span><span class="s2">)</span>
+    <span class="s1">G2 </span><span class="s2">= </span><span class="s1">LoadGraphFromFile</span><span class="s2">(</span><span class="s3">&quot;Datos.txt&quot;</span><span class="s2">)</span>
+    <span class="s0">return </span><span class="s1">G2</span>
+
+
+
+<span class="s0">if </span><span class="s1">__name__ </span><span class="s2">== </span><span class="s3">&quot;__main__&quot;</span><span class="s2">:</span>
+    <span class="s5">#Ejecuta el primer grafo</span>
+    <span class="s1">G </span><span class="s2">= </span><span class="s1">CreateGraph_1</span><span class="s2">()</span>
+    <span class="s1">Plot</span><span class="s2">(</span><span class="s1">G</span><span class="s2">)</span>
+    <span class="s1">PlotNode</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s3">&quot;C&quot;</span><span class="s2">)</span>
+    <span class="s1">n </span><span class="s2">= </span><span class="s1">GetClosest</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s4">15</span><span class="s2">, </span><span class="s4">5</span><span class="s2">)</span>
+    <span class="s1">print</span><span class="s2">(</span><span class="s1">n</span><span class="s2">.</span><span class="s1">name</span><span class="s2">)  </span><span class="s5"># Debe ser J</span>
+    <span class="s1">n </span><span class="s2">= </span><span class="s1">GetClosest</span><span class="s2">(</span><span class="s1">G</span><span class="s2">, </span><span class="s4">8</span><span class="s2">, </span><span class="s4">19</span><span class="s2">)</span>
+    <span class="s1">print</span><span class="s2">(</span><span class="s1">n</span><span class="s2">.</span><span class="s1">name</span><span class="s2">)  </span><span class="s5"># Debe ser B</span>
+
+    <span class="s5">#Ejecuta el segundo grafo</span>
+    <span class="s1">G1 </span><span class="s2">= </span><span class="s1">CreateGraph_2</span><span class="s2">()</span>
+    <span class="s1">Plot</span><span class="s2">(</span><span class="s1">G1</span><span class="s2">)</span>
+
+    <span class="s5">#Ejecuta el terer grafo</span>
+    <span class="s1">G2 </span><span class="s2">= </span><span class="s1">CreateGraph_3</span><span class="s2">()</span>
+    <span class="s1">Plot</span><span class="s2">(</span><span class="s1">G2</span><span class="s2">)</span>
+</pre>
+</body>
+</html>

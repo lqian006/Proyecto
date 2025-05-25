@@ -1,0 +1,41 @@
+<html>
+<head>
+<title>test_navSegment.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+test_navSegment.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">navSegment </span><span class="s0">import </span><span class="s2">*</span>
+
+<span class="s0">try</span><span class="s2">:</span>
+    <span class="s1">x </span><span class="s2">= </span><span class="s1">float</span><span class="s2">(</span><span class="s1">input</span><span class="s2">(</span><span class="s3">&quot;Introduce un número de navpoint o distancia: &quot;</span><span class="s2">))</span>
+<span class="s0">except </span><span class="s1">ValueError</span><span class="s2">:</span>
+    <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;Entrada no válida. Por favor, introduce un número.&quot;</span><span class="s2">)</span>
+
+<span class="s1">encontrado </span><span class="s2">= </span><span class="s0">False</span>
+
+<span class="s0">for </span><span class="s1">segmento </span><span class="s0">in </span><span class="s1">lista_segmentos</span><span class="s2">:</span>
+    <span class="s0">if </span><span class="s1">segmento</span><span class="s2">.</span><span class="s1">OriginNumber </span><span class="s2">== </span><span class="s1">x </span><span class="s0">or </span><span class="s1">segmento</span><span class="s2">.</span><span class="s1">DestinationNumber </span><span class="s2">== </span><span class="s1">x </span><span class="s0">or </span><span class="s1">segmento</span><span class="s2">.</span><span class="s1">Distance </span><span class="s2">== </span><span class="s1">x</span><span class="s2">:</span>
+        <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;Origen (ID):&quot;</span><span class="s2">, </span><span class="s1">segmento</span><span class="s2">.</span><span class="s1">OriginNumber</span><span class="s2">)</span>
+        <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;Destino (ID):&quot;</span><span class="s2">, </span><span class="s1">segmento</span><span class="s2">.</span><span class="s1">DestinationNumber</span><span class="s2">)</span>
+        <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;Distancia:&quot;</span><span class="s2">, </span><span class="s1">segmento</span><span class="s2">.</span><span class="s1">Distance</span><span class="s2">)</span>
+        <span class="s1">encontrado </span><span class="s2">= </span><span class="s0">True</span>
+
+<span class="s0">if not </span><span class="s1">encontrado</span><span class="s2">:</span>
+    <span class="s1">print</span><span class="s2">(</span><span class="s3">&quot;Ese segmento no existe.&quot;</span><span class="s2">)</span>
+
+
+
+</pre>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>text_segment.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+text_segment.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">node </span><span class="s0">import </span><span class="s2">*</span>
+<span class="s0">from </span><span class="s1">segment </span><span class="s0">import </span><span class="s2">*</span>
+
+<span class="s1">n1 </span><span class="s2">= </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;A&quot;</span><span class="s2">, </span><span class="s4">0</span><span class="s2">, </span><span class="s4">0</span><span class="s2">)</span>
+<span class="s1">n2 </span><span class="s2">= </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;B&quot;</span><span class="s2">, </span><span class="s4">3</span><span class="s2">, </span><span class="s4">4</span><span class="s2">)</span>
+<span class="s1">n3 </span><span class="s2">= </span><span class="s1">Node</span><span class="s2">(</span><span class="s3">&quot;C&quot;</span><span class="s2">, </span><span class="s4">6</span><span class="s2">, </span><span class="s4">8</span><span class="s2">)</span>
+
+<span class="s1">segment1 </span><span class="s2">= </span><span class="s1">Segment</span><span class="s2">(</span><span class="s3">&quot;Segment1&quot;</span><span class="s2">, </span><span class="s1">n1</span><span class="s2">, </span><span class="s1">n2</span><span class="s2">)</span>
+<span class="s1">segment2 </span><span class="s2">= </span><span class="s1">Segment</span><span class="s2">(</span><span class="s3">&quot;Segment2&quot;</span><span class="s2">, </span><span class="s1">n2</span><span class="s2">, </span><span class="s1">n3</span><span class="s2">)</span>
+
+<span class="s1">print</span><span class="s2">(</span><span class="s3">f&quot;</span><span class="s0">{</span><span class="s1">segment1</span><span class="s2">.</span><span class="s1">name</span><span class="s0">}</span><span class="s3">: Origin = </span><span class="s0">{</span><span class="s1">segment1</span><span class="s2">.</span><span class="s1">origin</span><span class="s2">.</span><span class="s1">name</span><span class="s0">}</span><span class="s3">, Destination = </span><span class="s0">{</span><span class="s1">segment1</span><span class="s2">.</span><span class="s1">destination</span><span class="s2">.</span><span class="s1">name</span><span class="s0">}</span><span class="s3">, Cost = </span><span class="s0">{</span><span class="s1">segment1</span><span class="s2">.</span><span class="s1">cost</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">)</span>
+<span class="s1">print</span><span class="s2">(</span><span class="s3">f&quot;</span><span class="s0">{</span><span class="s1">segment2</span><span class="s2">.</span><span class="s1">name</span><span class="s0">}</span><span class="s3">: Origin = </span><span class="s0">{</span><span class="s1">segment2</span><span class="s2">.</span><span class="s1">origin</span><span class="s2">.</span><span class="s1">name</span><span class="s0">}</span><span class="s3">, Destination = </span><span class="s0">{</span><span class="s1">segment2</span><span class="s2">.</span><span class="s1">destination</span><span class="s2">.</span><span class="s1">name</span><span class="s0">}</span><span class="s3">, Cost = </span><span class="s0">{</span><span class="s1">segment2</span><span class="s2">.</span><span class="s1">cost</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">)</span>
+</pre>
+</body>
+</html>

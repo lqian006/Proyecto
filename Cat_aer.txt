@@ -1,6 +1,6 @@
 LEAL
-ALT.D …other departures (SIDs)
-ALT.A …other arrivals (STARs)
+ALT.D
+ALT.A
 LEBL
 BCN.D
 BCN.A

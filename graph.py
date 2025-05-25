@@ -156,3 +156,4 @@ def SaveGraphToFile(g, filename):
             f.write(f"NODE {node.name} {node.x} {node.y}\n")
         for seg in g.segments:
             f.write(f"SEGMENT {seg.name} {seg.origin.name} {seg.destination.name}\n")
+
