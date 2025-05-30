@@ -6,7 +6,7 @@ except ValueError:
 
 encontrado = False
 
-for aeropuerto in lista_aeropuertos:
+for aeropuerto in aeropuerto.SIDs:
     if aeropuerto.Name_airport == x or aeropuerto.SIDs == x or aeropuerto.STARs == x:
         print("Nombre del aeropuerto:", aeropuerto.Name_airport)
         print("SID: ", aeropuerto.SIDs)

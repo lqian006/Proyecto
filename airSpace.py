@@ -1,8 +1,8 @@
 from navPoint import *
 from navSegment import *
 from navAirport import *
-import math
 import matplotlib.pyplot as plt
+
 
 class AirSpace:
     def __init__(self):
@@ -16,13 +16,34 @@ class AirSpace:
                 return p
         return None
 
+    def get_navpoint_by_name(self, name):
+        """Busca un NavPoint por su nombre (insensible a mayúsculas/minúsculas)."""
+        for p in self.NavPoints:
+            if p.name.lower() == name.lower():
+                return p
+        return None
+
 #---Los vecinos---#
 
 def PlotNode(airspace, name):
+    original_input_name = name # Store the original input name
+
     # 1. Buscar el nodo seleccionado por nombre
     center = next((p for p in airspace.NavPoints if p.name.lower() == name.lower()), None)
+
+    # If not found as a NavPoint name, check if it's an Airport name
     if center is None:
-        print(f"NavPoint '{name}' no encontrado.")
+        airport_found = next((a for a in airspace.NavAirports if a.Name_airport.lower() == name.lower()), None)
+        if airport_found and airport_found.associated_navpoint_name:
+            # If it's an airport, use its associated NavPoint for plotting
+            center = next(
+                (p for p in airspace.NavPoints if p.name.lower() == airport_found.associated_navpoint_name.lower()),
+                None)
+            if center: # If a center NavPoint was found for the airport
+                original_input_name = name # Keep the original input name for the title
+
+    if center is None:
+        print(f"'{name}' (NavPoint or Airport) no encontrado o no tiene SID asociado.")
         return
 
     center_id = center.number
@@ -78,211 +99,251 @@ def PlotNode(airspace, name):
                          color='darkred', ha="center", va="bottom")
 
     # 6. Estilo gráfico final
-    plt.title(f"Vecinos salientes de '{center.name}'", fontsize=14)
+    plt.title(f"Vecinos salientes de '{original_input_name}'", fontsize=14) # Use original_input_name here
     plt.xlabel("Longitud")
     plt.ylabel("Latitud")
     plt.grid(True, color='red', linestyle='--', linewidth=0.3)
     plt.axis("equal")
     plt.tight_layout()
-    plt.show()
+
 
 
 #---Reachables---#
 
-def PlotReachable(airspace, name):
-    # Buscar el nodo inicial
-    start = next((p for p in airspace.NavPoints if p.name.lower() == name.lower()), None)
-    if start is None:
-        print(f"NavPoint '{name}' no encontrado.")
-        return set()
+def PlotReachable(airspace, start_node_name, ax=None):
+    # Ensure ax is provided when called from Tkinter
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(8, 6))
+        created_fig = True
+    else:
+        created_fig = False
 
-    start_id = start.number
+    start_node = next((p for p in airspace.NavPoints if p.name.lower() == start_node_name.lower()), None)
+    if not start_node:
+        airport_found = next((a for a in airspace.NavAirports if a.Name_airport.lower() == start_node_name.lower()), None)
+        if airport_found and airport_found.associated_navpoint_name:
+            start_node = next((p for p in airspace.NavPoints if p.name.lower() == airport_found.associated_navpoint_name.lower()), None)
 
-    # Encontrar nodos alcanzables con DFS/BFS (incluye el mismo nodo inicial)
-    alcanzables = set()
-    pendientes = [start_id]
+    if not start_node:
+        raise ValueError(f"Nodo o aeropuerto '{start_node_name}' no encontrado o no tiene NavPoint asociado.")
 
-    while pendientes:
-        actual = pendientes.pop()
-        if actual not in alcanzables:
-            alcanzables.add(actual)
-            # Añadir a la pila los destinos de segmentos salientes
-            for seg in airspace.NavSegments:
-                if seg.OriginNumber == actual and seg.DestinationNumber not in alcanzables:
-                    pendientes.append(seg.DestinationNumber)
+    visited = set()
+    queue = [start_node]
 
-    # Filtrar segmentos que conectan nodos alcanzables
-    segmentos_usados = [seg for seg in airspace.NavSegments
-                       if seg.OriginNumber in alcanzables and seg.DestinationNumber in alcanzables]
+    while queue:
+        current = queue.pop(0)
+        # Check if current node's number (ID) has already been visited
+        if current.number in {p.number for p in visited}:
+            continue
+        visited.add(current)
 
-    plt.figure(figsize=(8, 6))
+        for seg in airspace.NavSegments:
+            if seg.OriginNumber == current.number:
+                next_node = airspace.get_navpoint_by_id(seg.DestinationNumber)
+                if next_node and next_node.number not in {p.number for p in visited}:
+                    queue.append(next_node)
+            # If segments are bidirectional, uncomment the following block:
+            # elif seg.DestinationNumber == current.number:
+            #     next_node = airspace.get_navpoint_by_id(seg.OriginNumber)
+            #     if next_node and next_node.number not in {p.number for p in visited}:
+            #         queue.append(next_node)
 
-    # Dibujar segmentos alcanzables con flechas
-    for seg in segmentos_usados:
-        p1 = airspace.get_navpoint_by_id(seg.OriginNumber)
-        p2 = airspace.get_navpoint_by_id(seg.DestinationNumber)
+    ax.clear()
+
+    # Draw all segments (light gray)
+    for s in airspace.NavSegments:
+        p1 = airspace.get_navpoint_by_id(s.OriginNumber)
+        p2 = airspace.get_navpoint_by_id(s.DestinationNumber)
         if p1 and p2:
-            dx = p2.longitude - p1.longitude
-            dy = p2.latitude - p1.latitude
-            plt.arrow(p1.longitude, p1.latitude,
-                      dx, dy,
-                      head_width=0.05,
-                      head_length=0.05,
-                      fc='cyan', ec='cyan',
-                      length_includes_head=True)
-            mx = (p1.longitude + p2.longitude) / 2
-            my = (p1.latitude + p2.latitude) / 2
-            plt.text(mx, my, f"{seg.Distance:.1f}", fontsize=6, color='gray', ha='center')
+            ax.plot([p1.longitude, p2.longitude], [p1.latitude, p2.latitude], color='lightgray', linewidth=0.8, zorder=1)
 
-    # Dibujar nodos
+    # Draw all NavPoints (black)
     for p in airspace.NavPoints:
-        if p.number == start_id:
-            plt.plot(p.longitude, p.latitude, 'ro', markersize=5)  # Nodo inicial en rojo
-            plt.text(p.longitude, p.latitude, p.name, fontsize=6, color='red', ha="right")
-        elif p.number in alcanzables:
-            plt.plot(p.longitude, p.latitude, 'ko', markersize=4)  # Alcanzables en negro
-            plt.text(p.longitude, p.latitude, p.name, fontsize=5, color='black', ha="left")
-        else:
-            # Opcional: nodos no alcanzables en gris (puedes comentar si no quieres mostrarlos)
-            plt.plot(p.longitude, p.latitude, 'o', color='gray', markersize=2)
-            plt.text(p.longitude, p.latitude, p.name, fontsize=5, color='gray', ha='left', va='bottom')
+        ax.plot(p.longitude, p.latitude, 'ko', markersize=2, zorder=2)
+        ax.text(p.longitude + 0.01, p.latitude + 0.01, p.name, fontsize=5, ha="left", va="bottom", zorder=2)
 
-    # Mostrar aeropuertos como en otras funciones
+    # Highlight reachable nodes (red)
+    for p in visited:
+        ax.plot(p.longitude, p.latitude, 'ro', markersize=4, zorder=3)
+
+    # Highlight the start node (blue)
+    ax.plot(start_node.longitude, start_node.latitude, 'bo', markersize=6, zorder=4)
+    ax.text(start_node.longitude + 0.01, start_node.latitude + 0.01, start_node.name, fontsize=6, color='blue', ha="left", va="bottom", zorder=4)
+
+    # Add airports (gray, as per your desired style)
     for airport in airspace.NavAirports:
-        for p in airspace.NavPoints:
-            if airport.Name_airport[:3] in p.name:
-                plt.text(p.longitude, p.latitude, airport.Name_airport, fontsize=8,
-                         color='darkred', ha="center", va="bottom")
+        if airport.associated_navpoint_name:
+            p = next((np for np in airspace.NavPoints if np.name.lower() == airport.associated_navpoint_name.lower()), None)
+            if p:
+                ax.plot(p.longitude, p.latitude, 'o', color='gray', markersize=3, zorder=5) # Changed to gray
+                ax.text(p.longitude, p.latitude, airport.Name_airport, fontsize=7, color='gray', ha="center", va="bottom", zorder=5) # Changed to gray
 
-    plt.title(f"Nodos alcanzables desde '{start.name}'", fontsize=14)
-    plt.xlabel("Longitud")
-    plt.ylabel("Latitud")
-    plt.grid(True, color='red', linestyle='--', linewidth=0.3)
-    plt.axis("equal")
-    plt.tight_layout()
-    plt.show()
+    ax.set_title(f"Nodos alcanzables desde '{start_node_name}'")
+    ax.set_xlabel("Longitud")
+    ax.set_ylabel("Latitud")
+    ax.set_aspect('equal')
+    ax.grid(True, color='red', linestyle='--', linewidth=0.3)
+    ax.autoscale_view()
 
-    return alcanzables
-
+    if created_fig:
+        plt.tight_layout()
+        plt.show()
 #---Camino más corto---#
 
-def PlotShortestPathSimple(airspace, start_name, end_name):
-    # Buscar nodos
+def PlotShortestPathSimple(airspace, start_name, end_name, ax=None):
+    import math
+    created_fig = False
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(8, 6))
+        created_fig = True
+    else:
+        created_fig = False
+
+    # Find start and end NavPoints (handling airport names)
     start = next((p for p in airspace.NavPoints if p.name.lower() == start_name.lower()), None)
+    if not start:
+        airport_start = next((a for a in airspace.NavAirports if a.Name_airport.lower() == start_name.lower()), None)
+        if airport_start and airport_start.associated_navpoint_name:
+            start = next((p for p in airspace.NavPoints
+                          if p.name.lower() == airport_start.associated_navpoint_name.lower()), None)
+
     end = next((p for p in airspace.NavPoints if p.name.lower() == end_name.lower()), None)
+    if not end:
+        airport_end = next((a for a in airspace.NavAirports if a.Name_airport.lower() == end_name.lower()), None)
+        if airport_end and airport_end.associated_navpoint_name:
+            end = next((p for p in airspace.NavPoints
+                        if p.name.lower() == airport_end.associated_navpoint_name.lower()), None)
 
     if start is None:
-        print(f"NavPoint '{start_name}' no encontrado.")
-        return
+        raise ValueError(f"Nodo o aeropuerto '{start_name}' no encontrado o no tiene NavPoint asociado.")
     if end is None:
-        print(f"NavPoint '{end_name}' no encontrado.")
-        return
+        raise ValueError(f"Nodo o aeropuerto '{end_name}' no encontrado o no tiene NavPoint asociado.")
 
-    # Inicialización
+    # Dijkstra's Algorithm
     dist = {p.number: math.inf for p in airspace.NavPoints}
     prev = {p.number: None for p in airspace.NavPoints}
     dist[start.number] = 0
 
-    pendientes = list(dist.keys())  # lista de nodos pendientes
+    unvisited = {p.number for p in airspace.NavPoints}
 
-    while pendientes:
-        # Buscar nodo con distancia mínima entre pendientes
-        u = min(pendientes, key=lambda node: dist[node])
-        pendientes.remove(u)
+    while unvisited:
+        u_number = None
+        min_dist = math.inf
+        for node_num in unvisited:
+            if dist[node_num] < min_dist:
+                min_dist = dist[node_num]
+                u_number = node_num
 
-        if dist[u] == math.inf:
-            break  # no quedan nodos alcanzables
+        if u_number is None or dist[u_number] == math.inf:
+            break
 
-        if u == end.number:
-            break  # llegamos al destino
+        unvisited.remove(u_number)
 
-        # Revisar vecinos salientes
+        if u_number == end.number:
+            break
+
         for seg in airspace.NavSegments:
-            if seg.OriginNumber == u:
-                v = seg.DestinationNumber
-                alt = dist[u] + seg.Distance
-                if alt < dist[v]:
-                    dist[v] = alt
-                    prev[v] = u
+            if seg.OriginNumber == u_number:
+                v_number = seg.DestinationNumber
+                if v_number in unvisited:
+                    alt = dist[u_number] + seg.Distance
+                    if alt < dist[v_number]:
+                        dist[v_number] = alt
+                        prev[v_number] = u_number
 
-    # Reconstruir camino
     if dist[end.number] == math.inf:
-        print(f"No hay camino desde '{start.name}' hasta '{end.name}'.")
+        ax.clear()
+        ax.text(0.5, 0.5, f"No hay camino desde '{start.name}' hasta '{end.name}'.",
+                horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+        ax.set_title(f"Camino más corto de '{start_name}' a '{end_name}'")
+        ax.set_xticks([])
+        ax.set_yticks([])
+        if created_fig:
+            plt.tight_layout()
+            plt.show()
         return
 
-    path = []
-    u = end.number
-    while u is not None:
-        path.append(u)
-        u = prev[u]
-    path.reverse()
+    # Reconstruct path
+    path_numbers = []
+    current_node_number = end.number
+    while current_node_number is not None:
+        path_numbers.append(current_node_number)
+        current_node_number = prev[current_node_number]
+    path_numbers.reverse()
 
-    # Extraer segmentos camino
+    # Get segment objects for the path
     segmentos_camino = []
-    for i in range(len(path) - 1):
-        origen = path[i]
-        destino = path[i+1]
-        seg = next((s for s in airspace.NavSegments if s.OriginNumber == origen and s.DestinationNumber == destino), None)
+    for i in range(len(path_numbers) - 1):
+        origen_num = path_numbers[i]
+        destino_num = path_numbers[i + 1]
+        seg = next((s for s in airspace.NavSegments if s.OriginNumber == origen_num and s.DestinationNumber == destino_num), None)
         if seg:
             segmentos_camino.append(seg)
 
-    # Dibujar (igual que antes)
-    plt.figure(figsize=(8,6))
+    # Plotting
+    ax.clear()
 
+    # Draw all segments (light gray)
     for seg in airspace.NavSegments:
         p1 = airspace.get_navpoint_by_id(seg.OriginNumber)
         p2 = airspace.get_navpoint_by_id(seg.DestinationNumber)
         if p1 and p2:
-            plt.plot([p1.longitude, p2.longitude], [p1.latitude, p2.latitude], color='lightgray', linewidth=0.5)
+            ax.plot([p1.longitude, p2.longitude], [p1.latitude, p2.latitude], color='lightgray', linewidth=0.5, zorder=1)
 
+    # Draw path segments (red arrows)
     for seg in segmentos_camino:
         p1 = airspace.get_navpoint_by_id(seg.OriginNumber)
         p2 = airspace.get_navpoint_by_id(seg.DestinationNumber)
         if p1 and p2:
             dx = p2.longitude - p1.longitude
             dy = p2.latitude - p1.latitude
-            plt.arrow(p1.longitude, p1.latitude,
-                      dx, dy,
-                      head_width=0.07,
-                      head_length=0.07,
-                      fc='red', ec='red',
-                      length_includes_head=True,
-                      linewidth=1.5)
+            ax.arrow(p1.longitude, p1.latitude, dx, dy,
+                     head_width=0.07, head_length=0.07,
+                     fc='red', ec='red', linewidth=1.5,
+                     length_includes_head=True, zorder=3)
             mx = (p1.longitude + p2.longitude) / 2
             my = (p1.latitude + p2.latitude) / 2
-            plt.text(mx, my, f"{seg.Distance:.1f}", fontsize=7, color='red', ha='center')
+            ax.text(mx, my, f"{seg.Distance:.1f}", fontsize=7, color='red', ha='center', zorder=3)
 
+    # Draw all NavPoints
     for p in airspace.NavPoints:
         if p.number == start.number:
-            plt.plot(p.longitude, p.latitude, 'go', markersize=6)
-            plt.text(p.longitude, p.latitude, f"{p.name} (Start)", fontsize=6, color='green', ha='right')
+            ax.plot(p.longitude, p.latitude, 'go', markersize=6, zorder=4)
+            ax.text(p.longitude, p.latitude, f"{start.name} (Start)", fontsize=6, color='green', ha='right', zorder=4)
         elif p.number == end.number:
-            plt.plot(p.longitude, p.latitude, 'mo', markersize=6)
-            plt.text(p.longitude, p.latitude, f"{p.name} (End)", fontsize=6, color='magenta', ha='left')
-        elif p.number in path:
-            plt.plot(p.longitude, p.latitude, 'ro', markersize=4)
-            plt.text(p.longitude, p.latitude, p.name, fontsize=5, color='red', ha='left')
+            ax.plot(p.longitude, p.latitude, 'mo', markersize=6, zorder=4)
+            ax.text(p.longitude, p.latitude, f"{end.name} (End)", fontsize=6, color='magenta', ha='left', zorder=4)
+        elif p.number in path_numbers:
+            ax.plot(p.longitude, p.latitude, 'ro', markersize=4, zorder=3)
+            ax.text(p.longitude + 0.01, p.latitude + 0.01, p.name, fontsize=5, color='red', ha='left', zorder=3)
         else:
-            plt.plot(p.longitude, p.latitude, 'ko', markersize=2)
-            plt.text(p.longitude + 0.01, p.latitude + 0.01, p.name, fontsize=5, ha="left", va="bottom")
+            ax.plot(p.longitude, p.latitude, 'ko', markersize=2, zorder=2)
+            ax.text(p.longitude + 0.01, p.latitude + 0.01, p.name, fontsize=5, ha="left", va="bottom", zorder=2)
 
+    # Add airports (gray, as per your desired style)
     for airport in airspace.NavAirports:
-        for p in airspace.NavPoints:
-            if airport.Name_airport[:3] in p.name:
-                plt.plot(p.longitude, p.latitude, 'ro', markersize=5)
-                plt.text(p.longitude, p.latitude, airport.Name_airport, fontsize=8, color='red', ha="right")
+        if airport.associated_navpoint_name:
+            p = next((np for np in airspace.NavPoints if np.name.lower() == airport.associated_navpoint_name.lower()), None)
+            if p:
+                ax.plot(p.longitude, p.latitude, 'o', color='gray', markersize=3, zorder=5) # Changed to gray
+                ax.text(p.longitude, p.latitude, airport.Name_airport, fontsize=7, color='gray', ha="center", va="bottom", zorder=5) # Changed to gray
 
-    plt.title(f"Camino más corto de '{start.name}' a '{end.name}' (Distancia: {dist[end.number]:.2f})", fontsize=14)
-    plt.xlabel("Longitud")
-    plt.ylabel("Latitud")
-    plt.grid(True, color='red', linestyle='--', linewidth=0.3)
-    plt.axis("equal")
-    plt.tight_layout()
-    plt.show()
 
+    ax.set_title(f"Camino más corto de '{start_name}' a '{end_name}' (Distancia: {dist[end.number]:.2f})",
+                 fontsize=14)
+    ax.set_xlabel("Longitud")
+    ax.set_ylabel("Latitud")
+    ax.grid(True, color='red', linestyle='--', linewidth=0.3)
+    ax.set_aspect("equal")
+    ax.autoscale_view()
+
+    if created_fig:
+        plt.tight_layout()
+        plt.show()
 
 #---Lee los ficheros---#
 
+# In your main script where LoadAirSpace is defined
 def LoadAirSpace(nav_file, seg_file, aer_file):
     space = AirSpace()
 
@@ -296,18 +357,38 @@ def LoadAirSpace(nav_file, seg_file, aer_file):
         for line in f:
             datos = line.strip().split()
             if len(datos) == 3:
-                space.NavSegments.append(NavSegment(datos[0], datos[1], datos[2]))
+                try:
+                    space.NavSegments.append(NavSegment(datos[0], datos[1], datos[2]))
+                except ValueError as e:
+                    print(f"Error parsing segment data for segment {datos}: {e}")
+
 
     with open(aer_file, "r", encoding="utf-8") as f:
         lines = [line.strip() for line in f if line.strip()]
         for i in range(0, len(lines), 3):
             name = lines[i]
-            sid = lines[i+1]
-            star = lines[i+2]
-            space.NavAirports.append(NavAirport(name, sid, star))
+            sid_raw = lines[i+1] # Keep as raw string for splitting in NavAirport init
+            star_raw = lines[i+2] # Keep as raw string for splitting in NavAirport init
+            airport = NavAirport(name, sid_raw, star_raw) # Pass raw strings
 
+            # Find the NavPoint for the first SID and associate it with the airport
+            if airport.SID: # Check if there's at least one SID name
+                first_sid_name = airport.SID[0] # This is now a string (e.g., 'ALT.D')
+                found_sid_navpoint = False
+                for p in space.NavPoints:
+                    # **IMPORTANT: Search by NavPoint name (p.name) here**
+                    if p.name.lower() == first_sid_name.lower():
+                        airport.associated_navpoint_number = p.number
+                        airport.associated_navpoint_name = p.name
+                        found_sid_navpoint = True
+                        break
+                if not found_sid_navpoint:
+                    print(f"Advertencia: El NavPoint con nombre '{first_sid_name}' (primer SID de {airport.Name_airport}) no fue encontrado en Cat_nav.txt. No se podrá usar este aeropuerto para rutas.")
+            else:
+                print(f"Advertencia: El aeropuerto {airport.Name_airport} no tiene SIDs definidos.")
+
+            space.NavAirports.append(airport)
     return space
-
 
 #---Hace el grafo--#
 
@@ -325,23 +406,25 @@ def PlotAirSpace(airspace):
 
     # Dibujar nodos (negro)
     for p in airspace.NavPoints:
-        plt.plot(p.longitude, p.latitude, 'ko', markersize=2)
+        plt.plot(p.longitude, p.latitude, 'ko', markersize=2) # 'k' para negro, 'o' para círculo
         plt.text(p.longitude + 0.01, p.latitude + 0.01, p.name, fontsize=5, ha="left", va="bottom")
 
     # Etiquetas especiales para aeropuertos
     for airport in airspace.NavAirports:
         for p in airspace.NavPoints:
+            # Esta es la lógica clave: si el nombre del NavPoint contiene las 3 primeras letras
+            # del nombre del aeropuerto, se dibuja en rojo.
             if airport.Name_airport[:3] in p.name:
-                plt.plot(p.longitude, p.latitude, 'ro', markersize=5)
-                plt.text(p.longitude, p.latitude, airport.Name_airport, fontsize=8, color='red', ha="right")
+                plt.plot(p.longitude, p.latitude, 'ko', markersize=2) # 'r' para rojo, 'o' para círculo
+                plt.text(p.longitude, p.latitude, airport.Name_airport, fontsize=5, ha="left", va="bottom")
 
     # Ajustes de estilo visual
-    plt.title("Gráfico del espacio aéreo de Cataluña", fontsize=12)
+    plt.title("Gráfico del espacio aéreo de Cataluña", fontsize=12) # ¡Nota: el título aquí es estático!
     plt.xlabel("Longitud")
     plt.ylabel("Latitud")
     plt.axis("equal")
     plt.grid(True, color='red', linestyle='--', linewidth=0.3)
     plt.tight_layout()
-    plt.show()
+
 
 

@@ -1,4 +1,5 @@
-import node
+from Proyecto import node
+
 class Segment:
     def __init__(self, name: str, origin: node, destination: node):
         self.name=name

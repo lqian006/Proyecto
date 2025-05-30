@@ -1,11 +1,13 @@
-import math
 import matplotlib.pyplot as plt
-from node import *
+from Proyecto.node import *
 from segment import *
+
+
 class Graph:
     def __init__(self):
         self.nodes = []
         self.segments = []
+
 
 def AddNode(g,n):
     for node in g.nodes:
@@ -22,10 +24,17 @@ def AddSegment(g, name, nameOriginNode, nameDestinationNode):
     if origin is None or destination is None:
         return False
 
+    for seg in g.segments:
+        if (seg.origin == origin and seg.destination == destination) or \
+           (seg.origin == destination and seg.destination == origin):
+            return False
+
     seg = Segment(name, origin, destination)
     g.segments.append(seg)
+
     AddNeighbor(origin, destination)
     AddNeighbor(destination, origin)
+
     return True
 
 
@@ -43,7 +52,6 @@ def GetClosest(g,x,y):
             mas_cercano=node
 
     return mas_cercano
-
 
 
 def Plot(g):
@@ -65,13 +73,10 @@ def Plot(g):
     plt.grid(True)
 
 
-
-
 def PlotNode(g, nameOrigin):
     origin = next((n for n in g.nodes if n.name == nameOrigin), None)
     if origin is None:
         return False
-
 
     for segment in g.segments:
 
@@ -85,11 +90,9 @@ def PlotNode(g, nameOrigin):
         y_values = [segment.origin.y, segment.destination.y]
         plt.plot(x_values, y_values, color)
 
-
         mid_x = (segment.origin.x + segment.destination.x) / 2
         mid_y = (segment.origin.y + segment.destination.y) / 2
         plt.text(mid_x, mid_y, f"{segment.cost:.1f}", color="black", fontsize=8, ha="center")
-
 
     for node in g.nodes:
         if node == origin:
@@ -99,7 +102,6 @@ def PlotNode(g, nameOrigin):
         else:
             plt.plot(node.x, node.y, "ko")
 
-
         plt.text(node.x, node.y, node.name, fontsize=9, ha="right", va="bottom")
 
     plt.title(f"Vecinos del nodo {origin.name}")
@@ -107,39 +109,37 @@ def PlotNode(g, nameOrigin):
     plt.grid(True)
 
 
-
 def LoadGraphFromFile(filename):
-    g = Graph()
+    grafo = Graph()
     try:
-        with open(filename, "r") as file:
-            mode = None
-            for line in file:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    if "NODE" in line.upper():
-                        mode = "nodes"
-                    elif "SEGMENT" in line.upper():
-                        mode = "segments"
+        with open(filename, "r") as archivo:
+            for linea in archivo:
+                linea = linea.strip()
+                if linea == "":
                     continue
 
-                if mode == "nodes":
-                    parts = line.split()
-                    if len(parts) != 3:
-                        continue
-                    name, x, y = parts
-                    AddNode(g, Node(name, float(x), float(y)))
-                elif mode == "segments":
-                    parts = line.split()
-                    if len(parts) != 3:
-                        continue
-                    seg_name, origin, dest = parts
-                    AddSegment(g, seg_name, origin, dest)
+                partes = linea.split()
+                tipo = partes[0]
+
+                # Nodo: 4 campos
+                if tipo == "NODE" and len(partes) == 4:
+                    nombre_nodo = partes[1]
+                    x_str = partes[2]
+                    y_str = partes[3]
+                    nodo = Node(nombre_nodo, float(x_str), float(y_str))
+                    AddNode(grafo, nodo)
+
+                elif tipo == "SEGMENT" and len(partes) == 4:
+                    nombre_seg = partes[1]
+                    origen = partes[2]
+                    destino = partes[3]
+                    AddSegment(grafo, nombre_seg, origen, destino)
 
     except FileNotFoundError:
-        print(f"Error: File '{filename}' not found.")
+        print(f"Error: no existe el fichero '{filename}'")
         return None
-    return g
 
+    return grafo
 
 
 def DeleteNode(g, name):
@@ -149,6 +149,7 @@ def DeleteNode(g, name):
     g.nodes.remove(node)
     g.segments = [s for s in g.segments if s.origin != node and s.destination != node]
     return True
+
 
 def SaveGraphToFile(g, filename):
     with open(filename, 'w') as f:
