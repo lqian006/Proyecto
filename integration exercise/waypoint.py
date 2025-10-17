@@ -14,16 +14,13 @@ def ShowWaypoint(waypoint):
         waypoint.lon
     ))
 
-def haversine(lat1, lon1, lat2, lon2):
-
-    R = 6378
-
-    dLat = radians(lat2 - lat1)
-    dLon = radians(lon2 - lon1)
-    lat1 = radians(lat1)
-    lat2 = radians(lat2)
-
-    a = sin(dLat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dLon / 2) ** 2
+def haversine(wp1, wp2):
+    """Devuelve la distancia Haversine entre dos waypoints (en km)."""
+    R = 6378.0
+    lat1, lon1 = radians(wp1.lat), radians(wp1.lon)
+    lat2, lon2 = radians(wp2.lat), radians(wp2.lon)
+    dLat = lat2 - lat1
+    dLon = lon2 - lon1
+    a = sin(dLat/2)**2 + cos(lat1)*cos(lat2)*sin(dLon/2)**2
     c = 2 * asin(sqrt(a))
-
     return R * c
