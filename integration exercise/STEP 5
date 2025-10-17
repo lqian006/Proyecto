@@ -1,0 +1,13 @@
+# Add lines between waypoints
+    for i in range(len(fp.waypoints) - 1):
+        wp1 = fp.waypoints[i]
+        wp2 = fp.waypoints[i+1]
+        plt.plot([wp1.lon, wp2.lon], [wp1.lat, wp2.lat], 'b-', linewidth=1)
+        
+        # Add distance label
+        distance = HaversineDistance(wp1, wp2)
+        mid_lon = (wp1.lon + wp2.lon) / 2
+        mid_lat = (wp1.lat + wp2.lat) / 2
+        plt.text(mid_lon, mid_lat, f'{distance:.2f} km',
+                color='black', weight='bold', fontsize=8,
+                bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
