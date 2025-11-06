@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+<Style id="schengen">
+  <IconStyle>
+    <color>ff00ff00</color>
+  </IconStyle>
+</Style>
+<Style id="nonschengen">
+  <IconStyle>
+    <color>ff0000ff</color>
+  </IconStyle>
+</Style>
+<Placemark>
+  <name>BIKF</name>
+  <description>Schengen Airport</description>
+  <styleUrl>#schengen</styleUrl>
+  <Point>
+    <coordinates>
+      -22.605555555555558,63.985
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>CYUL</name>
+  <description>Non-Schengen Airport</description>
+  <styleUrl>#nonschengen</styleUrl>
+  <Point>
+    <coordinates>
+      -73.74138888888889,45.46805555555556
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>CYYZ</name>
+  <description>Non-Schengen Airport</description>
+  <styleUrl>#nonschengen</styleUrl>
+  <Point>
+    <coordinates>
+      -79.63055555555555,43.67722222222222
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>DAAG</name>
+  <description>Non-Schengen Airport</description>
+  <styleUrl>#nonschengen</styleUrl>
+  <Point>
+    <coordinates>
+      3.2144444444444447,36.693888888888885
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>DTTA</name>
+  <description>Non-Schengen Airport</description>
+  <styleUrl>#nonschengen</styleUrl>
+  <Point>
+    <coordinates>
+      10.226944444444445,36.85111111111111
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>EBAW</name>
+  <description>Schengen Airport</description>
+  <styleUrl>#schengen</styleUrl>
+  <Point>
+    <coordinates>
+      4.460277777777778,51.18944444444444
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>LEBL</name>
+  <description>Schengen Airport</description>
+  <styleUrl>#schengen</styleUrl>
+  <Point>
+    <coordinates>
+      2.0833333333333335,41.48083333333334
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>LFPG</name>
+  <description>Schengen Airport</description>
+  <styleUrl>#schengen</styleUrl>
+  <Point>
+    <coordinates>
+      2.414722222222222,49.009166666666665
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>EGLL</name>
+  <description>Non-Schengen Airport</description>
+  <styleUrl>#nonschengen</styleUrl>
+  <Point>
+    <coordinates>
+      -0.42333333333333334,51.5
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>EDDF</name>
+  <description>Schengen Airport</description>
+  <styleUrl>#schengen</styleUrl>
+  <Point>
+    <coordinates>
+      8.572777777777777,50.03333333333333
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>LIRF</name>
+  <description>Schengen Airport</description>
+  <styleUrl>#schengen</styleUrl>
+  <Point>
+    <coordinates>
+      12.397222222222222,41.834722222222226
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>LPPT</name>
+  <description>Schengen Airport</description>
+  <styleUrl>#schengen</styleUrl>
+  <Point>
+    <coordinates>
+      -9.138333333333334,38.76361111111111
+    </coordinates>
+  </Point>
+</Placemark>
+</Document>
+</kml>
