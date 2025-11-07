@@ -12,6 +12,16 @@
   </IconStyle>
 </Style>
 <Placemark>
+  <name>CODE</name>
+  <description>Non-Schengen Airport</description>
+  <styleUrl>#nonschengen</styleUrl>
+  <Point>
+    <coordinates>
+      0.0,0.0
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
   <name>BIKF</name>
   <description>Schengen Airport</description>
   <styleUrl>#schengen</styleUrl>

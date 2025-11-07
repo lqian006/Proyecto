@@ -30,13 +30,12 @@ def PrintAirport(airport):
 def LoadAirports(filename): 
     airports = []
     file = open(filename, 'r')
-    
-    header = file.readline() 
+
     line = file.readline()
     
     while line:
         parts = line.strip().split()
-        if len(parts) >= 3:
+        if len(parts) == 3:
             code = parts[0]
             lat = ConvertCoordinate(parts[1])
             lon = ConvertCoordinate(parts[2])
