@@ -498,7 +498,7 @@ button7=tk.Button(button_frame, text='Plot Schengen airports in a stacked bar',c
 button7.pack(padx=5, pady=10, fill=tk.X)
 
 # Botón para mapear aeropuertos
-button9=tk.Button(button_frame, text='Map airports',command=Map_Airports)
-button9.pack(padx=5, pady=10, fill=tk.X)
+button8=tk.Button(button_frame, text='Map airports',command=Map_Airports)
+button8.pack(padx=5, pady=10, fill=tk.X)
 
 root.mainloop()
