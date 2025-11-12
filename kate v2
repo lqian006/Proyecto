@@ -1,0 +1,51 @@
+#aircraft.py
+
+def PlotAirlines(aircrafts):
+    
+    if len(aircrafts) == 0:
+        print("Error: No aircraft data to plot.")
+        return
+    
+    # Count flights per airline
+    airline_counts = {}
+    for aircraft in aircrafts:
+        airline = aircraft.AirlineCompany
+        if airline in airline_counts:
+            airline_counts[airline] += 1
+        else:
+            airline_counts[airline] = 1
+    
+    # Sort by number of flights (most to least)
+    sorted_items = sorted(airline_counts.items(), key=lambda x: x[1], reverse=True)
+    airlines = [item[0] for item in sorted_items]
+    counts = [item[1] for item in sorted_items]
+    
+    fig, ax = plt.subplots(figsize=(14, 6))
+    ax.bar(airlines, counts, color='green')
+    ax.set_xlabel('Airline')
+    ax.set_ylabel('Number of Flights')
+    ax.set_title('Flights per Airline')
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    ax.grid(axis='y', alpha=0.3)
+    plt.show()
+
+# TEST section
+if __name__ == "__main__":
+  PlotAirlines(aircrafts)
+
+#interface
+def Plot_Airlines():
+    global aircrafts
+
+    if len(aircrafts) == 0:
+        messagebox.showwarning("Aviso", "No hay vuelos cargados.")
+        return
+
+    try:
+        PlotAirlines(aircrafts)
+    except Exception as e:
+        messagebox.showerror("Error", f"Error al crear el gráfico: {str(e)}")
+
+button13 = tk.Button(button_frame, text='Plot arrivals per company', command=Plot_Airlines)
+button13.pack(padx=5, pady=5, fill=tk.X)
