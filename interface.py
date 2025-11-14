@@ -1,0 +1,565 @@
+import tkinter as tk
+from tkinter import messagebox
+import matplotlib.pyplot as plt
+from airport import *
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from aircraft import *
+
+
+
+# --------- FUNCIONES ---------
+
+# VERSIÓN 1
+def Load_airports():
+    global airports  # hacemos global para reutilizarla en Add_Airports
+
+    filename = entry_filename.get().strip()
+    if not filename:
+        messagebox.showwarning("Advertencia", "Escriba un nombre del fichero.")
+        return
+
+    try:
+        airports = LoadAirports(filename)
+    except FileNotFoundError:
+        messagebox.showerror("Error", f"No se encontró el archivo '{filename}'.")
+        return
+
+    # Crear figura
+    fig, ax = plt.subplots()
+    ax.set_title("Aeropuertos")
+    ax.set_xlabel("Longitud")
+    ax.set_ylabel("Latitud")
+
+    # Dibujar puntos
+    xs = [a.lon for a in airports]
+    ys = [a.lat for a in airports]
+    colors = ['green' if a.schengen else 'red' for a in airports]
+    ax.scatter(xs, ys, c=colors, marker='o')
+
+    for a in airports:
+        ax.text(a.lon, a.lat, a.code, fontsize=8)
+
+    # Limpiar el frame de gráfico
+    for widget in picture_frame.winfo_children():
+        widget.destroy()
+
+    # Crear y guardar el canvas dentro del frame
+    canvas = FigureCanvasTkAgg(fig, master=picture_frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+    # Guardamos la referencia del canvas
+    picture_frame.canvas = canvas
+
+    messagebox.showinfo("Éxito", f"{len(airports)} aeropuertos cargados correctamente.")
+
+def Add_Airports():
+    global airports  # usamos la lista global
+
+    # Si aún no existe la lista, inicialízala
+    try:
+        airports
+    except NameError:
+        airports = []
+
+    # Ventana emergente para pedir datos del nuevo aeropuerto
+    new_win = tk.Toplevel()
+    new_win.title("Añadir aeropuerto")
+
+    tk.Label(new_win, text="Código (ej. LEBL):").grid(row=0, column=0, padx=5, pady=5)
+    tk.Label(new_win, text="Latitud (ej. N412851):").grid(row=1, column=0, padx=5, pady=5)
+    tk.Label(new_win, text="Longitud (ej. E0020500):").grid(row=2, column=0, padx=5, pady=5)
+
+    entry_code = tk.Entry(new_win)
+    entry_lat = tk.Entry(new_win)
+    entry_lon = tk.Entry(new_win)
+    entry_code.grid(row=0, column=1, padx=5, pady=5)
+    entry_lat.grid(row=1, column=1, padx=5, pady=5)
+    entry_lon.grid(row=2, column=1, padx=5, pady=5)
+    entry_code.focus()  # foco inicial en código
+
+    def confirm_add():
+        code = entry_code.get().strip().upper()
+        lat_str = entry_lat.get().strip().upper()
+        lon_str = entry_lon.get().strip().upper()
+
+        if not code or not lat_str or not lon_str:
+            messagebox.showwarning("Advertencia", "Todos los campos son obligatorios.")
+            return
+
+        # Convertir coordenadas DMS → decimal
+        try:
+            lat = ConvertCoordinate(lat_str)
+            lon = ConvertCoordinate(lon_str)
+        except Exception:
+            messagebox.showerror("Error", "Formato de coordenadas inválido. Ejemplo: N412851 o W0734640.")
+            return
+
+        # Crear el objeto aeropuerto usando Airport del módulo y SetSchengen
+        new_airport = Airport(code, lat, lon)
+        SetSchengen(new_airport)
+
+        # Añadir aeropuerto usando AddAirport del módulo airport.py
+        result = AddAirport(airports, new_airport)
+        if result == -1:
+            messagebox.showwarning("Aviso", f"El aeropuerto {code} ya existe.")
+            return
+
+        # Verificar que haya un gráfico cargado
+        if not hasattr(picture_frame, 'canvas'):
+            messagebox.showerror("Error", "No hay gráfico cargado aún. Use 'Load airports' primero.")
+            return
+
+        # Añadir el punto al gráfico actual
+        canvas = picture_frame.canvas
+        fig = canvas.figure
+        ax = fig.axes[0]
+
+        color = 'green' if new_airport.schengen else 'red'
+        ax.scatter(new_airport.lon, new_airport.lat, c=color, marker='o', s=60)
+        ax.text(new_airport.lon, new_airport.lat, new_airport.code, fontsize=8, color=color)
+
+        canvas.draw()  # actualizar gráfico
+
+        messagebox.showinfo("Éxito", f"Añadido aeropuerto {code}.")
+        new_win.destroy()
+
+    # Botón "Añadir"
+    btn_add = tk.Button(new_win, text="Añadir", command=confirm_add)
+    btn_add.grid(row=3, column=0, columnspan=2, pady=10)
+    new_win.bind("<Return>", lambda event: confirm_add())
+
+
+
+def Remove_Airport():
+    global airports
+
+    # Si no hay lista cargada
+    try:
+        airports
+    except NameError:
+        airports = []
+
+    if len(airports) == 0:
+        messagebox.showwarning("Aviso", "No hay aeropuertos cargados para borrar.")
+        return
+
+    # Ventana emergente para pedir el código
+    new_win = tk.Toplevel()
+    new_win.title("Eliminar aeropuerto")
+
+    tk.Label(new_win, text="Código del aeropuerto (ej. LEBL):").grid(row=0, column=0, padx=5, pady=5)
+    entry_code = tk.Entry(new_win)
+    entry_code.grid(row=0, column=1, padx=5, pady=5)
+    entry_code.focus()  # 🔹 foco inicial en código
+
+    def confirm_remove():
+        code = entry_code.get().strip().upper()
+        if not code:
+            messagebox.showwarning("Advertencia", "Debe introducir un código de aeropuerto.")
+            return
+
+        # Intentar eliminar el aeropuerto usando RemoveAirport del módulo
+        result = RemoveAirport(airports, code)
+        if result == -1:
+            messagebox.showerror("Error", f"No se encontró el aeropuerto {code}.")
+            return
+
+        # Redibujar el gráfico si existe
+        if hasattr(picture_frame, 'canvas'):
+            canvas = picture_frame.canvas
+            fig = canvas.figure
+            ax = fig.axes[0]
+
+            ax.clear()
+            ax.set_title("Aeropuertos")
+            ax.set_xlabel("Longitud")
+            ax.set_ylabel("Latitud")
+
+            xs = [a.lon for a in airports]
+            ys = [a.lat for a in airports]
+            colors = ['green' if a.schengen else 'red' for a in airports]
+            ax.scatter(xs, ys, c=colors, marker='o')
+
+            for a in airports:
+                ax.text(a.lon, a.lat, a.code, fontsize=8)
+
+            canvas.draw()
+
+        messagebox.showinfo("Éxito", f"Aeropuerto {code} eliminado.")
+        new_win.destroy()
+
+    # Botón "Eliminar"
+    btn_remove = tk.Button(new_win, text="Eliminar", command=confirm_remove)
+    btn_remove.grid(row=1, column=0, columnspan=2, pady=10)
+
+    # Permitir confirmar con Enter
+    new_win.bind("<Return>", lambda event: confirm_remove())
+
+
+
+def Print_Airport():
+    global airports
+
+    # Comprobar que haya lista cargada
+    try:
+        airports
+    except NameError:
+        airports = []
+
+    if len(airports) == 0:
+        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
+        return
+
+    # Ventana emergente para elegir modo de visualización
+    new_win = tk.Toplevel()
+    new_win.title("Mostrar aeropuerto")
+
+    tk.Label(new_win, text="Código (opcional, ej. LEBL):").grid(row=0, column=0, padx=5, pady=5)
+    entry_code = tk.Entry(new_win)
+    entry_code.grid(row=0, column=1, padx=5, pady=5)
+    entry_code.focus()  # 🔹 foco inicial en código
+
+    def confirm_show():
+        code = entry_code.get().strip().upper()
+
+        if not code:
+            # Mostrar todos los aeropuertos usando PrintAirport del módulo
+            info = ""
+            for a in airports:
+                PrintAirport(a)  # imprime en consola
+                schengen = "Sí" if a.schengen else "No"
+                info += f"{a.code}  |  Lat: {a.lat:.4f}  |  Lon: {a.lon:.4f}  |  Schengen: {schengen}\n"
+
+            if not info:
+                info = "No hay aeropuertos cargados."
+            messagebox.showinfo("Lista de aeropuertos", info)
+            new_win.destroy()
+            return
+
+        # Buscar aeropuerto específico
+        found = None
+        for a in airports:
+            if a.code == code:
+                found = a
+                break
+
+        if not found:
+            messagebox.showerror("Error", f"No se encontró el aeropuerto {code}.")
+            return
+
+        # Mostrar usando PrintAirport del módulo (opcional)
+        PrintAirport(found)
+
+        schengen = "Sí" if found.schengen else "No"
+        info = (f"--- Información del aeropuerto ---\n\n"
+                f"Código: {found.code}\n"
+                f"Latitud: {found.lat:.6f}\n"
+                f"Longitud: {found.lon:.6f}\n"
+                f"Espacio Schengen: {schengen}")
+
+        messagebox.showinfo(f"Aeropuerto {code}", info)
+        new_win.destroy()
+
+    # Botón "Mostrar"
+    btn_show = tk.Button(new_win, text="Mostrar", command=confirm_show)
+    btn_show.grid(row=1, column=0, columnspan=2, pady=10)
+    new_win.bind("<Return>", lambda event: confirm_show())
+
+
+def Set_Schengen():
+    global airports
+
+    try:
+        airports
+    except NameError:
+        airports = []
+
+    if len(airports) == 0:
+        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
+        return
+
+    new_win = tk.Toplevel()
+    new_win.title("Cambiar estado Schengen")
+
+    tk.Label(new_win, text="Código del aeropuerto (ej. LEBL):").grid(row=0, column=0, padx=5, pady=5)
+    entry_code = tk.Entry(new_win)
+    entry_code.grid(row=0, column=1, padx=5, pady=5)
+
+    search_btn = tk.Button(new_win, text="Buscar")
+    search_btn.grid(row=1, column=0, columnspan=2, pady=10)
+
+    def confirm_search():
+        code = entry_code.get().strip().upper()
+        if not code:
+            messagebox.showwarning("Advertencia", "Debe introducir un código de aeropuerto.")
+            return
+
+        # Buscar aeropuerto
+        found = None
+        for a in airports:
+            if a.code == code:
+                found = a
+                break
+
+        if not found:
+            messagebox.showerror("Error", f"No se encontró el aeropuerto {code}.")
+            return
+
+        # Eliminar controles anteriores
+        entry_code.destroy()
+        search_btn.destroy()
+
+        # Mostrar controles nuevos
+        current = tk.BooleanVar(value=found.schengen)
+
+        tk.Label(new_win, text=f"Estado actual de {code}:").grid(row=0, column=0, padx=5, pady=5)
+        cb = tk.Checkbutton(new_win, text="Schengen", variable=current)
+        cb.grid(row=0, column=1, padx=5, pady=5)
+
+        def apply_change():
+            # 🔹 Actualiza según el checkbox, no llamar SetSchengen()
+            found.schengen = current.get()
+
+            # Redibujar gráfico si hay canvas
+            if hasattr(picture_frame, 'canvas'):
+                canvas = picture_frame.canvas
+                fig = canvas.figure
+                ax = fig.axes[0]
+                ax.clear()
+
+                ax.set_title("Aeropuertos")
+                ax.set_xlabel("Longitud")
+                ax.set_ylabel("Latitud")
+
+                xs = [a.lon for a in airports]
+                ys = [a.lat for a in airports]
+                colors = ['green' if a.schengen else 'red' for a in airports]
+                ax.scatter(xs, ys, c=colors, marker='o')
+
+                for a in airports:
+                    ax.text(a.lon, a.lat, a.code, fontsize=8)
+
+                canvas.draw()
+
+            messagebox.showinfo("Éxito", f"Estado Schengen de {code} actualizado.")
+            new_win.destroy()
+
+        btn_apply = tk.Button(new_win, text="Aplicar cambio", command=apply_change)
+        btn_apply.grid(row=1, column=0, columnspan=2, pady=10)
+        new_win.bind("<Return>", lambda event: apply_change())
+
+    search_btn.config(command=confirm_search)
+    new_win.bind("<Return>", lambda event: confirm_search())
+
+
+
+def Save_SchengenAirports():
+    global airports
+
+    try:
+        airports
+    except NameError:
+        airports = []
+
+    if len(airports) == 0:
+        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
+        return
+
+    # Ventana emergente para pedir nombre del fichero
+    new_win = tk.Toplevel()
+    new_win.title("Guardar aeropuertos Schengen")
+
+    tk.Label(new_win, text="Nombre del fichero de salida (.txt):").grid(row=0, column=0, padx=5, pady=5)
+    entry_filename = tk.Entry(new_win)
+    entry_filename.grid(row=0, column=1, padx=5, pady=5)
+
+    def confirm_save():
+        filename = entry_filename.get().strip()
+        if not filename:
+            messagebox.showwarning("Advertencia", "Debe introducir un nombre de archivo.")
+            return
+        if not filename.endswith(".txt"):
+            filename += ".txt"
+
+        # 🔹 Usamos directamente la función del módulo airport.py
+        result = SaveSchengenAirports(airports, filename)
+
+        if result == -1:
+            messagebox.showwarning("Aviso", "No hay aeropuertos Schengen para guardar.")
+        else:
+            messagebox.showinfo("Éxito", f"Aeropuertos Schengen guardados en '{filename}'.")
+        new_win.destroy()
+
+    btn_save = tk.Button(new_win, text="Guardar", command=confirm_save)
+    btn_save.grid(row=1, column=0, columnspan=2, pady=10)
+
+    # 🔹 Enter también ejecuta la acción
+    new_win.bind("<Return>", lambda event: confirm_save())
+
+
+def Plot_Airports():
+    global airports
+
+    try:
+        airports
+    except NameError:
+        airports = []
+
+    if len(airports) == 0:
+        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
+        return
+    # Llamamos directamente a la función del módulo airport.py
+    PlotAirports(airports)
+
+
+
+def Map_Airports():
+    global airports
+
+    try:
+        airports
+    except NameError:
+        airports = []
+
+    if len(airports) == 0:
+        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
+        return
+
+    try:
+        # Llamada correcta: solo pasa la lista de aeropuertos
+        MapAirports(airports)
+
+        messagebox.showinfo(
+            "Mapa generado",
+            "El archivo 'airports.kml' ha sido creado correctamente.\n"
+            "Puedes abrirlo en Google Earth para visualizar los aeropuertos."
+        )
+    except Exception as e:
+        messagebox.showerror("Error", f"No se pudo generar el mapa: {e}")
+
+def Plot_Arrivals_per_Hour():
+    global arrives
+    arrives = LoadArrivals("arrivals.txt")
+    if len(arrives) == 0:
+        messagebox.showwarning("Aviso", "No hay vuelos cargados.")
+        return
+    PlotArrivals(arrives)
+
+
+def Save_Flights():
+    global arrives
+
+    try:
+        arrives
+    except NameError:
+        arrives = []
+
+    if len(arrives) == 0:
+        messagebox.showwarning("Aviso", "No hay vuelos cargados.")
+        return
+
+    # Ventana emergente para pedir nombre del fichero
+    new_win = tk.Toplevel()
+    new_win.title("Guardar vuelos")
+
+    tk.Label(new_win, text="Nombre del fichero de salida (.txt):").grid(row=0, column=0, padx=5, pady=5)
+    entry_filename = tk.Entry(new_win)
+    entry_filename.grid(row=0, column=1, padx=5, pady=5)
+
+    def confirm_save():
+        filename = entry_filename.get().strip()
+        if not filename:
+            messagebox.showwarning("Advertencia", "Debe introducir un nombre de archivo.")
+            return
+        if not filename.endswith(".txt"):
+            filename += ".txt"
+
+        # 🔹 Usamos directamente la función del módulo airport.py
+        result = Save_Flights()
+
+        if result == -1:
+            messagebox.showwarning("Aviso", "No hay vuelos para guardar.")
+        else:
+            messagebox.showinfo("Éxito", f"vuelos guardados en '{filename}'.")
+        new_win.destroy()
+
+    btn_save = tk.Button(new_win, text="Guardar", command=confirm_save)
+    btn_save.grid(row=1, column=0, columnspan=2, pady=10)
+
+    # 🔹 Enter también ejecuta la acción
+    new_win.bind("<Return>", lambda event: confirm_save())
+
+
+# --------- INTERFAZ ---------
+
+root = tk.Tk()
+root.title("Interface")
+root.geometry("900x500")
+
+root.columnconfigure(0, weight=1) #columna 1 para los botones
+root.columnconfigure(1, weight=10) #columna 2 para los gráficos
+root.rowconfigure(0, weight=1) #fila 1
+#Para añadir más filas es: root.rowconfigure((1,2,3, etc), weight=1)
+
+#-----COLUMNA [0], FILA [0] (Botones)
+button_frame=tk.LabelFrame(root, text= 'Botones')
+button_frame.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW) #Definimos el espacio entre botones
+
+#-----COLUMNA [1], FILA [0]
+picture_frame=tk.LabelFrame(root, text='Gráfico')
+picture_frame.grid(row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
+picture_frame.columnconfigure(0,weight=1)
+picture_frame.rowconfigure(0, weight=1)
+
+#Definimos que dentro de este frame tiene una columna y dos filas
+label_filename = tk.Label(button_frame, text="Nombre del fichero en .txt:")
+label_filename.pack(padx=5, pady=5)
+
+entry_filename = tk.Entry(button_frame, width=30)
+entry_filename.pack(padx=5, pady=5)
+entry_filename.bind("<Return>", lambda event: Load_airports())  # Enter para ejecutar
+
+# BOTONES
+
+# Botón para cargar grafo
+button1=tk.Button(button_frame, text='Load airports',command=Load_airports)
+button1.pack(padx=5, pady=10, fill=tk.X)
+
+# Botón para añadir aeropuertos
+button2=tk.Button(button_frame, text='Add airports',command=Add_Airports)
+button2.pack(padx=5, pady=10, fill=tk.X)
+
+# Botón para borrar aeropuertos
+button3=tk.Button(button_frame, text='Delete airports',command=Remove_Airport)
+button3.pack(padx=5, pady=10, fill=tk.X)
+
+# Botón para mostrar la información de los aeropuertos en la lista
+button4=tk.Button(button_frame, text='Show data of airports in the list',command=Print_Airport)
+button4.pack(padx=5, pady=10, fill=tk.X)
+
+# Botón para definir Schengen attribute aeropuertos
+button5=tk.Button(button_frame, text='Set Schengen attribute to airports',command=Set_Schengen)
+button5.pack(padx=5, pady=10, fill=tk.X)
+
+# Botón para guardar Schengen aeropuertos en el archivo
+button6=tk.Button(button_frame, text='Save Schengen airports in file',command=Save_SchengenAirports)
+button6.pack(padx=5, pady=10, fill=tk.X)
+
+# Botón para hacer plot de los schengen aeropuertos en la barra
+button7=tk.Button(button_frame, text='Plot Schengen airports in a stacked bar',command=Plot_Airports)
+button7.pack(padx=5, pady=10, fill=tk.X)
+
+# Botón para mapear aeropuertos
+button8=tk.Button(button_frame, text='Map airports',command=Map_Airports)
+button8.pack(padx=5, pady=10, fill=tk.X)
+
+# Botón para mapear vuelos por hora
+button9=tk.Button(button_frame, text='Map arrivals per hours',command=Plot_Arrivals_per_Hour)
+button9.pack(padx=5, pady=10, fill=tk.X)
+'''
+# Botón para guardar la info de vuelos en un archivo
+button10=tk.Button(button_frame, text='Save flights',command=Save_Flights)
+button10.pack(padx=5, pady=10, fill=tk.X)'''
+
+root.mainloop()
