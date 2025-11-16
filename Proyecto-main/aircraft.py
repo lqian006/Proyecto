@@ -1,5 +1,10 @@
-import math
 import matplotlib.pyplot as plt
+from airport import *
+import webbrowser
+import os
+from math import radians, sin, cos, sqrt, atan2
+import platform
+import subprocess
 
 class Aircraft:
     def __init__(self,id,Origin,Arrival,Airline):
@@ -11,32 +16,50 @@ class Aircraft:
 # Son los arrives a LEBL en un cierto día
 def LoadArrivals(filename):
     arrives = []
-    file = open(filename, 'r')
-    line = file.readline()
 
-    while line:
-        parts = line.strip().split()
-        if len(parts) == 4:
-            id = parts[0]
-            Origin = parts[1]
-            Arrival = parts[2]
-            Airline= parts[3]
+    try:
+        with open(filename, 'r') as file:
+            file.readline()
 
-            arrive = Aircraft(id, Origin, Arrival,Airline)
-            arrives.append(arrive)
+            for line in file:
+                parts = line.strip().split()
 
-        line = file.readline()
+                if len(parts) != 4:
+                    continue
 
-    file.close()
+                id = parts[0]
+                Origin = parts[1]
+                Arrival = parts[2]
+                Airline = parts[3]
+
+                # Validar formato de tiempo
+                if ':' not in Arrival:
+                    continue
+
+                try:
+                    time_parts = Arrival.split(':')
+                    hour = int(time_parts[0])
+                    minute = int(time_parts[1])
+                    if hour < 0 or hour > 23 or minute < 0 or minute > 59:
+                        continue
+                except (ValueError, IndexError):
+                    continue
+
+                arrive = Aircraft(id, Origin, Arrival, Airline)
+                arrives.append(arrive)
+
+    except FileNotFoundError:
+        return []
+
     return arrives
 
-def PlotArrivals(arrives):
-    if len(arrives) == 0:
+def PlotArrivals(aircrafts):
+    if len(aircrafts) == 0:
         print("No airports to plot.")
         return
 
     arrivals=[]
-    for flight in arrives:
+    for flight in aircrafts:
         arrivals.append(flight.TimeLanding.strip())
 
     i=0
@@ -62,14 +85,14 @@ def PlotArrivals(arrives):
     plt.xticks(rotation=45)
     plt.show()
 
-def SaveFlights(arrives,filename):
-    if len(arrives)==0:
+def SaveFlights(aircrafts,filename):
+    if len(aircrafts)==0:
         print('no se ha podido crear el fichero')
         return
 
     file=open(filename, 'w')
     file.write(f'AIRCRAFT ORIGIN ARRIVAL ARILINE\n')
-    for flight in arrives:
+    for flight in aircrafts:
         id=flight.id
         origin=flight.OriginAirport
         arrival=flight.TimeLanding
@@ -115,248 +138,207 @@ def PlotAirlines(aircrafts):
     plt.show()
 
 
+def MapFlights(aircrafts, airports):
+
+    if len(aircrafts) == 0:
+        print("Error: No flights to map.")
+        return
+
+    if len(airports) == 0:
+        print("Error: No airports loaded. Cannot map flights without airport coordinates.")
+        return
+
+    airport_dict = {}
+    for airport in airports:
+        airport_dict[airport.code] = airport
+
+    LEBL_LAT = 41.297445
+    LEBL_LON = 2.0832941
+
+    filename = "flights.kml"
+
+    # Crear contenido KML
+    kml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    kml_content += '<kml xmlns="http://www.opengis.net/kml/2.2">\n'
+    kml_content += '<Document>\n'
+    kml_content += '  <n>Flight Trajectories to LEBL</n>\n'
+    kml_content += '  <description>Schengen and Non-Schengen Flight Trajectories</description>\n'
+
+    # Estilos para Schengen (verde) y Non-Schengen (rojo)
+    kml_content += '  <Style id="schengen_line">\n'
+    kml_content += '    <LineStyle>\n'
+    kml_content += '      <color>ff00ff00</color>\n'
+    kml_content += '      <width>2</width>\n'
+    kml_content += '    </LineStyle>\n'
+    kml_content += '  </Style>\n'
+
+    kml_content += '  <Style id="nonschengen_line">\n'
+    kml_content += '    <LineStyle>\n'
+    kml_content += '      <color>ff0000ff</color>\n'
+    kml_content += '      <width>2</width>\n'
+    kml_content += '    </LineStyle>\n'
+    kml_content += '  </Style>\n'
+
+    mapped_count = 0
+
+    for aircraft in aircrafts:
+        origin_code = aircraft.OriginAirport
+
+        # Buscar aeropuerto de origen
+        if origin_code not in airport_dict:
+            continue
+
+        origin_airport = airport_dict[origin_code]
+
+        # Determinar si es Schengen
+        is_schengen = IsSchengenAirport(origin_code)
+        style = 'schengen_line' if is_schengen else 'nonschengen_line'
+        schengen_text = 'Schengen' if is_schengen else 'Non-Schengen'
+
+        # Crear placemark para la trayectoria
+        kml_content += '  <Placemark>\n'
+        kml_content += f'    <n>{aircraft.id} ({origin_code} → LEBL)</n>\n'
+        kml_content += f'    <description>'
+        kml_content += f'Flight: {aircraft.id}<br/>'
+        kml_content += f'Airline: {aircraft.AirlineCompany}<br/>'
+        kml_content += f'Origin: {origin_code}<br/>'
+        kml_content += f'Arrival: {aircraft.TimeLanding}<br/>'
+        kml_content += f'Type: {schengen_text}'
+        kml_content += f'</description>\n'
+        kml_content += f'    <styleUrl>#{style}</styleUrl>\n'
+        kml_content += '    <LineString>\n'
+        kml_content += '      <tessellate>1</tessellate>\n'
+        kml_content += '      <coordinates>\n'
+        kml_content += f'        {origin_airport.lon},{origin_airport.lat},0\n'
+        kml_content += f'        {LEBL_LON},{LEBL_LAT},0\n'
+        kml_content += '      </coordinates>\n'
+        kml_content += '    </LineString>\n'
+        kml_content += '  </Placemark>\n'
+
+        mapped_count += 1
+
+    kml_content += '</Document>\n'
+    kml_content += '</kml>\n'
+
+    if mapped_count == 0:
+        print("Error: No flights could be mapped. Check that origin airports are loaded.")
+        return
+
+    # Guardar archivo KML
+    try:
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write(kml_content)
+
+        abs_path = os.path.abspath(filename)
+
+        # Detectar sistema operativo y abrir Google Earth Pro
+        system = platform.system()
+        google_earth_opened = False
+
+        if system == "Windows":
+            # Rutas comunes de Google Earth Pro en Windows
+            possible_paths = [
+                r"C:\Program Files\Google\Google Earth Pro\client\googleearth.exe",
+                r"C:\Program Files (x86)\Google\Google Earth Pro\client\googleearth.exe",
+                os.path.expanduser(r"~\AppData\Local\Google\Google Earth Pro\client\googleearth.exe")
+            ]
+
+            for path in possible_paths:
+                if os.path.exists(path):
+                    try:
+                        subprocess.Popen([path, abs_path])
+                        google_earth_opened = True
+                        break
+                    except:
+                        continue
+
+        elif system == "Darwin":  # macOS
+            try:
+                subprocess.Popen(["open", "-a", "Google Earth Pro", abs_path])
+                google_earth_opened = True
+            except:
+                pass
+
+        elif system == "Linux":
+            try:
+                subprocess.Popen(["google-earth-pro", abs_path])
+                google_earth_opened = True
+            except:
+                pass
+
+        if not google_earth_opened:
+            try:
+                if system == "Windows":
+                    os.startfile(abs_path)
+                elif system == "Darwin":
+                    subprocess.Popen(["open", abs_path])
+                else:
+                    subprocess.Popen(["xdg-open", abs_path])
+                google_earth_opened = True
+            except:
+                pass
+
+        if not google_earth_opened:
+            print(f"KML file '{filename}' created with {mapped_count} trajectories.")
+            print("Could not open Google Earth Pro automatically.")
+            print(f"Please open Google Earth Pro and load the file '{filename}'")
+
+    except Exception as e:
+        print(f"Error creating KML file: {str(e)}")
+
+
 def HaversineDistance(lat1, lon1, lat2, lon2):
 
     R = 6371.0
 
-    # Convertir grados a radianes
-    lat1_rad = math.radians(lat1)
-    lon1_rad = math.radians(lon1)
-    lat2_rad = math.radians(lat2)
-    lon2_rad = math.radians(lon2)
+    lat1_rad = radians(lat1)
+    lon1_rad = radians(lon1)
+    lat2_rad = radians(lat2)
+    lon2_rad = radians(lon2)
 
-    # Diferencias
     dlat = lat2_rad - lat1_rad
     dlon = lon2_rad - lon1_rad
 
-    # Fórmula de Haversine
-    a = math.sin(dlat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    a = sin(dlat / 2) ** 2 + cos(lat1_rad) * cos(lat2_rad) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
     distance = R * c
 
     return distance
 
 
-def FindAirportByCode(airports, code):
-    """
-    Busca un aeropuerto por su código en la lista de aeropuertos.
-
-    Parámetros:
-        airports: Lista de objetos Airport
-        code: Código del aeropuerto a buscar
-
-    Retorna:
-        Objeto Airport si se encuentra, None si no existe
-    """
-    for airport in airports:
-        if airport.code == code:
-            return airport
-    return None
-
-
 def LongDistanceArrivals(aircrafts, airports):
-    """
-    Retorna una lista con los aviones que llegan a LEBL desde un aeropuerto
-    a más de 2000 km de distancia (necesitan inspección especial).
 
-    Parámetros:
-        aircrafts: Lista de objetos Aircraft
-        airports: Lista de objetos Airport
-
-    Retorna:
-        Lista de objetos Aircraft que cumplen el criterio
-    """
-    # Buscar el aeropuerto LEBL
-    lebl = FindAirportByCode(airports, 'LEBL')
-
-    if lebl is None:
-        print("Error: Aeropuerto LEBL no encontrado en la lista.")
+    if len(aircrafts) == 0:
+        print("Error: No aircrafts to process.")
         return []
 
-    long_distance_list = []
+    if len(airports) == 0:
+        print("Error: No airports loaded. Cannot calculate distances.")
+        return []
+
+    airport_dict = {}
+    for airport in airports:
+        airport_dict[airport.code] = airport
+
+    LEBL_LAT = 41.297445
+    LEBL_LON = 2.0832941
+
+    long_distance = []
 
     for aircraft in aircrafts:
-        # Buscar el aeropuerto de origen
-        origin_airport = FindAirportByCode(airports, aircraft.OriginAirport)
+        origin_code = aircraft.OriginAirport
 
-        if origin_airport is None:
-            continue  # Si no se encuentra el aeropuerto de origen, saltar
+        if origin_code not in airport_dict:
+            continue
 
-        # Calcular distancia usando Haversine
+        origin_airport = airport_dict[origin_code]
+
         distance = HaversineDistance(
             origin_airport.lat, origin_airport.lon,
-            lebl.lat, lebl.lon
-        )
+            LEBL_LAT, LEBL_LON)
 
-        # Si la distancia es mayor a 2000 km, añadir a la lista
         if distance > 2000:
-            long_distance_list.append(aircraft)
+            long_distance.append(aircraft)
 
-    return long_distance_list
-
-
-def MapFlights(aircrafts, airports):
-    """
-    Muestra en Google Earth las trayectorias de todos los vuelos desde
-    su aeropuerto de origen hasta LEBL.
-    Muestra en diferentes colores las trayectorias con origen en un país Schengen.
-
-    Parámetros:
-        aircrafts: Lista de objetos Aircraft
-        airports: Lista de objetos Airport
-    """
-    if len(aircrafts) == 0:
-        print("No flights to map.")
-        return
-
-    # Buscar el aeropuerto LEBL
-    lebl = FindAirportByCode(airports, 'LEBL')
-
-    if lebl is None:
-        print("Error: Aeropuerto LEBL no encontrado en la lista.")
-        return
-
-    # Crear contenido KML
-    kml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    kml_content += '<kml xmlns="http://www.opengis.net/kml/2.2">\n'
-    kml_content += '<Document>\n'
-    kml_content += '  <name>Flight Trajectories to LEBL</name>\n'
-    kml_content += '  <description>Flight paths from origin airports to LEBL Barcelona</description>\n'
-
-    # Estilos para líneas Schengen (verde) y Non-Schengen (rojo)
-    kml_content += '  <Style id="schengen_line">\n'
-    kml_content += '    <LineStyle>\n'
-    kml_content += '      <color>ff00ff00</color>\n'  # Verde
-    kml_content += '      <width>3</width>\n'
-    kml_content += '    </LineStyle>\n'
-    kml_content += '  </Style>\n'
-
-    kml_content += '  <Style id="nonschengen_line">\n'
-    kml_content += '    <LineStyle>\n'
-    kml_content += '      <color>ff0000ff</color>\n'  # Rojo
-    kml_content += '      <width>3</width>\n'
-    kml_content += '    </LineStyle>\n'
-    kml_content += '  </Style>\n'
-
-    # Estilos para marcadores de aeropuertos
-    kml_content += '  <Style id="origin_schengen">\n'
-    kml_content += '    <IconStyle>\n'
-    kml_content += '      <color>ff00ff00</color>\n'
-    kml_content += '      <scale>1.0</scale>\n'
-    kml_content += '    </IconStyle>\n'
-    kml_content += '  </Style>\n'
-
-    kml_content += '  <Style id="origin_nonschengen">\n'
-    kml_content += '    <IconStyle>\n'
-    kml_content += '      <color>ff0000ff</color>\n'
-    kml_content += '      <scale>1.0</scale>\n'
-    kml_content += '    </IconStyle>\n'
-    kml_content += '  </Style>\n'
-
-    kml_content += '  <Style id="destination">\n'
-    kml_content += '    <IconStyle>\n'
-    kml_content += '      <color>ff00ffff</color>\n'  # Amarillo
-    kml_content += '      <scale>1.5</scale>\n'
-    kml_content += '    </IconStyle>\n'
-    kml_content += '  </Style>\n'
-
-    # Añadir marcador para LEBL (destino)
-    kml_content += '  <Placemark>\n'
-    kml_content += f'    <name>LEBL (Destination)</name>\n'
-    kml_content += f'    <description>Barcelona El Prat Airport - Arrival destination</description>\n'
-    kml_content += '    <styleUrl>#destination</styleUrl>\n'
-    kml_content += '    <Point>\n'
-    kml_content += f'      <coordinates>{lebl.lon},{lebl.lat},0</coordinates>\n'
-    kml_content += '    </Point>\n'
-    kml_content += '  </Placemark>\n'
-
-    # Añadir cada vuelo como una línea
-    for aircraft in aircrafts:
-        # Buscar aeropuerto de origen
-        origin_airport = FindAirportByCode(airports, aircraft.origin)
-
-        if origin_airport is None:
-            continue  # Si no se encuentra, saltar este vuelo
-
-        # Determinar estilo según si es Schengen o no
-        line_style = 'schengen_line' if origin_airport.schengen else 'nonschengen_line'
-        marker_style = 'origin_schengen' if origin_airport.schengen else 'origin_nonschengen'
-        schengen_text = 'Schengen' if origin_airport.schengen else 'Non-Schengen'
-
-        # Calcular distancia
-        distance = HaversineDistance(
-            origin_airport.lat, origin_airport.lon,
-            lebl.lat, lebl.lon
-        )
-
-        # Añadir marcador para aeropuerto de origen
-        kml_content += '  <Placemark>\n'
-        kml_content += f'    <name>{origin_airport.code}</name>\n'
-        kml_content += f'    <description>{schengen_text} Airport - Origin</description>\n'
-        kml_content += f'    <styleUrl>#{marker_style}</styleUrl>\n'
-        kml_content += '    <Point>\n'
-        kml_content += f'      <coordinates>{origin_airport.lon},{origin_airport.lat},0</coordinates>\n'
-        kml_content += '    </Point>\n'
-        kml_content += '  </Placemark>\n'
-
-        # Añadir línea de trayectoria
-        kml_content += '  <Placemark>\n'
-        kml_content += f'    <name>Flight: {origin_airport.code} → LEBL</name>\n'
-        kml_content += f'    <description>'
-        kml_content += f'Aircraft ID: {aircraft.id}<br/>'
-        kml_content += f'Origin: {origin_airport.code} ({schengen_text})<br/>'
-        kml_content += f'Destination: LEBL<br/>'
-        kml_content += f'Distance: {distance:.2f} km'
-        kml_content += f'</description>\n'
-        kml_content += f'    <styleUrl>#{line_style}</styleUrl>\n'
-        kml_content += '    <LineString>\n'
-        kml_content += '      <tessellate>1</tessellate>\n'
-        kml_content += '      <coordinates>\n'
-        kml_content += f'        {origin_airport.lon},{origin_airport.lat},0\n'
-        kml_content += f'        {lebl.lon},{lebl.lat},0\n'
-        kml_content += '      </coordinates>\n'
-        kml_content += '    </LineString>\n'
-        kml_content += '  </Placemark>\n'
-
-    kml_content += '</Document>\n'
-    kml_content += '</kml>\n'
-
-    # Guardar archivo KML
-    filename = 'flights_to_lebl.kml'
-
-    try:
-        with open(filename, 'w', encoding='utf-8') as file:
-            file.write(kml_content)
-
-        print(f"KML file '{filename}' created successfully.")
-        print(f"Total flights mapped: {len(aircrafts)}")
-
-        # Intentar abrir en Google Earth Pro
-        import os
-        import platform
-        import subprocess
-
-        abs_path = os.path.abspath(filename)
-        system = platform.system()
-
-        if system == "Windows":
-            possible_paths = [
-                r"C:\Program Files\Google\Google Earth Pro\client\googleearth.exe",
-                r"C:\Program Files (x86)\Google\Google Earth Pro\client\googleearth.exe",
-            ]
-            for path in possible_paths:
-                if os.path.exists(path):
-                    subprocess.Popen([path, abs_path])
-                    break
-            else:
-                os.startfile(abs_path)
-
-        elif system == "Darwin":
-            subprocess.Popen(["open", "-a", "Google Earth Pro", abs_path])
-
-        else:  # Linux
-            subprocess.Popen(["google-earth-pro", abs_path])
-
-    except Exception as e:
-        print(f"Error creating KML file: {str(e)}")
+    return long_distance

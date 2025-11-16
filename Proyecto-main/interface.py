@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox,filedialog
 import matplotlib.pyplot as plt
 from airport import *
 from aircraft import *
@@ -413,29 +413,61 @@ def Plot_Airports():
     PlotAirports(airports)
 
 
-
-def Load_flights():
-    pass  # no hace nada
-
-
-def Plot_Arrivals_per_Hour():
-    global arrives
-    arrives = LoadArrivals("arrivals.txt")
-    if len(arrives) == 0:
-        messagebox.showwarning("Aviso", "No hay vuelos cargados.")
-        return
-    PlotArrivals(arrives)
-
-
-def Save_Flights():
-    global arrives
+def Map_Airports():
+    global airports
 
     try:
-        arrives
+        airports
     except NameError:
-        arrives = []
+        messagebox.showwarning("Aviso", "No hay aeropuertos cargados. Use 'Load airports' primero.")
+        return
 
-    if len(arrives) == 0:
+    if len(airports) == 0:
+        messagebox.showwarning("Aviso", "No hay aeropuertos para mapear.")
+        return
+
+    original_filename = entry_filename.get().strip()
+    if not original_filename:
+        base_name = "airports"
+    else:
+        base_name = original_filename.replace('.txt', '').replace('.TXT', '')
+
+    success, message, filename = MapAirports(airports, base_name)
+
+    if not success:
+        messagebox.showerror("Error", message)
+    elif "No se pudo abrir" in message:
+        messagebox.showwarning("Aviso", message)
+    else:
+        pass
+
+# VERSIÓN 2
+
+
+def Load_aircrafts():
+    global aircrafts
+
+    filename = entry_flights.get().strip()
+    if not filename:
+        messagebox.showwarning("Advertencia", "Escriba el nombre de un fichero.")
+        return
+
+    aircrafts = LoadArrivals(filename)
+
+    if len(aircrafts) == 0:
+        messagebox.showwarning("Advertencia", "No se pudieron cargar vuelos o el archivo no existe.")
+    else:
+        messagebox.showinfo("Éxito", f"Loaded {len(aircrafts)} arrives")
+
+def Save_Flights():
+    global aircrafts
+
+    try:
+        aircrafts
+    except NameError:
+        aircrafts = []
+
+    if len(aircrafts) == 0:
         messagebox.showwarning("Aviso", "No hay vuelos cargados.")
         return
 
@@ -470,207 +502,20 @@ def Save_Flights():
     # 🔹 Enter también ejecuta la acción
     new_win.bind("<Return>", lambda event: confirm_save())
 
-def Plot_FlightsType():
-    global flights  # hacemos global para reutilizarla en Add_Airports
 
-    filename = entry_filename.get().strip()
-    if not filename:
-        messagebox.showerror("Error", "No hay vuelos cargados.")
-        return
+def Plot_Arrivals_per_Hour():
+    global aircrafts
 
     try:
-        flights = LoadArrivals(filename)
-    except FileNotFoundError:
-        messagebox.showerror("Error", f"No se encontró el archivo '{filename}'.")
-        return
-
-    contando_schengen = 0
-    contando_no_schengen = 0
-
-    i = 0
-    while i < len(flights):
-        if flights[i].origin.schengen:
-            contando_schengen += 1
-        else:
-            contando_no_schengen += 1
-        i += 1
-
-    fig, ax = plt.subplots()
-
-    ax.bar(
-        ['Flights'],
-        [contando_schengen],
-        label='Schengen',
-        color='steelblue'
-    )
-    ax.bar(
-        ['Flights'],
-        [contando_no_schengen],
-        bottom=[contando_schengen],
-        label='No Schengen',
-        color='lightcoral'
-    )
-    ax.set_ylabel('Número de vuelos')
-    ax.set_title('Flights by Type (Schengen vs Non-Schengen)')
-    ax.legend()
-
-    plt.show()
-
-
-
-def Map_Airports():
-    """Genera un archivo KML y lo abre directamente en Google Earth Pro"""
-    global airports
-
-    # Verificar que exista la lista
-    try:
-        airports
+        aircrafts
     except NameError:
-        messagebox.showwarning("Aviso", "No hay aeropuertos cargados. Use 'Load airports' primero.")
+        aircrafts = []
+
+    if len(aircrafts) == 0:
+        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
         return
 
-    if len(airports) == 0:
-        messagebox.showwarning("Aviso", "No hay aeropuertos para mapear.")
-        return
-
-    # Obtener el nombre del archivo original (sin extensión)
-    original_filename = entry_filename.get().strip()
-    if not original_filename:
-        base_name = "airports"
-    else:
-        # Quitar la extensión .txt si existe
-        base_name = original_filename.replace('.txt', '').replace('.TXT', '')
-
-    filename = f"{base_name}.kml"
-
-    # Crear KML content
-    kml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    kml_content += '<kml xmlns="http://www.opengis.net/kml/2.2">\n'
-    kml_content += '<Document>\n'
-    kml_content += '  <name>Airports Map</name>\n'
-    kml_content += '  <description>Schengen and Non-Schengen Airports</description>\n'
-
-    # Add styles for Schengen (green) and non-Schengen (red)
-    kml_content += '  <Style id="schengen">\n'
-    kml_content += '    <IconStyle>\n'
-    kml_content += '      <color>ff00ff00</color>\n'
-    kml_content += '      <scale>1.3</scale>\n'
-    kml_content += '    </IconStyle>\n'
-    kml_content += '    <LabelStyle>\n'
-    kml_content += '      <scale>0.9</scale>\n'
-    kml_content += '    </LabelStyle>\n'
-    kml_content += '  </Style>\n'
-
-    kml_content += '  <Style id="nonschengen">\n'
-    kml_content += '    <IconStyle>\n'
-    kml_content += '      <color>ff0000ff</color>\n'
-    kml_content += '      <scale>1.3</scale>\n'
-    kml_content += '    </IconStyle>\n'
-    kml_content += '    <LabelStyle>\n'
-    kml_content += '      <scale>0.9</scale>\n'
-    kml_content += '    </LabelStyle>\n'
-    kml_content += '  </Style>\n'
-
-    # Add each airport as a placemark
-    for airport in airports:
-        style = 'schengen' if airport.schengen else 'nonschengen'
-        schengen_text = 'Schengen' if airport.schengen else 'Non-Schengen'
-
-        kml_content += '  <Placemark>\n'
-        kml_content += f'    <name>{airport.code}</name>\n'
-        kml_content += f'    <description>{schengen_text} Airport<br/>Lat: {airport.lat:.4f}<br/>Lon: {airport.lon:.4f}</description>\n'
-        kml_content += f'    <styleUrl>#{style}</styleUrl>\n'
-        kml_content += '    <Point>\n'
-        kml_content += f'      <coordinates>{airport.lon},{airport.lat},0</coordinates>\n'
-        kml_content += '    </Point>\n'
-        kml_content += '  </Placemark>\n'
-
-    kml_content += '</Document>\n'
-    kml_content += '</kml>\n'
-
-    # Guardar archivo KML
-    # 1. Obtiene el nombre del entry_filename
-    original_filename = entry_filename.get().strip()
-
-    # 2. Si está vacío, usa "airports" por defecto
-    if not original_filename:
-        base_name = "airports"
-    else:
-        # 3. Quita la extensión .txt
-        base_name = original_filename.replace('.txt', '').replace('.TXT', '')
-
-    # 4. Genera el nombre del KML
-    filename = f"{base_name}.kml"
-
-    try:
-        with open(filename, 'w', encoding='utf-8') as file:
-            file.write(kml_content)
-
-        # Obtener ruta absoluta del archivo
-        abs_path = os.path.abspath(filename)
-
-        # Detectar sistema operativo y abrir Google Earth Pro
-        system = platform.system()
-        google_earth_opened = False
-
-        if system == "Windows":
-            # Rutas comunes de Google Earth Pro en Windows
-            possible_paths = [
-                r"C:\Program Files\Google\Google Earth Pro\client\googleearth.exe",
-                r"C:\Program Files (x86)\Google\Google Earth Pro\client\googleearth.exe",
-                os.path.expanduser(r"~\AppData\Local\Google\Google Earth Pro\client\googleearth.exe")
-            ]
-
-            for path in possible_paths:
-                if os.path.exists(path):
-                    try:
-                        subprocess.Popen([path, abs_path])
-                        google_earth_opened = True
-                        break
-                    except:
-                        continue
-
-        elif system == "Darwin":  # macOS
-            try:
-                subprocess.Popen(["open", "-a", "Google Earth Pro", abs_path])
-                google_earth_opened = True
-            except:
-                pass
-
-        elif system == "Linux":
-            # Intentar con google-earth-pro command
-            try:
-                subprocess.Popen(["google-earth-pro", abs_path])
-                google_earth_opened = True
-            except:
-                pass
-
-        # Si no se pudo abrir automáticamente, intentar con el handler por defecto
-        if not google_earth_opened:
-            try:
-                if system == "Windows":
-                    os.startfile(abs_path)
-                elif system == "Darwin":
-                    subprocess.Popen(["open", abs_path])
-                else:
-                    subprocess.Popen(["xdg-open", abs_path])
-                google_earth_opened = True
-            except:
-                pass
-
-        if not google_earth_opened:
-            messagebox.showwarning("Aviso",
-                                   f"Archivo KML '{filename}' creado.\n\n"
-                                   f"No se pudo abrir Google Earth Pro automáticamente.\n\n"
-                                   f"Por favor:\n"
-                                   f"1. Abre Google Earth Pro manualmente\n"
-                                   f"2. Archivo → Abrir → Selecciona '{filename}'\n\n"
-                                   f"O haz doble clic en '{filename}' si Google Earth está instalado.")
-
-    except Exception as e:
-        messagebox.showerror("Error", f"No se pudo crear el KML: {str(e)}")
-
-
+    PlotArrivals(aircrafts)
 
 def Plot_Airlines():
     global aircrafts
@@ -684,99 +529,6 @@ def Plot_Airlines():
     except Exception as e:
         messagebox.showerror("Error", f"Error al crear el gráfico: {str(e)}")
 
-
-def Map_Flights():
-    """
-    Función de interfaz que mapea los vuelos usando las variables globales.
-    Genera un KML con las trayectorias y lo abre en Google Earth Pro.
-    """
-    global aircrafts, airports
-
-    # Verificar que existan las listas
-    try:
-        aircrafts
-        airports
-    except NameError:
-        from tkinter import messagebox
-        messagebox.showwarning("Aviso", "No hay datos cargados. Cargue aeropuertos y aviones primero.")
-        return
-
-    if len(aircrafts) == 0:
-        from tkinter import messagebox
-        messagebox.showwarning("Aviso", "No hay aviones para mapear.")
-        return
-
-    if len(airports) == 0:
-        from tkinter import messagebox
-        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
-        return
-
-    # Llamar a la función base
-    MapFlights(aircrafts, airports)
-
-    from tkinter import messagebox
-    messagebox.showinfo("Éxito",
-                        f"Mapa de vuelos creado.\n\n"
-                        f"Total vuelos: {len(aircrafts)}\n"
-                        f"🟢 Verde = Origen Schengen\n"
-                        f"🔴 Rojo = Origen Non-Schengen\n\n"
-                        f"Google Earth Pro se abrirá automáticamente.")
-
-
-def Long_Distance_Arrivals():
-    """
-    Función de interfaz que muestra los aviones que llegan desde más de 2000 km.
-    """
-    global aircrafts, airports
-
-    # Verificar que existan las listas
-    try:
-        aircrafts
-        airports
-    except NameError:
-        from tkinter import messagebox
-        messagebox.showwarning("Aviso", "No hay datos cargados. Cargue aeropuertos y aviones primero.")
-        return
-
-    if len(aircrafts) == 0:
-        from tkinter import messagebox
-        messagebox.showwarning("Aviso", "No hay aviones cargados.")
-        return
-
-    if len(airports) == 0:
-        from tkinter import messagebox
-        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
-        return
-
-    # Llamar a la función base
-    long_distance = LongDistanceArrivals(aircrafts, airports)
-
-    from tkinter import messagebox
-
-    if len(long_distance) == 0:
-        messagebox.showinfo("Resultado",
-                            "No hay aviones que lleguen desde más de 2000 km.")
-        return
-
-    # Construir mensaje con la lista de aviones
-    message = f"Aviones que llegan desde más de 2000 km:\n\n"
-    message += f"Total: {len(long_distance)} aviones\n"
-    message += "-" * 40 + "\n"
-
-    for aircraft in long_distance:
-        origin_airport = FindAirportByCode(airports, aircraft.origin)
-        lebl = FindAirportByCode(airports, 'LEBL')
-
-        if origin_airport and lebl:
-            distance = HaversineDistance(
-                origin_airport.lat, origin_airport.lon,
-                lebl.lat, lebl.lon
-            )
-            message += f"• {aircraft.id}: {aircraft.origin} → LEBL ({distance:.0f} km)\n"
-        else:
-            message += f"• {aircraft.id}: {aircraft.origin} → LEBL\n"
-
-    messagebox.showinfo("Long Distance Arrivals", message)
 
 def Plot_FlightsType():
     global flights  # hacemos global para reutilizarla en Add_Airports
@@ -825,6 +577,77 @@ def Plot_FlightsType():
 
     plt.show()
 
+
+def Map_Flights():
+
+    global aircrafts
+
+    try:
+        aircrafts
+    except NameError:
+        messagebox.showwarning("Aviso", "No hay vuelos cargados. Use 'Load arrivals' primero.")
+        return
+
+    if len(aircrafts) == 0:
+        messagebox.showwarning("Aviso", "No hay vuelos para mapear.")
+        return
+
+    from tkinter import filedialog
+
+    airports_filename = filedialog.askopenfilename(
+        title="Seleccione el archivo de aeropuertos",
+        filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
+    )
+
+    if not airports_filename:
+        return
+
+    airports = LoadAirports(airports_filename)
+
+    if len(airports) == 0:
+        messagebox.showerror("Error", f"No se pudieron cargar aeropuertos desde '{airports_filename}'")
+        return
+
+    MapFlights(aircrafts, airports)
+
+
+def Long_Distance_Arrivals():
+
+    global aircrafts
+
+    try:
+        aircrafts
+    except NameError:
+        messagebox.showwarning("Aviso", "No hay vuelos cargados. Use 'Load arrivals' primero.")
+        return
+
+    if len(aircrafts) == 0:
+        messagebox.showwarning("Aviso", "No hay vuelos para procesar.")
+        return
+
+    from tkinter import filedialog
+
+    airports_filename = filedialog.askopenfilename(
+        title="Seleccione el archivo de aeropuertos", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+
+
+    if not airports_filename:
+        return
+
+    airports = LoadAirports(airports_filename)
+
+    if len(airports) == 0:
+        messagebox.showerror("Error", f"No se pudieron cargar aeropuertos desde '{airports_filename}'")
+        return
+
+    long_distance = LongDistanceArrivals(aircrafts, airports)
+
+    if len(long_distance) == 0:
+        messagebox.showinfo("Resultado", "No hay vuelos de larga distancia (>2000 km) para mapear.")
+        return
+
+    MapFlights(long_distance, airports)
+
 # --------- INTERFAZ ---------
 
 root = tk.Tk()
@@ -852,7 +675,7 @@ label_filename.pack(padx=5, pady=5)
 
 entry_filename = tk.Entry(button_frame, width=30)
 entry_filename.pack(padx=5, pady=5)
-entry_filename.bind("<Return>", lambda event: Load_airports())  # Enter para ejecutar
+entry_filename.bind("<Return>", lambda event: Load_airports())
 
 # ----- COLUMNA [2], FILA [0]
 flights_frame = tk.LabelFrame(root, text='Flights')
@@ -864,7 +687,7 @@ label_flights.pack(padx=5, pady=5)
 # Cajita para flights
 entry_flights = tk.Entry(flights_frame, width=30)
 entry_flights.pack(padx=5, pady=5)
-entry_flights.bind("<Return>", lambda event: Load_flights())
+entry_flights.bind("<Return>", lambda event: Load_aircrafts())
 
 # BOTONES COLUMNA 1
 
@@ -902,8 +725,20 @@ button9.pack(padx=5, pady=10, fill=tk.X)
 # BOTONES COLUMNA 2
 
 #boton para cargar vuelos
-load_flights = tk.Button(flights_frame, text='Load flights', command=Load_flights)
+load_flights = tk.Button(flights_frame, text='Load flights', command=Load_aircrafts)
 load_flights.pack(padx=5, pady=10, fill=tk.X)
+
+# Botón para guardar la info de vuelos en un archivo
+button3=tk.Button(flights_frame, text='Save flights',command=Save_Flights)
+button3.pack(padx=5, pady=10, fill=tk.X)
+
+# Botón para mapear vuelos por hora
+button9=tk.Button(flights_frame, text='Map arrivals per hours',command=Plot_Arrivals_per_Hour)
+button9.pack(padx=5, pady=10, fill=tk.X)
+
+
+button4 = tk.Button(flights_frame, text='Plot arrivals per company', command=Plot_Airlines)
+button4.pack(padx=5, pady=5, fill=tk.X)
 
 #boton para plotar tipos de vuelos
 PlotFlightsType = tk.Button(flights_frame, text='Plot Flights', command=Plot_FlightsType)
@@ -917,17 +752,5 @@ button2.pack(padx=5, pady=10, fill=tk.X)
 button3 = tk.Button(flights_frame, text='Long Distance Arrivals (>2000km)', command=Long_Distance_Arrivals)
 button3.pack(padx=5, pady=10, fill=tk.X)
 
-button4 = tk.Button(flights_frame, text='Plot arrivals per company', command=Plot_Airlines)
-button4.pack(padx=5, pady=5, fill=tk.X)
-
-# Botón para mapear vuelos por hora
-button5=tk.Button(flights_frame, text='Map arrivals per hours',command=Plot_Arrivals_per_Hour)
-button5.pack(padx=5, pady=10, fill=tk.X)
-'''
-# Botón para guardar la info de vuelos en un archivo
-button6=tk.Button(flights_frame, text='Save flights',command=Save_Flights)
-button6.pack(padx=5, pady=10, fill=tk.X)'''
-
-root.mainloop()
 
 root.mainloop()

@@ -1,4 +1,8 @@
 import matplotlib.pyplot as plt
+import os
+import platform
+import subprocess
+
 
 class Airport:
     def __init__(self,code,lat,lon):
@@ -167,56 +171,124 @@ def PlotAirports(airports):
     
     plt.show()
 
-def MapAirports (airports):
-    if len(airports) == 0:
-        print("No airports to map.")
-        return
-    
-    # Create KML content
+
+def MapAirports(airports, base_filename="airports"):
+
+    if not airports or len(airports) == 0:
+        return (False, "No hay aeropuertos para mapear.", "")
+
+    filename = f"{base_filename}.kml"
+
+    # Crear contenido KML
     kml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
     kml_content += '<kml xmlns="http://www.opengis.net/kml/2.2">\n'
     kml_content += '<Document>\n'
-    
-    # Add styles for Schengen (green) and non-Schengen (red)
-    kml_content += '<Style id="schengen">\n'
-    kml_content += '  <IconStyle>\n'
-    kml_content += '    <color>ff00ff00</color>\n'
-    kml_content += '  </IconStyle>\n'
-    kml_content += '</Style>\n'
-    
-    kml_content += '<Style id="nonschengen">\n'
-    kml_content += '  <IconStyle>\n'
-    kml_content += '    <color>ff0000ff</color>\n'
-    kml_content += '  </IconStyle>\n'
-    kml_content += '</Style>\n'
-    
-    # Add each airport as a placemark
-    i = 0
-    while i < len(airports):
-        airport = airports[i]
+    kml_content += '  <name>Airports Map</name>\n'
+    kml_content += '  <description>Schengen and Non-Schengen Airports</description>\n'
+
+    # Estilos para Schengen (verde) y Non-Schengen (rojo)
+    kml_content += '  <Style id="schengen">\n'
+    kml_content += '    <IconStyle>\n'
+    kml_content += '      <color>ff00ff00</color>\n'
+    kml_content += '      <scale>1.3</scale>\n'
+    kml_content += '    </IconStyle>\n'
+    kml_content += '    <LabelStyle>\n'
+    kml_content += '      <scale>0.9</scale>\n'
+    kml_content += '    </LabelStyle>\n'
+    kml_content += '  </Style>\n'
+
+    kml_content += '  <Style id="nonschengen">\n'
+    kml_content += '    <IconStyle>\n'
+    kml_content += '      <color>ff0000ff</color>\n'
+    kml_content += '      <scale>1.3</scale>\n'
+    kml_content += '    </IconStyle>\n'
+    kml_content += '    <LabelStyle>\n'
+    kml_content += '      <scale>0.9</scale>\n'
+    kml_content += '    </LabelStyle>\n'
+    kml_content += '  </Style>\n'
+
+    # Agregar cada aeropuerto como placemark
+    for airport in airports:
         style = 'schengen' if airport.schengen else 'nonschengen'
         schengen_text = 'Schengen' if airport.schengen else 'Non-Schengen'
-        
-        kml_content += '<Placemark>\n'
-        kml_content += f'  <name>{airport.code}</name>\n'
-        kml_content += f'  <description>{schengen_text} Airport</description>\n'
-        kml_content += f'  <styleUrl>#{style}</styleUrl>\n'
-        kml_content += '  <Point>\n'
-        kml_content += '    <coordinates>\n'
-        kml_content += f'      {airport.lon},{airport.lat}\n'
-        kml_content += '    </coordinates>\n'
-        kml_content += '  </Point>\n'
-        kml_content += '</Placemark>\n'
-        
-        i += 1
-    
+
+        kml_content += '  <Placemark>\n'
+        kml_content += f'    <name>{airport.code}</name>\n'
+        kml_content += f'    <description>{schengen_text} Airport<br/>Lat: {airport.lat:.4f}<br/>Lon: {airport.lon:.4f}</description>\n'
+        kml_content += f'    <styleUrl>#{style}</styleUrl>\n'
+        kml_content += '    <Point>\n'
+        kml_content += f'      <coordinates>{airport.lon},{airport.lat},0</coordinates>\n'
+        kml_content += '    </Point>\n'
+        kml_content += '  </Placemark>\n'
+
     kml_content += '</Document>\n'
     kml_content += '</kml>\n'
-    
-    # Save to file
-    filename = 'airports.kml'
-    file = open(filename, 'w')
-    file.write(kml_content)
-    file.close()
-    
-    print(f"KML file '{filename}' created. Open it with Google Earth.")
+
+    # Guardar archivo KML
+    try:
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write(kml_content)
+
+        # Obtener ruta absoluta
+        abs_path = os.path.abspath(filename)
+
+        # Detectar sistema operativo y abrir Google Earth Pro
+        system = platform.system()
+        google_earth_opened = False
+
+        if system == "Windows":
+            # Rutas comunes de Google Earth Pro en Windows
+            possible_paths = [
+                r"C:\Program Files\Google\Google Earth Pro\client\googleearth.exe",
+                r"C:\Program Files (x86)\Google\Google Earth Pro\client\googleearth.exe",
+                os.path.expanduser(r"~\AppData\Local\Google\Google Earth Pro\client\googleearth.exe")
+            ]
+
+            for path in possible_paths:
+                if os.path.exists(path):
+                    try:
+                        subprocess.Popen([path, abs_path])
+                        google_earth_opened = True
+                        break
+                    except:
+                        continue
+
+        elif system == "Darwin":  # macOS
+            try:
+                subprocess.Popen(["open", "-a", "Google Earth Pro", abs_path])
+                google_earth_opened = True
+            except:
+                pass
+
+        elif system == "Linux":
+            try:
+                subprocess.Popen(["google-earth-pro", abs_path])
+                google_earth_opened = True
+            except:
+                pass
+
+        if not google_earth_opened:
+            try:
+                if system == "Windows":
+                    os.startfile(abs_path)
+                elif system == "Darwin":
+                    subprocess.Popen(["open", abs_path])
+                else:
+                    subprocess.Popen(["xdg-open", abs_path])
+                google_earth_opened = True
+            except:
+                pass
+
+        if google_earth_opened:
+            return (True, f"Archivo KML '{filename}' creado y abierto correctamente.", filename)
+        else:
+            message = (f"Archivo KML '{filename}' creado.\n\n"
+                       f"No se pudo abrir Google Earth Pro automáticamente.\n\n"
+                       f"Por favor:\n"
+                       f"1. Abre Google Earth Pro manualmente\n"
+                       f"2. Archivo → Abrir → Selecciona '{filename}'\n\n"
+                       f"O haz doble clic en '{filename}' si Google Earth está instalado.")
+            return (True, message, filename)
+
+    except Exception as e:
+        return (False, f"No se pudo crear el KML: {str(e)}", "")
