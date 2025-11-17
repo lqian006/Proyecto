@@ -342,3 +342,42 @@ def LongDistanceArrivals(aircrafts, airports):
             long_distance.append(aircraft)
 
     return long_distance
+
+import matplotlib.pyplot as plt
+
+def PlotFlightsType(arrives):
+    SCHENGEN_PREFIXES = [
+        "LE", "LF", "LO", "LS", "LI", "ED", "ET", "EH", "EB",
+        "LP", "LG", "ES", "EY", "EV", "EK", "EN", "EI", "LZ"
+    ]
+
+    if len(arrives) == 0:
+        print("No arrives to plot.")
+        return
+
+    schengen_count = 0
+    non_schengen_count = 0
+
+    for a in arrives:
+        origin = a.OriginAirport.upper()   # <-- atributo REAL
+
+        # Determinar si pertenece a Schengen por prefijo
+        is_schengen = any(origin.startswith(pref) for pref in SCHENGEN_PREFIXES)
+
+        if is_schengen:
+            schengen_count += 1
+        else:
+            non_schengen_count += 1
+
+    labels = ["Flights"]
+    schengen_values = [schengen_count]
+    non_schengen_values = [non_schengen_count]
+
+    fig, ax = plt.subplots()
+    ax.bar(labels, schengen_values, label="Schengen")
+    ax.bar(labels, non_schengen_values, bottom=schengen_values, label="Non-Schengen")
+
+    ax.set_ylabel("Number of Flights")
+    ax.set_title("Flights by Type (Schengen / Non-Schengen)")
+    ax.legend()
+    plt.show()

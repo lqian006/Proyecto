@@ -27,9 +27,9 @@ if __name__ == "__main__":
     PlotAirlines(arrives)
 
 
-#test 5 PlotFlightsType (vacío)
-
-
+#test 5 PlotFlightsType
+print("\nExecuting PlotFlightsType")
+PlotFlightsType(arrives)
 
 #test 6 MapFlights
 print("\nShow trajectories in Google Earth...")

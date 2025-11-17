@@ -1,3 +1,4 @@
+
 import tkinter as tk
 from tkinter import messagebox,filedialog
 import matplotlib.pyplot as plt
@@ -529,53 +530,15 @@ def Plot_Airlines():
     except Exception as e:
         messagebox.showerror("Error", f"Error al crear el gráfico: {str(e)}")
 
-
 def Plot_FlightsType():
-    global flights  # hacemos global para reutilizarla en Add_Airports
+    global aircrafts
 
-    filename = entry_filename.get().strip()
-    if not filename:
-        messagebox.showwarning("Error", "No hay vuelos cargados.")
+    if 'aircrafts' not in globals() or len(aircrafts) == 0:
+        messagebox.showerror("Error", "No se ha cargado el archivo 'arrives.txt' o está vacío~")
         return
 
-    try:
-        flights = LoadAirports(filename)
-    except FileNotFoundError:
-        messagebox.showerror("Error", f"No se encontró el archivo '{filename}'.")
-        return
-
-
-    contando_schengen = 0
-    contando_no_schengen = 0
-
-    i = 0
-    while i < len(flights):
-        if flights[i].origin.schengen:
-            contando_schengen += 1
-        else:
-            contando_no_schengen += 1
-        i += 1
-
-    fig, ax = plt.subplots()
-
-    ax.bar(
-        ['Flights'],
-        [contando_schengen],
-        label='Schengen',
-        color='steelblue'
-    )
-    ax.bar(
-        ['Flights'],
-        [contando_no_schengen],
-        bottom=[contando_schengen],
-        label='No Schengen',
-        color='lightcoral'
-    )
-    ax.set_ylabel('Número de vuelos')
-    ax.set_title('Flights by Type (Schengen vs Non-Schengen)')
-    ax.legend()
-
-    plt.show()
+    # Llamamos a la función de aircraft.py
+    PlotFlightsType(aircrafts)
 
 
 def Map_Flights():
@@ -741,8 +704,8 @@ button4 = tk.Button(flights_frame, text='Plot arrivals per company', command=Plo
 button4.pack(padx=5, pady=5, fill=tk.X)
 
 #boton para plotar tipos de vuelos
-PlotFlightsType = tk.Button(flights_frame, text='Plot Flights', command=Plot_FlightsType)
-PlotFlightsType.pack(padx=5, pady=10, fill=tk.X)
+button10 = tk.Button(flights_frame, text='Plot Flights', command=Plot_FlightsType)
+button10.pack(padx=5, pady=10, fill=tk.X)
 
 # Botón para Show trajectories in Google Earth
 button2 = tk.Button(flights_frame, text='Map Flights to LEBL', command=Map_Flights)
