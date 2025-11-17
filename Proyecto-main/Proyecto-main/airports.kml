@@ -78,59 +78,1339 @@
     </Point>
   </Placemark>
   <Placemark>
-    <name>LEBL</name>
-    <description>Schengen Airport<br/>Lat: 41.4808<br/>Lon: 2.0833</description>
+    <name>EBBR</name>
+    <description>Schengen Airport<br/>Lat: 50.9014<br/>Lon: 4.4844</description>
     <styleUrl>#schengen</styleUrl>
     <Point>
-      <coordinates>2.0833333333333335,41.48083333333334,0</coordinates>
+      <coordinates>4.484444444444445,50.90138888888889,0</coordinates>
     </Point>
   </Placemark>
   <Placemark>
-    <name>LFPG</name>
-    <description>Schengen Airport<br/>Lat: 49.0092<br/>Lon: 2.4147</description>
+    <name>EBLG</name>
+    <description>Schengen Airport<br/>Lat: 50.6364<br/>Lon: 5.4428</description>
     <styleUrl>#schengen</styleUrl>
     <Point>
-      <coordinates>2.414722222222222,49.009166666666665,0</coordinates>
+      <coordinates>5.442777777777778,50.63638888888889,0</coordinates>
     </Point>
   </Placemark>
   <Placemark>
-    <name>EGLL</name>
-    <description>Non-Schengen Airport<br/>Lat: 51.5000<br/>Lon: -0.4233</description>
-    <styleUrl>#nonschengen</styleUrl>
+    <name>EBOS</name>
+    <description>Schengen Airport<br/>Lat: 51.1989<br/>Lon: 2.8622</description>
+    <styleUrl>#schengen</styleUrl>
     <Point>
-      <coordinates>-0.42333333333333334,51.5,0</coordinates>
+      <coordinates>2.8622222222222224,51.19888888888889,0</coordinates>
     </Point>
   </Placemark>
   <Placemark>
-    <name>KJFK</name>
-    <description>Non-Schengen Airport<br/>Lat: 40.4744<br/>Lon: -73.7778</description>
-    <styleUrl>#nonschengen</styleUrl>
+    <name>EDDB</name>
+    <description>Schengen Airport<br/>Lat: 52.3622<br/>Lon: 13.5006</description>
+    <styleUrl>#schengen</styleUrl>
     <Point>
-      <coordinates>-73.77777777777777,40.474444444444444,0</coordinates>
+      <coordinates>13.500555555555556,52.36222222222222,0</coordinates>
     </Point>
   </Placemark>
   <Placemark>
     <name>EDDF</name>
-    <description>Schengen Airport<br/>Lat: 50.0333<br/>Lon: 8.5728</description>
+    <description>Schengen Airport<br/>Lat: 50.0333<br/>Lon: 8.5706</description>
     <styleUrl>#schengen</styleUrl>
     <Point>
-      <coordinates>8.572777777777777,50.03333333333333,0</coordinates>
+      <coordinates>8.570555555555556,50.03333333333333,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EDDH</name>
+    <description>Schengen Airport<br/>Lat: 53.6303<br/>Lon: 9.9883</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>9.988333333333333,53.63027777777778,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EDDK</name>
+    <description>Schengen Airport<br/>Lat: 50.8658<br/>Lon: 7.1428</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>7.142777777777778,50.865833333333335,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EDDL</name>
+    <description>Schengen Airport<br/>Lat: 51.2808<br/>Lon: 6.7572</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>6.7572222222222225,51.280833333333334,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EDDM</name>
+    <description>Schengen Airport<br/>Lat: 48.3539<br/>Lon: 11.7861</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>11.786111111111111,48.35388888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EDDN</name>
+    <description>Schengen Airport<br/>Lat: 49.4986<br/>Lon: 11.0781</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>11.078055555555554,49.49861111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EDDP</name>
+    <description>Schengen Airport<br/>Lat: 51.4239<br/>Lon: 12.2364</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>12.236388888888888,51.42388888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EDDS</name>
+    <description>Schengen Airport<br/>Lat: 48.6900<br/>Lon: 9.2219</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>9.221944444444444,48.69,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EDDT</name>
+    <description>Schengen Airport<br/>Lat: 52.5597<br/>Lon: 13.2878</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>13.287777777777778,52.55972222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EDDV</name>
+    <description>Schengen Airport<br/>Lat: 52.4603<br/>Lon: 9.6836</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>9.68361111111111,52.46027777777778,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EETN</name>
+    <description>Schengen Airport<br/>Lat: 59.4133<br/>Lon: 24.8325</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>24.8325,59.413333333333334,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EFHK</name>
+    <description>Schengen Airport<br/>Lat: 60.3172<br/>Lon: 24.9633</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>24.96333333333333,60.31722222222223,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGAA</name>
+    <description>Non-Schengen Airport<br/>Lat: 54.6575<br/>Lon: -6.2158</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-6.215833333333333,54.6575,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGBB</name>
+    <description>Non-Schengen Airport<br/>Lat: 52.4539<br/>Lon: -1.7481</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-1.7480555555555557,52.45388888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGCC</name>
+    <description>Non-Schengen Airport<br/>Lat: 53.3539<br/>Lon: -2.2750</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-2.275,53.35388888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGFF</name>
+    <description>Non-Schengen Airport<br/>Lat: 51.3967<br/>Lon: -3.3433</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-3.3433333333333333,51.39666666666667,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGGD</name>
+    <description>Non-Schengen Airport<br/>Lat: 51.3828<br/>Lon: -2.7192</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-2.7191666666666667,51.382777777777775,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGGP</name>
+    <description>Non-Schengen Airport<br/>Lat: 53.3336<br/>Lon: -2.8497</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-2.8497222222222223,53.33361111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGGW</name>
+    <description>Non-Schengen Airport<br/>Lat: 51.8747<br/>Lon: -0.3683</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-0.3683333333333333,51.874722222222225,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGHI</name>
+    <description>Non-Schengen Airport<br/>Lat: 50.9503<br/>Lon: -1.3567</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-1.3566666666666667,50.95027777777778,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGKK</name>
+    <description>Non-Schengen Airport<br/>Lat: 51.1481<br/>Lon: -0.1903</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-0.19027777777777777,51.14805555555556,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGLL</name>
+    <description>Non-Schengen Airport<br/>Lat: 51.4775<br/>Lon: -0.4614</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-0.4613888888888889,51.4775,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGMC</name>
+    <description>Non-Schengen Airport<br/>Lat: 51.5703<br/>Lon: 0.6933</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>0.6933333333333334,51.57027777777778,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGNM</name>
+    <description>Non-Schengen Airport<br/>Lat: 53.8661<br/>Lon: -1.6608</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-1.6608333333333332,53.86611111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGNT</name>
+    <description>Non-Schengen Airport<br/>Lat: 55.0381<br/>Lon: -1.6897</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-1.6897222222222223,55.03805555555555,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGNX</name>
+    <description>Non-Schengen Airport<br/>Lat: 52.8311<br/>Lon: -1.3278</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-1.3277777777777777,52.83111111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGPH</name>
+    <description>Non-Schengen Airport<br/>Lat: 55.9500<br/>Lon: -3.3725</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-3.3725,55.95,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGPK</name>
+    <description>Non-Schengen Airport<br/>Lat: 55.5094<br/>Lon: -4.5944</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-4.594444444444444,55.50944444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EGSS</name>
+    <description>Non-Schengen Airport<br/>Lat: 51.8850<br/>Lon: 0.2350</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>0.23500000000000001,51.885,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EHAM</name>
+    <description>Schengen Airport<br/>Lat: 52.3081<br/>Lon: 4.7642</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>4.764166666666667,52.308055555555555,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EHEH</name>
+    <description>Schengen Airport<br/>Lat: 51.4500<br/>Lon: 5.3744</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>5.374444444444444,51.45,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EHRD</name>
+    <description>Schengen Airport<br/>Lat: 51.9569<br/>Lon: 4.4372</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>4.437222222222222,51.956944444444446,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EIDW</name>
+    <description>Non-Schengen Airport<br/>Lat: 53.4214<br/>Lon: -6.2700</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-6.27,53.421388888888885,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EKBI</name>
+    <description>Schengen Airport<br/>Lat: 55.7403<br/>Lon: 9.1517</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>9.151666666666667,55.74027777777778,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EKCH</name>
+    <description>Schengen Airport<br/>Lat: 55.6181<br/>Lon: 12.6561</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>12.65611111111111,55.61805555555556,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>ELLX</name>
+    <description>Schengen Airport<br/>Lat: 49.6233<br/>Lon: 6.2044</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>6.204444444444444,49.623333333333335,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>ENBR</name>
+    <description>Schengen Airport<br/>Lat: 60.2936<br/>Lon: 5.2181</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>5.218055555555556,60.29361111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>ENGM</name>
+    <description>Schengen Airport<br/>Lat: 60.2028<br/>Lon: 11.0839</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>11.08388888888889,60.20277777777778,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EPKK</name>
+    <description>Schengen Airport<br/>Lat: 50.0778<br/>Lon: 19.7847</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>19.784722222222225,50.07777777777778,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EPKT</name>
+    <description>Schengen Airport<br/>Lat: 50.4742<br/>Lon: 19.0800</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>19.08,50.47416666666667,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EPWA</name>
+    <description>Schengen Airport<br/>Lat: 52.1658<br/>Lon: 20.9672</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>20.96722222222222,52.16583333333333,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>ESGG</name>
+    <description>Schengen Airport<br/>Lat: 57.6600<br/>Lon: 12.2911</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>12.29111111111111,57.66,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>ESKN</name>
+    <description>Schengen Airport<br/>Lat: 58.7886<br/>Lon: 16.9036</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>16.90361111111111,58.78861111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>ESSA</name>
+    <description>Schengen Airport<br/>Lat: 59.6519<br/>Lon: 17.9186</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>17.91861111111111,59.651944444444446,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>ETNL</name>
+    <description>Non-Schengen Airport<br/>Lat: 53.9192<br/>Lon: 12.2783</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>12.278333333333334,53.91916666666666,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EVRA</name>
+    <description>Schengen Airport<br/>Lat: 56.9236<br/>Lon: 23.9711</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>23.97111111111111,56.92361111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EYVI</name>
+    <description>Schengen Airport<br/>Lat: 54.6369<br/>Lon: 25.2878</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>25.28777777777778,54.636944444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>GCFV</name>
+    <description>Schengen Airport<br/>Lat: 28.4528<br/>Lon: -13.8639</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-13.863888888888889,28.452777777777776,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>GCLP</name>
+    <description>Schengen Airport<br/>Lat: 27.9319<br/>Lon: -15.3867</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-15.386666666666667,27.931944444444447,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>GCRR</name>
+    <description>Schengen Airport<br/>Lat: 28.9456<br/>Lon: -13.6053</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-13.605277777777777,28.945555555555554,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>GCXO</name>
+    <description>Schengen Airport<br/>Lat: 28.4828<br/>Lon: -16.3417</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-16.341666666666665,28.482777777777777,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>GMFF</name>
+    <description>Non-Schengen Airport<br/>Lat: 33.9272<br/>Lon: -4.9778</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-4.977777777777778,33.92722222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>GMMN</name>
+    <description>Non-Schengen Airport<br/>Lat: 33.3642<br/>Lon: -7.5817</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-7.581666666666666,33.36416666666667,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>GMMX</name>
+    <description>Non-Schengen Airport<br/>Lat: 31.6086<br/>Lon: -8.0408</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-8.040833333333333,31.608611111111113,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>GMTT</name>
+    <description>Non-Schengen Airport<br/>Lat: 35.7317<br/>Lon: -5.9211</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-5.921111111111111,35.73166666666667,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>HECA</name>
+    <description>Non-Schengen Airport<br/>Lat: 30.1114<br/>Lon: 31.4139</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>31.413888888888888,30.11138888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>HTDA</name>
+    <description>Non-Schengen Airport<br/>Lat: -6.8756<br/>Lon: 39.2033</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>39.20333333333333,-6.875555555555556,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>KATL</name>
+    <description>Non-Schengen Airport<br/>Lat: 33.6333<br/>Lon: -84.4333</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-84.43333333333334,33.63333333333333,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>KCLT</name>
+    <description>Non-Schengen Airport<br/>Lat: 35.2167<br/>Lon: -80.9500</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-80.95,35.21666666666667,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>KEWR</name>
+    <description>Non-Schengen Airport<br/>Lat: 40.6967<br/>Lon: -74.1683</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-74.16833333333334,40.696666666666665,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>KIAD</name>
+    <description>Non-Schengen Airport<br/>Lat: 38.9450<br/>Lon: -77.4567</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-77.45666666666666,38.94499999999999,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>KJFK</name>
+    <description>Non-Schengen Airport<br/>Lat: 40.6403<br/>Lon: -73.7783</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-73.77833333333334,40.640277777777776,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>KMIA</name>
+    <description>Non-Schengen Airport<br/>Lat: 25.8000<br/>Lon: -80.2833</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-80.28333333333333,25.8,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>KPHL</name>
+    <description>Non-Schengen Airport<br/>Lat: 39.8700<br/>Lon: -75.2450</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-75.245,39.87,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>KUGN</name>
+    <description>Non-Schengen Airport<br/>Lat: 42.4217<br/>Lon: -87.8683</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-87.86833333333333,42.42166666666667,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LBSF</name>
+    <description>Non-Schengen Airport<br/>Lat: 42.6950<br/>Lon: 23.4083</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>23.40833333333333,42.69499999999999,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LCLK</name>
+    <description>Schengen Airport<br/>Lat: 34.8789<br/>Lon: 33.6303</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>33.63027777777778,34.87888888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LDDU</name>
+    <description>Non-Schengen Airport<br/>Lat: 42.5614<br/>Lon: 18.2683</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>18.26833333333333,42.561388888888885,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LDSP</name>
+    <description>Non-Schengen Airport<br/>Lat: 43.5389<br/>Lon: 16.2981</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>16.298055555555557,43.538888888888884,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LDZA</name>
+    <description>Non-Schengen Airport<br/>Lat: 45.7431<br/>Lon: 16.0689</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>16.06888888888889,45.74305555555556,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEAL</name>
+    <description>Schengen Airport<br/>Lat: 38.2822<br/>Lon: -0.5581</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-0.5580555555555556,38.282222222222224,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEAM</name>
+    <description>Schengen Airport<br/>Lat: 36.8439<br/>Lon: -2.3700</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-2.37,36.84388888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEAS</name>
+    <description>Schengen Airport<br/>Lat: 43.5636<br/>Lon: -6.0347</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-6.034722222222222,43.56361111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEBB</name>
+    <description>Schengen Airport<br/>Lat: 43.3011<br/>Lon: -2.9106</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-2.9105555555555553,43.301111111111105,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEBL</name>
+    <description>Schengen Airport<br/>Lat: 41.2969<br/>Lon: 2.0783</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>2.0783333333333336,41.29694444444444,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEBZ</name>
+    <description>Schengen Airport<br/>Lat: 38.8914<br/>Lon: -6.8214</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-6.8213888888888885,38.89138888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LECO</name>
+    <description>Schengen Airport<br/>Lat: 43.3019<br/>Lon: -8.3772</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-8.377222222222223,43.301944444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEGE</name>
+    <description>Schengen Airport<br/>Lat: 41.9008<br/>Lon: 2.7606</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>2.7605555555555554,41.90083333333333,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEGR</name>
+    <description>Schengen Airport<br/>Lat: 37.1886<br/>Lon: -3.7772</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-3.777222222222222,37.18861111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEIB</name>
+    <description>Schengen Airport<br/>Lat: 38.8728<br/>Lon: 1.3731</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>1.3730555555555557,38.87277777777778,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEJR</name>
+    <description>Schengen Airport<br/>Lat: 36.7447<br/>Lon: -6.0600</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-6.06,36.74472222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LELN</name>
+    <description>Schengen Airport<br/>Lat: 42.5886<br/>Lon: -5.6561</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-5.6561111111111115,42.58861111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEMD</name>
+    <description>Schengen Airport<br/>Lat: 40.4722<br/>Lon: -3.5608</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-3.560833333333333,40.47222222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEMG</name>
+    <description>Schengen Airport<br/>Lat: 36.6750<br/>Lon: -4.4992</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-4.4991666666666665,36.675,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEMH</name>
+    <description>Schengen Airport<br/>Lat: 39.8625<br/>Lon: 4.2186</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>4.2186111111111115,39.862500000000004,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEPA</name>
+    <description>Schengen Airport<br/>Lat: 39.5517<br/>Lon: 2.7389</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>2.738888888888889,39.55166666666666,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LESO</name>
+    <description>Schengen Airport<br/>Lat: 43.3564<br/>Lon: -1.7906</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-1.7905555555555555,43.35638888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEST</name>
+    <description>Schengen Airport<br/>Lat: 42.8964<br/>Lon: -8.4153</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-8.415277777777778,42.896388888888886,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEVC</name>
+    <description>Schengen Airport<br/>Lat: 39.4894<br/>Lon: -0.4817</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-0.4816666666666667,39.489444444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEVD</name>
+    <description>Schengen Airport<br/>Lat: 41.7061<br/>Lon: -4.8519</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-4.851944444444444,41.70611111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEVX</name>
+    <description>Schengen Airport<br/>Lat: 42.2292<br/>Lon: -8.6275</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-8.627500000000001,42.22916666666667,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEXJ</name>
+    <description>Schengen Airport<br/>Lat: 43.4269<br/>Lon: -3.8200</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-3.82,43.426944444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LEZL</name>
+    <description>Schengen Airport<br/>Lat: 37.4181<br/>Lon: -5.8989</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-5.898888888888888,37.418055555555554,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFBD</name>
+    <description>Schengen Airport<br/>Lat: 44.8286<br/>Lon: -0.7153</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-0.7152777777777777,44.828611111111115,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFBT</name>
+    <description>Schengen Airport<br/>Lat: 43.1856<br/>Lon: -0.0028</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-0.002777777777777778,43.18555555555555,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFCK</name>
+    <description>Schengen Airport<br/>Lat: 43.5550<br/>Lon: 2.2906</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>2.2905555555555552,43.555,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFLL</name>
+    <description>Schengen Airport<br/>Lat: 45.7256<br/>Lon: 5.0811</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>5.0811111111111105,45.72555555555556,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFMD</name>
+    <description>Schengen Airport<br/>Lat: 43.5464<br/>Lon: 6.9542</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>6.954166666666667,43.546388888888885,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFML</name>
+    <description>Schengen Airport<br/>Lat: 43.4367<br/>Lon: 5.2150</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>5.215,43.43666666666666,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFMN</name>
+    <description>Schengen Airport<br/>Lat: 43.6653<br/>Lon: 7.2150</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>7.215,43.665277777777774,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFOB</name>
+    <description>Schengen Airport<br/>Lat: 49.4544<br/>Lon: 2.1128</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>2.112777777777778,49.45444444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFPG</name>
+    <description>Schengen Airport<br/>Lat: 49.0097<br/>Lon: 2.5478</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>2.5477777777777777,49.00972222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFPO</name>
+    <description>Schengen Airport<br/>Lat: 48.7233<br/>Lon: 2.3794</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>2.3794444444444447,48.723333333333336,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFQQ</name>
+    <description>Schengen Airport<br/>Lat: 50.5633<br/>Lon: 3.0869</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>3.0869444444444447,50.56333333333333,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFRN</name>
+    <description>Schengen Airport<br/>Lat: 48.0719<br/>Lon: -1.7322</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-1.7322222222222223,48.07194444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFRS</name>
+    <description>Schengen Airport<br/>Lat: 47.1569<br/>Lon: -1.6078</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-1.607777777777778,47.15694444444444,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFSB</name>
+    <description>Schengen Airport<br/>Lat: 47.5900<br/>Lon: 7.5292</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>7.529166666666667,47.59,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LFST</name>
+    <description>Schengen Airport<br/>Lat: 48.5419<br/>Lon: 7.6344</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>7.634444444444444,48.54194444444444,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LGAV</name>
+    <description>Schengen Airport<br/>Lat: 37.9367<br/>Lon: 23.9444</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>23.944444444444446,37.93666666666666,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LGIR</name>
+    <description>Schengen Airport<br/>Lat: 35.3397<br/>Lon: 25.1803</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>25.18027777777778,35.33972222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LGKR</name>
+    <description>Schengen Airport<br/>Lat: 39.6019<br/>Lon: 19.9122</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>19.91222222222222,39.60194444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LGMK</name>
+    <description>Schengen Airport<br/>Lat: 37.4372<br/>Lon: 25.3472</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>25.34722222222222,37.43722222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LGSR</name>
+    <description>Schengen Airport<br/>Lat: 36.3992<br/>Lon: 25.4792</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>25.479166666666664,36.399166666666666,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LGTS</name>
+    <description>Schengen Airport<br/>Lat: 40.5197<br/>Lon: 22.9708</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>22.97083333333333,40.51972222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LHBP</name>
+    <description>Schengen Airport<br/>Lat: 47.4394<br/>Lon: 19.2619</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>19.261944444444445,47.43944444444444,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIBD</name>
+    <description>Schengen Airport<br/>Lat: 41.1381<br/>Lon: 16.7650</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>16.765,41.13805555555555,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LICJ</name>
+    <description>Schengen Airport<br/>Lat: 38.1819<br/>Lon: 13.0994</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>13.099444444444446,38.18194444444444,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIEE</name>
+    <description>Schengen Airport<br/>Lat: 39.2472<br/>Lon: 9.0561</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>9.056111111111111,39.24722222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIEO</name>
+    <description>Schengen Airport<br/>Lat: 40.8986<br/>Lon: 9.5178</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>9.517777777777779,40.89861111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIMC</name>
+    <description>Schengen Airport<br/>Lat: 45.6300<br/>Lon: 8.7231</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>8.723055555555556,45.63,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIME</name>
+    <description>Schengen Airport<br/>Lat: 45.6689<br/>Lon: 9.7003</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>9.700277777777776,45.66888888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIMF</name>
+    <description>Schengen Airport<br/>Lat: 45.2025<br/>Lon: 7.6494</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>7.649444444444444,45.2025,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIML</name>
+    <description>Schengen Airport<br/>Lat: 45.4494<br/>Lon: 9.2783</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>9.278333333333334,45.44944444444444,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIPE</name>
+    <description>Schengen Airport<br/>Lat: 44.5308<br/>Lon: 11.2969</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>11.296944444444444,44.530833333333334,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIPH</name>
+    <description>Schengen Airport<br/>Lat: 45.6508<br/>Lon: 12.1978</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>12.197777777777778,45.65083333333333,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIPX</name>
+    <description>Schengen Airport<br/>Lat: 45.3964<br/>Lon: 10.8878</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>10.887777777777778,45.396388888888886,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIPZ</name>
+    <description>Schengen Airport<br/>Lat: 45.5053<br/>Lon: 12.3519</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>12.351944444444444,45.50527777777778,0</coordinates>
     </Point>
   </Placemark>
   <Placemark>
     <name>LIRF</name>
-    <description>Schengen Airport<br/>Lat: 41.8347<br/>Lon: 12.3972</description>
+    <description>Schengen Airport<br/>Lat: 41.8003<br/>Lon: 12.2389</description>
     <styleUrl>#schengen</styleUrl>
     <Point>
-      <coordinates>12.397222222222222,41.834722222222226,0</coordinates>
+      <coordinates>12.238888888888889,41.80027777777777,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIRN</name>
+    <description>Schengen Airport<br/>Lat: 40.8844<br/>Lon: 14.2908</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>14.290833333333333,40.88444444444444,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIRP</name>
+    <description>Schengen Airport<br/>Lat: 43.6828<br/>Lon: 10.3956</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>10.395555555555555,43.68277777777777,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LIRQ</name>
+    <description>Schengen Airport<br/>Lat: 43.8086<br/>Lon: 11.2028</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>11.202777777777778,43.808611111111105,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LKPR</name>
+    <description>Schengen Airport<br/>Lat: 50.1008<br/>Lon: 14.2600</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>14.26,50.100833333333334,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LLBG</name>
+    <description>Non-Schengen Airport<br/>Lat: 32.0094<br/>Lon: 34.8856</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>34.885555555555555,32.00944444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LMML</name>
+    <description>Schengen Airport<br/>Lat: 35.8575<br/>Lon: 14.4775</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>14.477500000000001,35.8575,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LOWW</name>
+    <description>Schengen Airport<br/>Lat: 48.1103<br/>Lon: 16.5697</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>16.56972222222222,48.11027777777778,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LPPR</name>
+    <description>Schengen Airport<br/>Lat: 41.2356<br/>Lon: -8.6781</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>-8.678055555555554,41.23555555555556,0</coordinates>
     </Point>
   </Placemark>
   <Placemark>
     <name>LPPT</name>
-    <description>Schengen Airport<br/>Lat: 38.7636<br/>Lon: -9.1383</description>
+    <description>Schengen Airport<br/>Lat: 38.7742<br/>Lon: -9.1342</description>
     <styleUrl>#schengen</styleUrl>
     <Point>
-      <coordinates>-9.138333333333334,38.76361111111111,0</coordinates>
+      <coordinates>-9.134166666666665,38.774166666666666,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LRCL</name>
+    <description>Non-Schengen Airport<br/>Lat: 46.7892<br/>Lon: 23.6922</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>23.692222222222224,46.78916666666667,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LROP</name>
+    <description>Non-Schengen Airport<br/>Lat: 44.5711<br/>Lon: 26.0850</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>26.084999999999997,44.571111111111115,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LSGG</name>
+    <description>Schengen Airport<br/>Lat: 46.2383<br/>Lon: 6.1094</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>6.109444444444444,46.23833333333334,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LSZG</name>
+    <description>Schengen Airport<br/>Lat: 47.1814<br/>Lon: 7.4164</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>7.416388888888889,47.18138888888889,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LSZH</name>
+    <description>Schengen Airport<br/>Lat: 47.4581<br/>Lon: 8.5481</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>8.548055555555555,47.45805555555556,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LTBA</name>
+    <description>Non-Schengen Airport<br/>Lat: 40.9761<br/>Lon: 28.8142</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>28.81416666666667,40.976111111111116,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LTFJ</name>
+    <description>Non-Schengen Airport<br/>Lat: 40.8983<br/>Lon: 29.3092</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>29.309166666666666,40.89833333333333,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LUKK</name>
+    <description>Non-Schengen Airport<br/>Lat: 46.9278<br/>Lon: 28.9308</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>28.930833333333336,46.92777777777778,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LWSK</name>
+    <description>Non-Schengen Airport<br/>Lat: 41.9617<br/>Lon: 21.6214</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>21.62138888888889,41.961666666666666,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LYBE</name>
+    <description>Non-Schengen Airport<br/>Lat: 44.8194<br/>Lon: 20.3069</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>20.306944444444444,44.81944444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>LYTV</name>
+    <description>Non-Schengen Airport<br/>Lat: 42.4047<br/>Lon: 18.7233</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>18.723333333333333,42.40472222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>OLBA</name>
+    <description>Non-Schengen Airport<br/>Lat: 33.8192<br/>Lon: 35.4900</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>35.49,33.81916666666667,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>OMAA</name>
+    <description>Non-Schengen Airport<br/>Lat: 24.4333<br/>Lon: 54.6500</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>54.65,24.433333333333334,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>OMDB</name>
+    <description>Non-Schengen Airport<br/>Lat: 25.2492<br/>Lon: 55.3600</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>55.36,25.249166666666667,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>OTHH</name>
+    <description>Non-Schengen Airport<br/>Lat: 25.2744<br/>Lon: 51.6083</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>51.608333333333334,25.274444444444445,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>SAEZ</name>
+    <description>Non-Schengen Airport<br/>Lat: -34.8222<br/>Lon: -58.5358</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-58.53583333333333,-34.82222222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>SBGR</name>
+    <description>Non-Schengen Airport<br/>Lat: -23.4333<br/>Lon: -46.4700</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-46.47,-23.433333333333334,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>SKBO</name>
+    <description>Non-Schengen Airport<br/>Lat: 4.7000<br/>Lon: -74.1500</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-74.15,4.7,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>UKBB</name>
+    <description>Non-Schengen Airport<br/>Lat: 50.3447<br/>Lon: 30.8933</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>30.893333333333334,50.344722222222224,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>UKKK</name>
+    <description>Non-Schengen Airport<br/>Lat: 50.4019<br/>Lon: 30.4519</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>30.451944444444443,50.401944444444446,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>ULLI</name>
+    <description>Non-Schengen Airport<br/>Lat: 59.8003<br/>Lon: 30.2625</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>30.2625,59.80027777777777,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>URKK</name>
+    <description>Non-Schengen Airport<br/>Lat: 45.0347<br/>Lon: 39.1700</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>39.169999999999995,45.03472222222222,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>UUDD</name>
+    <description>Non-Schengen Airport<br/>Lat: 55.4086<br/>Lon: 37.9064</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>37.906388888888884,55.40861111111111,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>UUEE</name>
+    <description>Non-Schengen Airport<br/>Lat: 55.9725<br/>Lon: 37.4131</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>37.41305555555555,55.972500000000004,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>UWKD</name>
+    <description>Non-Schengen Airport<br/>Lat: 55.6069<br/>Lon: 49.2803</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>49.280277777777776,55.606944444444444,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>WSSS</name>
+    <description>Non-Schengen Airport<br/>Lat: 1.3592<br/>Lon: 103.9892</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>103.98916666666666,1.3591666666666669,0</coordinates>
     </Point>
   </Placemark>
 </Document>
