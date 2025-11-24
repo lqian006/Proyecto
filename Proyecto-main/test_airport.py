@@ -77,3 +77,10 @@ PlotAirports(airports)
 # Test 9: Map airports in Google Earth
 print("\n Map Airports to Google Earth:")
 MapAirports(airports)
+
+# Test 10
+airports = LoadAirports("airports.txt")   # tu archivo de datos
+ok, msg, filename = MapCloseAirport(airports, "AeropuertosCercanos", "EHAM", 100)
+
+print(ok, msg, filename)
+print("Cantidad:", len([a for a in airports if a.code != "EHAM"]))

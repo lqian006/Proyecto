@@ -5,6 +5,7 @@ Area B Schengen     Gates 1 - 57
 Area C Schengen     Gates 1 - 11
 Area D non-Schengen Gates 1 - 11
 Area E non-Schengen Gates 1 - 11
+
 Terminal T2     6 boarding areas
 Area M Schengen     Gates 1 - 8
 Area R Schengen     Gates 9 - 19

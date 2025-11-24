@@ -534,7 +534,7 @@ def Plot_FlightsType():
     global aircrafts
 
     if 'aircrafts' not in globals() or len(aircrafts) == 0:
-        messagebox.showerror("Error", "No se ha cargado el archivo 'arrives.txt' o está vacío")
+        messagebox.showerror("Error", "No se ha cargado el archivo 'arrives.txt' o está vacío~")
         return
 
     # Llamamos a la función de aircraft.py

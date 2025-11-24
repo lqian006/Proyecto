@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import os
 import platform
 import subprocess
+import math
+
+from matplotlib.textpath import text_to_path
 
 
 class Airport:
@@ -292,3 +295,115 @@ def MapAirports(airports, base_filename="airports"):
 
     except Exception as e:
         return (False, f"No se pudo crear el KML: {str(e)}", "")
+
+
+def HaversineDistance(lat1, lon1, lat2, lon2):
+    R = 6371.0  # Radio de la Tierra en km
+
+    lat1 = math.radians(lat1)
+    lon1 = math.radians(lon1)
+    lat2 = math.radians(lat2)
+    lon2 = math.radians(lon2)
+
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    return R * c
+
+def MapCloseAirport(airports, base_filename="AeropuertosCercanos", reference="", max_distance_km=100):
+
+    reference_airport = None # Buscar aeropuerto
+    for a in airports:
+        if a.code == reference:
+            reference_airport = a
+            break
+
+    if reference_airport is None: # si no existe no hay, avisar
+        return (False, f"Aeropuerto no encontrado.", "")
+
+    close_airports = [] # Filtrar aeropuertos cercanos
+    for a in airports:
+        if a.code == reference:
+            continue  # no contar la referencia
+        dist = HaversineDistance(reference_airport.lat, reference_airport.lon, a.lat, a.lon)
+        if dist <= max_distance_km:
+            close_airports.append(a)
+
+    if len(close_airports) == 0:
+        return (False, "No hay aeropuertos dentro de la distancia indicada.", "")
+        #por si no hay nada cerca
+
+    filename = f"{base_filename}.kml" #name del archivo
+
+    kml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    kml_content += '<kml xmlns="http://www.opengis.net/kml/2.2">\n'
+    kml_content += '<Document>\n'
+    kml_content += f'  <name>Airports near {reference}</name>\n'
+    kml_content += f'  <description>Aeropuertos a menos de {max_distance_km} km de {reference}</description>\n'
+
+    # colorines para chengen
+    kml_content += '  <Style id="schengen">\n'
+    kml_content += '    <IconStyle>\n'
+    kml_content += '      <color>ff00ff00</color>\n'
+    kml_content += '      <scale>1.3</scale>\n'
+    kml_content += '    </IconStyle>\n'
+    kml_content += '  </Style>\n'
+
+    #colorines para no schengen
+    kml_content += '  <Style id="nonschengen">\n'
+    kml_content += '    <IconStyle>\n'
+    kml_content += '      <color>ff0000ff</color>\n'
+    kml_content += '      <scale>1.3</scale>\n'
+    kml_content += '    </IconStyle>\n'
+    kml_content += '  </Style>\n'
+
+    # colorin para la referencia
+    kml_content += '  <Style id="reference">\n'
+    kml_content += '    <IconStyle>\n'
+    kml_content += '      <color>ffffaa00</color>\n'
+    kml_content += '      <scale>1.5</scale>\n'
+    kml_content += '    </IconStyle>\n'
+    kml_content += '  </Style>\n'
+
+    # ponerle un (referencia) al lado del nombre
+    kml_content += '  <Placemark>\n'
+    kml_content += f'    <name>{reference_airport.code} (Referencia)</name>\n'
+    kml_content += '    <styleUrl>#reference</styleUrl>\n'
+    kml_content += '    <Point>\n'
+    kml_content += f'      <coordinates>{reference_airport.lon},{reference_airport.lat},0</coordinates>\n'
+    kml_content += '    </Point>\n'
+    kml_content += '  </Placemark>\n'
+
+    #crear marcadores para los otros eroppuertos
+    for airport in close_airports:
+        style = 'schengen' if airport.schengen else 'nonschengen'
+        schengen_text = "Schengen" if airport.schengen else "Non-Schengen"
+
+        kml_content += '  <Placemark>\n'
+        kml_content += f'    <name>{airport.code}</name>\n'
+        kml_content += f'    <description>{schengen_text}</description>\n'
+        kml_content += f'    <styleUrl>#{style}</styleUrl>\n'
+        kml_content += '    <Point>\n'
+        kml_content += f'      <coordinates>{airport.lon},{airport.lat},0</coordinates>\n'
+        kml_content += '    </Point>\n'
+        kml_content += '  </Placemark>\n'
+
+    kml_content += '</Document>\n'
+    kml_content += '</kml>\n'
+
+    #guarar el archivo
+    try:
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write(kml_content)
+
+        abs_path = os.path.abspath(filename)
+
+        #se pudo chat
+        return (True, f"KML '{filename}' creado correctamente.", filename)
+
+    #no se puo chat
+    except Exception as e:
+        return (False, f"No se pudo crear el archivo: {str(e)}", "")
