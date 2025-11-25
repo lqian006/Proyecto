@@ -1,0 +1,4 @@
+LEBL
+Terminal T1
+BoardingArea A Schengen 1 3
+Airlines
