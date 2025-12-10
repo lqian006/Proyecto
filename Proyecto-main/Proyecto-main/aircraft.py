@@ -7,11 +7,13 @@ import platform
 import subprocess
 
 class Aircraft:
-    def __init__(self,id,Origin,Arrival,Airline):
+    def __init__(self,id,Origin,Arrival,Airline, Destination="", Departure=""):
         self.id = id
         self.OriginAirport = Origin
         self.TimeLanding =  Arrival
         self.AirlineCompany = Airline
+        self.DestinationAirport = Destination  
+        self.TimeDeparture = Departure
 
 # Son los arrives a LEBL en un cierto día
 def LoadArrivals(filename):
@@ -381,3 +383,144 @@ def PlotFlightsType(arrives):
     ax.set_title("Flights by Type (Schengen / Non-Schengen)")
     ax.legend()
     plt.show()
+
+#----- VERSION 4 --------
+
+def LoadDepartures(filename):
+    if not os.path.isfile(filename):
+        return []
+    
+    departures = []
+    file = open(filename, 'r')
+    file.readline()
+    
+    for line in file:
+        parts = line.strip().split()
+        
+        if len(parts) != 4:
+            continue
+        
+        aircraft_id = parts[0]
+        destination = parts[1]
+        departure_time = parts[2]
+        airline = parts[3]
+        
+        # Validate time format (should contain ':')
+        if ':' not in departure_time:
+            continue
+        
+        # Split time into hour and minute
+        time_parts = departure_time.split(':')
+        if len(time_parts) != 2:
+            continue
+        
+        # Check if hour and minute are numeric
+        if not time_parts[0].isdigit() or not time_parts[1].isdigit():
+            continue
+        
+        hour = int(time_parts[0])
+        minute = int(time_parts[1])
+        
+        # Validate hour and minute ranges
+        if hour < 0 or hour > 23 or minute < 0 or minute > 59:
+            continue
+        
+        # Format time as hh:mm (pad with zeros if needed)
+        departure_time = f"{hour:02d}:{minute:02d}"
+        
+        aircraft = Aircraft(
+            id=aircraft_id,
+            Origin="",           # No origin data in departures file
+            Arrival="",          # No arrival data in departures file
+            Airline=airline,
+            Destination=destination,
+            Departure=departure_time)
+        
+        departures.append(aircraft)
+    
+    file.close()
+    
+    return departures
+
+
+def MergeMovements (arrivals, departures):
+    # Check if either list is empty
+    if len(arrivals) == 0 or len(departures) == 0:
+        return -1
+    
+    merged = []
+    
+    # Create dictionary of departures by aircraft ID for fast lookup
+    dep_dict = {}
+    for dep in departures:
+        dep_dict[dep.id] = dep
+    
+    # Track which departures have been merged
+    used_departures = []
+    
+    # Process arrivals and try to match with departures
+    for arrival in arrivals:
+        # Check if there's a matching departure
+        if arrival.id in dep_dict:
+            departure = dep_dict[arrival.id]
+            
+            # Check time compatibility (arrival before departure)
+            if IsTimeCompatible(arrival.TimeLanding, departure.TimeDeparture):
+                # Create merged aircraft with both arrival and departure data
+                merged_aircraft = Aircraft(
+                    id=arrival.id,
+                    Origin=arrival.OriginAirport,
+                    Arrival=arrival.TimeLanding,
+                    Airline=arrival.AirlineCompany,
+                    Destination=departure.DestinationAirport,
+                    Departure=departure.TimeDeparture)
+                merged.append(merged_aircraft)
+                used_departures.append(departure.id)
+            else:
+                # Times not compatible, keep arrival only
+                merged.append(arrival)
+        else:
+            # No matching departure, keep arrival only
+            merged.append(arrival)
+    
+    # Add departures that weren't merged (night aircraft)
+    for dep in departures:
+        if dep.id not in used_departures:
+            merged.append(dep)
+    
+    return merged
+
+def IsTimeCompatible(arrival_time, departure_time):
+    # Handle empty times
+    if arrival_time == "" or departure_time == "":
+        return False
+    
+    # Convert times to minutes since midnight
+    arr_parts = arrival_time.split(':')
+    dep_parts = departure_time.split(':')
+    
+    arr_minutes = int(arr_parts[0]) * 60 + int(arr_parts[1])
+    dep_minutes = int(dep_parts[0]) * 60 + int(dep_parts[1])
+    
+    # Arrival must be before departure
+    return arr_minutes < dep_minutes
+
+    
+def NightAircraft (aircrafts):
+    # Check if input list is empty
+    if len(aircrafts) == 0:
+        return -1
+    
+    night_aircraft = []
+    
+    for aircraft in aircrafts:
+        # Night aircraft have departure but no arrival
+        # Check if OriginAirport and TimeLanding are empty but Destination and TimeDeparture are not
+        has_arrival = aircraft.OriginAirport != "" and aircraft.TimeLanding != ""
+        has_departure = aircraft.DestinationAirport != "" and aircraft.TimeDeparture != ""
+        
+        # Night aircraft: has departure but no arrival
+        if has_departure and not has_arrival:
+            night_aircraft.append(aircraft)
+    
+    return night_aircraft
