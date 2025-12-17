@@ -249,6 +249,7 @@ class Gate ():
         self.name= name
         self.occupancy = False
         self.id= ''
+        self.assignes_aircraft_id=None
 
 if __name__ == "__main__":
     bcn = BarcelonaAP("LEBL")
@@ -463,9 +464,9 @@ def AssignGate(bcn, aircraft):
     for area in terminal.BoardingArea:
         if area.type == flight_type:
             for gate in area.gate:
-                if not gate.occupancy:
+                if not gate.occupancy and gate.assignes_aircraft_id==aircraft.id:
                     gate.occupancy = True
-                    gate.id = aircraft.id
+                    gate.assignes_aircraft_id = aircraft.id
                     return 0
     
     return -1
@@ -604,79 +605,73 @@ def PlotDayOccupancy(bcn, aircrafts):
     plt.tight_layout()
     plt.show()'''
 
+import copy
+
 def PlotDayOccupancy(bcn, aircrafts):
-    """
-    Genera un gráfico de ocupación diaria de gates por terminal y número de aircrafts no asignados.
-    """
-
     import matplotlib.pyplot as plt
-    import numpy as np
-    from tkinter import messagebox
-
-    if bcn is None or not aircrafts:
-        messagebox.showerror("Error", "No se han cargado el aeropuerto o los vuelos.")
-        return
 
     terminal_names = [t.Name for t in bcn.terms]
     terminal_occupancy = {name: [] for name in terminal_names}
     unassigned_per_hour = []
-    hours = []
+    hours = list(range(24))
 
-    # Copia del estado inicial del aeropuerto
-    import copy
-    bcn_copy = copy.deepcopy(bcn)
+    for hour in hours:
+        # 🔹 Copias independientes para no modificar el estado original
+        terminal_names = [t.Name for t in bcn.terms]
+        terminal_occupancy = {name: [] for name in terminal_names}
+        unassigned_per_hour = []
+        hours = list(range(24))
 
-    for hour in range(24):
-        time_str = f"{hour:02d}:00"
-        hours.append(time_str)
+        for hour in hours:
+            time_str = f"{hour:02d}:00"
+            # Assign gates at this hour; bcn se modifica directamente
+            unassigned = AssignGatesAtTime(bcn, aircrafts, time_str)
+            unassigned_per_hour.append(unassigned)
 
-        # Asignar gates para esta hora
-        unassigned = AssignGatesAtTime(bcn_copy, aircrafts, time_str)
-        unassigned_per_hour.append(unassigned)
+            # Contar gates ocupadas por terminal
+            for terminal in bcn.terms:
+                occupied = 0
+                for area in terminal.BoardingArea:
+                    for gate in area.gate:
+                        if gate.occupancy:
+                            occupied += 1
+                terminal_occupancy[terminal.Name].append(occupied)
+    # -------- PLOT --------
+    fig, ax1 = plt.subplots(figsize=(14, 6))
 
-        # Contar gates ocupadas en cada terminal
-        for terminal in bcn_copy.terms:
-            occupied_count = 0
-            for area in terminal.BoardingArea:
-                for gate in area.gate:
-                    if gate.occupancy:  # suponiendo que occupancy es True si la gate está ocupada
-                        occupied_count += 1
-            terminal_occupancy[terminal.Name].append(occupied_count)
+    for terminal_name in terminal_names:
+        ax1.plot(
+            hours,
+            terminal_occupancy[terminal_name],
+            marker='o',
+            linewidth=2,
+            label=f"Gates ocupadas - {terminal_name}"
+        )
 
-    # Crear subplots
-    num_terminals = len(terminal_names)
-    fig, axes = plt.subplots(num_terminals + 1, 1, figsize=(12, 4 * (num_terminals + 1)))
-    axes = np.atleast_1d(axes)
+    ax1.set_xlabel("Hora del día")
+    ax1.set_ylabel("Gates ocupadas")
+    ax1.set_xticks(hours)
+    ax1.set_xticklabels([f"{h:02d}:00" for h in hours], rotation=45)
+    ax1.grid(True, alpha=0.3)
 
-    # Graficar ocupación de cada terminal
-    for idx, terminal_name in enumerate(terminal_names):
-        ax = axes[idx]
-        occupancy_data = terminal_occupancy[terminal_name]
+    ax2 = ax1.twinx()
+    ax2.bar(
+        hours,
+        unassigned_per_hour,
+        alpha=0.3,
+        color="red",
+        label="Aircrafts no asignados"
+    )
+    ax2.set_ylabel("Aircrafts no asignados")
 
-        ax.plot(range(24), occupancy_data, marker='o', linewidth=2, markersize=6, label=f'{terminal_name}')
-        ax.set_xlabel('Hora del día', fontsize=11)
-        ax.set_ylabel('Gates ocupadas', fontsize=11)
-        ax.set_title(f'Ocupación de gates - {terminal_name}', fontsize=13, fontweight='bold')
-        ax.grid(True, alpha=0.3)
-        ax.set_xticks(range(24))
-        ax.set_xticklabels([f"{h:02d}:00" for h in range(24)], rotation=45, ha='right')
+    h1, l1 = ax1.get_legend_handles_labels()
+    h2, l2 = ax2.get_legend_handles_labels()
+    ax1.legend(h1 + h2, l1 + l2)
 
-        total_gates = sum(len(area.gate) for area in bcn.terms[idx].BoardingArea)
-        ax.axhline(y=total_gates, color='r', linestyle='--', alpha=0.5, label=f'Max Gates ({total_gates})')
-        ax.legend()
-
-    # Graficar aircrafts no asignados
-    ax_unassigned = axes[num_terminals]
-    ax_unassigned.bar(range(24), unassigned_per_hour, color='red', alpha=0.7)
-    ax_unassigned.set_xlabel('Hora del día', fontsize=11)
-    ax_unassigned.set_ylabel('Aircraft no asignados', fontsize=11)
-    ax_unassigned.set_title('Aircrafts no asignados por hora', fontsize=13, fontweight='bold')
-    ax_unassigned.grid(True, alpha=0.3, axis='y')
-    ax_unassigned.set_xticks(range(24))
-    ax_unassigned.set_xticklabels([f"{h:02d}:00" for h in range(24)], rotation=45, ha='right')
-
+    plt.title("Ocupación de gates y aircrafts no asignados por hora")
     plt.tight_layout()
     plt.show()
+
 
 
 def AssignNightGates(bcn, aircrafts):
@@ -730,7 +725,7 @@ def FreeGate(bcn, id):
                 if gate.id == id:
                     # Free the gate
                     gate.occupancy = False
-                    gate.id = ""
+                    gate.assignes_aircraft_id=None
                     return 0
 
     # Aircraft not found in any gate
