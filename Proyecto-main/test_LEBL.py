@@ -26,7 +26,7 @@ else:
 # Test 2 — LoadAirlines
 
 print("\nTest LoadAirLines:")
-with open("../Proyecto-mainV4/Proyecto-main4/T1_Airlines.txt", "w") as f:
+with open("T1_Airlines.txt", "w") as f:
     f.write("IBE\n")
     f.write("VLG\n")
     f.write("RYR\n")
@@ -122,7 +122,7 @@ else:
 
 
 # Test 4 - GateOccupancy
-bcn = LoadAirportStructure("../Proyecto-mainV4/Proyecto-main4/Terminals.txt")
+bcn = LoadAirportStructure("Terminals.txt")
 info = GateOccupancy(bcn)
 for name, status, aircraft in info:
     print(name, status, aircraft)
@@ -136,7 +136,7 @@ print("VERSION 4 TESTS - AssignNightGates & FreeGate")
 print("="*60)
 
 # Load airport structure for V4 tests
-bcn = LoadAirportStructure("../Proyecto-mainV4/Proyecto-main4/Terminals.txt")
+bcn = LoadAirportStructure("Terminals.txt")
 
 # Test 5 - AssignNightGates (Basic)
 print("\nTest 5 - AssignNightGates (Basic):")
@@ -280,7 +280,7 @@ print("="*60)
 print("Dynamic Gate Assignment")
 print("="*60)
 
-bcn = LoadAirportStructure("../Proyecto-mainV4/Proyecto-main4/Terminals.txt")
+bcn = LoadAirportStructure("Terminals.txt")
 
 # Test 1 - AssignGatesAtTime: Basic Hour Assignment
 print("\nTest 1 - AssignGatesAtTime (Basic):")

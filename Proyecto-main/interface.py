@@ -871,6 +871,106 @@ def Search_Terminal():
 
     tk.Button(win, text="Buscar", command=run).grid(row=1, column=0, columnspan=2, pady=10)
 
+#-------- VERSION 4 ----------
+
+def Load_Departures():
+    global departures
+
+    filename = filedialog.askopenfilename(
+        title="Seleccione el archivo de departures",
+        filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
+    )
+
+    if not filename:
+        return
+
+    try:
+        departures = LoadDepartures(filename)
+    except Exception:
+        messagebox.showerror("Error", "No se pudo abrir el archivo de departures.")
+        departures = []
+        return
+
+    messagebox.showinfo(
+        "Éxito",
+        f"Departures cargados correctamente.\n\nTotal: {len(departures)}"
+    )
+
+
+# Suponemos que `aircrafts` es tu lista global con todos los Aircraft
+
+def Merge_Movements():
+    """Merge arrivals and departures using aircraft.py function."""
+    global aircrafts, departures
+
+    try:
+        aircrafts
+        departures
+    except NameError:
+        messagebox.showerror("Error", "Debe cargar arrivals y departures primero.")
+        return
+
+    if not aircrafts or not departures:
+        messagebox.showerror("Error", "Las listas de arrivals o departures están vacías.")
+        return
+
+    # Reutilizamos MergeMovements de aircraft.py
+    merged = MergeMovements(aircrafts, departures)
+
+    if merged == -1:
+        messagebox.showerror("Error", "Error al fusionar: alguna lista está vacía.")
+        return
+
+    # Actualizamos la lista global
+    aircrafts = merged
+    messagebox.showinfo("Éxito", f"Fusión completada. Total aircrafts: {len(aircrafts)}")
+
+def Night_Aircraft():
+    global aircrafts
+
+    try:
+        aircrafts
+    except NameError:
+        messagebox.showerror("Error", "No se han cargado vuelos aún.")
+        return
+
+    if not aircrafts:
+        messagebox.showerror("Error", "La lista de vuelos está vacía.")
+        return
+
+    night_list = NightAircraft(aircrafts)
+
+    if night_list == -1:
+        messagebox.showerror("Error", "La lista de vuelos está vacía.")
+        return
+
+    filtered_night = []
+
+    for ac in night_list:
+        if ac.TimeDeparture == "":
+            continue
+
+        hour = int(ac.TimeDeparture.split(":")[0])
+
+        # Margen nocturno: 20:00 → 06:00
+        if hour >= 20 or hour < 6:
+            filtered_night.append(ac)
+
+    if not filtered_night:
+        messagebox.showinfo("Night Aircrafts", "No hay vuelos nocturnos entre 20:00 y 06:00.")
+        return
+
+    info = ""
+    for ac in filtered_night:
+        info += (
+            f"ID: {ac.id} | Airline: {ac.AirlineCompany} | "
+            f"Destination: {ac.DestinationAirport} | Departure: {ac.TimeDeparture}\n"
+        )
+
+    messagebox.showinfo("Night Aircrafts (20:00 - 06:00)", info)
+
+
+
 # --------- INTERFAZ ---------
 
 root = tk.Tk()
@@ -913,6 +1013,12 @@ gates_frame = tk.LabelFrame(root, text='Gates')
 gates_frame.grid(row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
 label_gates = tk.Label(gates_frame, text="Gestión de Puertas")
 label_gates.pack(padx=5, pady=10)
+
+# COLUMNA 4 - Departures (V4)
+departures_frame = tk.LabelFrame(root, text='Departures')
+departures_frame.grid(row=0, column=4, padx=5, pady=5, sticky=tk.NSEW)
+label_departures = tk.Label(departures_frame, text="Salidas")
+label_departures.pack(padx=5, pady=10)
 
 # Cajita para flights
 entry_flights = tk.Entry(flights_frame, width=30)
@@ -1005,6 +1111,16 @@ btn_search_terminal.pack(padx=5, pady=5, fill=tk.X)
 
 btn_assign_gates = tk.Button(gates_frame, text='Assign Gates to Arrivals', command=Assign_Gates_to_Arrivals)
 btn_assign_gates.pack(padx=5, pady=10, fill=tk.X)
+
+# BOTONES VERSION 4 --
+btn_load_departures = tk.Button(departures_frame, text='Load Departures', command=Load_Departures)
+btn_load_departures.pack(padx=5, pady=5, fill=tk.X)
+
+btn_merge_movements = tk.Button(departures_frame, text='Merge Movements', command=Merge_Movements)
+btn_merge_movements.pack(padx=5, pady=5, fill=tk.X)
+
+btn_night_aircraft = tk.Button(departures_frame, text='Night departures', command=Night_Aircraft)
+btn_night_aircraft.pack(padx=5, pady=5, fill=tk.X)
 
 root.mainloop()
 
