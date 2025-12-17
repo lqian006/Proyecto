@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>Airports near EHAM</name>
+  <description>Aeropuertos a menos de 100 km de EHAM</description>
+  <Style id="schengen">
+    <IconStyle>
+      <color>ff00ff00</color>
+      <scale>1.3</scale>
+    </IconStyle>
+  </Style>
+  <Style id="nonschengen">
+    <IconStyle>
+      <color>ff0000ff</color>
+      <scale>1.3</scale>
+    </IconStyle>
+  </Style>
+  <Style id="reference">
+    <IconStyle>
+      <color>ffffaa00</color>
+      <scale>1.5</scale>
+    </IconStyle>
+  </Style>
+  <Placemark>
+    <name>EHAM (Referencia)</name>
+    <styleUrl>#reference</styleUrl>
+    <Point>
+      <coordinates>4.764166666666667,52.308055555555555,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>EHRD</name>
+    <description>Schengen</description>
+    <styleUrl>#schengen</styleUrl>
+    <Point>
+      <coordinates>4.437222222222222,51.956944444444446,0</coordinates>
+    </Point>
+  </Placemark>
+</Document>
+</kml>
