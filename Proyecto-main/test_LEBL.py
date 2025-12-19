@@ -46,69 +46,8 @@ else:
 #os.remove("T1_Airlines.txt")
 
 # Test 3 — LoadAirportStructure
-'''print("\nTest LoadAirportStructure:")
 
-with open("LEBL.txt", "w") as f:
-    f.write("LEBL\n")
-    f.write("Terminal T1\n")
-    f.write("BoardingArea A Schengen 1 3\n")
-    f.write("Airlines\n")
-
-with open("T1_Airlines.txt", "w") as f:
-    f.write("IBE\n")
-    f.write("VLG\n")
-
-airport = LoadAirportStructure("LEBL.txt")
-
-if airport == -1:
-    print("error")
-else:
-    ok = True
-
-    if airport.code != "LEBL":
-        print("Código de aeropuerto incorrecto")
-        ok = False
-
-    if len(airport.terms) != 1:
-        print("Número incorrecto de terminales")
-        ok = False
-
-    t1 = airport.terms[0]
-    if t1.Name != "T1":
-        print("Nombre de terminal incorrecto")
-        ok = False
-
-    if len(t1.BoardingArea) != 1:
-        print("Número incorrecto de boarding areas")
-        ok = False
-
-    area = t1.BoardingArea[0]
-    if area.name != "A" or area.type != "Schengen":
-        print("Datos incorrectos del área")
-        ok = False
-
-    if len(area.gate) != 3:
-        print("Número incorrecto de gates")
-        ok = False
-
-    expected_gates = ["A1_1", "A1_2", "A1_3"]
-    real_gates = [g.name for g in area.gate]
-
-    if real_gates != expected_gates:
-        print("Nombres de gates incorrectos")
-        ok = False
-
-    if t1.codes != ["IBE", "VLG"]:
-        print("Aerolíneas cargadas incorrectamente")
-        ok = False
-
-    if ok:
-        print("LoadAirportStructure se ha corrido")
-
-os.remove("LEBL.txt")
-#os.remove("T1_Airlines.txt")'''
-
-bcn = LoadAirportStructure("../Proyecto-mainV4/Proyecto-main4/Terminals.txt")
+bcn = LoadAirportStructure("Terminals.txt")
 
 if isinstance(bcn, BarcelonaAP):
     print("Aeropuerto cargado correctamente:", bcn.code)

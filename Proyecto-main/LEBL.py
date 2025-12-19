@@ -1,12 +1,6 @@
-"""
 import matplotlib.pyplot as plt
-from airport import *
 from aircraft import *
-import webbrowser
 import os
-from math import radians, sin, cos, sqrt, atan2
-import platform
-import subprocess
 
 # Class BarcelonaAP will contain a code and a list of objects of class Terminal.
 class BarcelonaAP ():
@@ -34,221 +28,7 @@ class Gate ():
         self.name= name
         self.occupancy = False
         self.id= ''
-
-if __name__ == "__main__":
-    bcn = BarcelonaAP("LEBL")
-
-def SetGates(area, init_gate, end_gate, prefix):
-    if end_gate <= init_gate:
-        return -1
-
-    area.gate = []
-
-    for num in range(init_gate, end_gate + 1):
-        gate_name = f"{prefix}{num}"
-        new_gate = Gate(gate_name)
-        new_gate.occupancy = False
-        new_gate.id = ""
-        area.gate.append(new_gate)
-
-    return 0  # éxito
-
-def LoadAirlines(terminal, t_name):
-    filename = f"{t_name}_Airlines.txt"
-
-    if not os.path.isfile(filename):
-        return -1  # error
-
-    # leer el archivo
-    try:
-        with open(filename, "r") as f:
-            lines = f.readlines()
-    except:
-        return -1  #error
-
-    terminal.codes = []
-
-    for line in lines:
-        clean = line.strip()
-        if clean != "":
-            terminal.codes.append(clean)
-
-    return 0
-
-def LoadAirportStructure(filename):
-
-    if not os.path.isfile(filename):
-        return -1
-
-    try:
-        with open(filename, "r", encoding="utf-8") as f:
-            lines = [line.strip() for line in f.readlines()]
-    except:
-        return -1
-
-    # crear aeropuerto
-    #código del aeropuerto
-    if len(lines) == 0:
-        return -1
-
-    ap_code = lines[0]
-    airport = BarcelonaAP(ap_code)
-
-    i = 1
-    prefix_counter = 1
-
-    current_terminal = None
-
-    while i < len(lines):
-        line = lines[i]
-
-        # Terminal
-        if line.startswith("Terminal"):
-            _, t_name = line.split(maxsplit=1)
-            current_terminal = Terminal(t_name)
-            airport.terms.append(current_terminal)
-            i += 1
-            continue
-
-        # area de embarque
-        if line.startswith("BoardingArea"):
-            parts = line.split()
-            # BoardingArea
-            if len(parts) != 5:
-                return -1
-
-            _, ba_name, ba_type, g1, g2 = parts
-            g1 = int(g1)
-            g2 = int(g2)
-
-            area = BoardingArea(ba_name, ba_type)
-
-            prefix = f"A{prefix_counter}_"
-            prefix_counter += 1
-
-            # crear gates
-            result = SetGates (area, g1, g2, prefix)
-            if result != 0:
-                return -1
-
-            current_terminal.BoardingArea.append(area)
-
-            i += 1
-            continue
-
-        if line.startswith("Airlines"):
-            if LoadAirlines(current_terminal, current_terminal.Name) != 0:
-                return -1
-            i += 1
-            continue
-
-        i += 1
-
-    return airport
-
-
-def GateOccupancy (bcn):
-    result=[]
-    for terminal in bcn.terms:
-        for area in terminal.BoardingArea:
-            for gate in area.gate:
-                if gate.occupancy==False:
-                    status='free'
-                else:
-                    status='occupied'
-
-                if status=='occupied':
-                    aircraft_id = gate.id
-                else:
-                    aircraft_id=None
-
-                result.append((gate.name,status,aircraft_id))
-
-    return result
-
-
-def IsAirlineInTerminal(terminal, name):
-    if not name or name.strip() == "":
-        return False
-    
-    if len(terminal.codes) == 0:
-        return False
-    
-    return name in terminal.codes
-
-
-def SearchTerminal(bcn, name):
-    for terminal in bcn.terms:
-        if IsAirlineInTerminal(terminal, name):
-            return terminal.Name
-    
-    return ""
-
-
-def AssignGate(bcn, aircraft):
-    terminal_name = SearchTerminal(bcn, aircraft.AirlineCompany)
-    
-    if terminal_name == "":
-        return -1
-    
-    terminal = None
-    for t in bcn.terms:
-        if t.Name == terminal_name:
-            terminal = t
-            break
-    
-    if terminal is None:
-        return -1
-    
-    is_schengen = IsSchengenAirport(aircraft.OriginAirport)
-    flight_type = "Schengen" if is_schengen else "non-Schengen"
-    
-    for area in terminal.BoardingArea:
-        if area.type == flight_type:
-            for gate in area.gate:
-                if not gate.occupancy:
-                    gate.occupancy = True
-                    gate.id = aircraft.id
-                    return 0
-    
-    return -1
-
-"""
-import matplotlib.pyplot as plt
-from airport import *
-from aircraft import *
-import webbrowser
-import os
-from math import radians, sin, cos, sqrt, atan2
-import platform
-import subprocess
-
-# Class BarcelonaAP will contain a code and a list of objects of class Terminal.
-class BarcelonaAP ():
-    def __init__(self,code):
-        self.code = code
-        self.terms = []
-
-# Class Terminal will contain a name, a list of objects of class BoardingArea and a list with the ICAO codes of the airline companies which work in the terminal.
-class Terminal ():
-    def __init__(self, Names):
-        self.Name= Names
-        self.BoardingArea= []
-        self.codes= []
-
-# Class BoardingArea will contain a name, the type (Schengen/nonSchengen) and a list of objects of class Gate.
-class BoardingArea():
-    def __init__(self, Name, Type):
-        self.name= Name
-        self.type= Type
-        self.gate= []
-
-# Class Gate will contain a name, a boolean about gate occupancy, and the aircraft id in case the gate is occupied.
-class Gate ():
-    def __init__(self, name):
-        self.name= name
-        self.occupancy = False
-        self.id= ''
+        self.assignes_aircraft_id=None
 
 if __name__ == "__main__":
     bcn = BarcelonaAP("LEBL")
@@ -444,22 +224,22 @@ def SearchTerminal(bcn, name):
 
 def AssignGate(bcn, aircraft):
     terminal_name = SearchTerminal(bcn, aircraft.AirlineCompany)
-    
+
     if terminal_name == "":
         return -1
-    
+
     terminal = None
     for t in bcn.terms:
         if t.Name == terminal_name:
             terminal = t
             break
-    
+
     if terminal is None:
         return -1
-    
+
     is_schengen = IsSchengenAirport(aircraft.OriginAirport)
     flight_type = "Schengen" if is_schengen else "non-Schengen"
-    
+
     for area in terminal.BoardingArea:
         if area.type == flight_type:
             for gate in area.gate:
@@ -467,7 +247,7 @@ def AssignGate(bcn, aircraft):
                     gate.occupancy = True
                     gate.id = aircraft.id
                     return 0
-    
+
     return -1
 
 #-----VERSIÓN 4-----#
@@ -537,72 +317,74 @@ def AssignGatesAtTime(bcn, aircrafts, time):
     return not_assigned_count
 
 
-def PlotDayOccupancy(bcn, aircrafts):
 
+def PlotDayOccupancy(bcn, aircrafts):
     import matplotlib.pyplot as plt
 
-    # Store occupancy data for each terminal
+    if not aircrafts:
+        print("Error: lista de aircrafts vacía.")
+        return None
+
+    hours = list(range(24))
     terminal_names = [t.Name for t in bcn.terms]
+
     terminal_occupancy = {name: [] for name in terminal_names}
     unassigned_per_hour = []
-    hours = []
 
-    # Simulate each hour of the day (00:00 to 23:00)
-    for hour in range(24):
+    for hour in hours:
         time_str = f"{hour:02d}:00"
-        hours.append(time_str)
-
-        # Assign gates for this hour
         unassigned = AssignGatesAtTime(bcn, aircrafts, time_str)
         unassigned_per_hour.append(unassigned)
 
-        # Count occupied gates per terminal
         for terminal in bcn.terms:
-            occupied_count = 0
+            occupied = 0
             for area in terminal.BoardingArea:
                 for gate in area.gate:
                     if gate.occupancy:
-                        occupied_count += 1
-            terminal_occupancy[terminal.Name].append(occupied_count)
+                        occupied += 1
+            terminal_occupancy[terminal.Name].append(occupied)
 
-    # Create the plot
-    num_terminals = len(terminal_names)
-    fig, axes = plt.subplots(num_terminals + 1, 1, figsize=(12, 4 * (num_terminals + 1)))
+    # -------- PLOT --------
+    fig, ax1 = plt.subplots(figsize=(12, 5))
 
-    # If only one terminal, axes is not a list
-    if num_terminals == 1:
-        axes = [axes[0], axes[1]]
+    for terminal_name in terminal_names:
+        ax1.plot(
+            hours,
+            terminal_occupancy[terminal_name],
+            marker='o',
+            linewidth=2,
+            label=f"Gates ocupadas - {terminal_name}"
+        )
 
-    # Plot occupancy for each terminal
-    for idx, terminal_name in enumerate(terminal_names):
-        ax = axes[idx]
-        occupancy_data = terminal_occupancy[terminal_name]
+    ax1.set_xlabel("Hora del día")
+    ax1.set_ylabel("Gates ocupadas")
+    ax1.set_xticks(hours)
+    ax1.set_xticklabels([f"{h:02d}:00" for h in hours], rotation=45)
+    ax1.grid(True, alpha=0.3)
 
-        ax.plot(range(24), occupancy_data, marker='o', linewidth=2, markersize=6)
-        ax.set_xlabel('Hour of Day', fontsize=11)
-        ax.set_ylabel('Occupied Gates', fontsize=11)
-        ax.set_title(f'Gate Occupancy - {terminal_name}', fontsize=13, fontweight='bold')
-        ax.grid(True, alpha=0.3)
-        ax.set_xticks(range(24))
-        ax.set_xticklabels([f"{h:02d}:00" for h in range(24)], rotation=45, ha='right')
+    ax2 = ax1.twinx()
+    ax2.bar(
+        hours,
+        unassigned_per_hour,
+        alpha=0.3,
+        color="red",
+        label="Aircrafts no asignados"
+    )
+    ax2.set_ylabel("Aircrafts no asignados")
 
-        # Find terminal's total gates
-        total_gates = sum(len(area.gate) for area in bcn.terms[idx].BoardingArea)
-        ax.axhline(y=total_gates, color='r', linestyle='--', alpha=0.5, label=f'Max Gates ({total_gates})')
-        ax.legend()
+    h1, l1 = ax1.get_legend_handles_labels()
+    h2, l2 = ax2.get_legend_handles_labels()
+    ax1.legend(h1 + h2, l1 + l2, loc="upper left")
 
-    # Plot unassigned aircraft
-    ax_unassigned = axes[num_terminals]
-    ax_unassigned.bar(range(24), unassigned_per_hour, color='red', alpha=0.7)
-    ax_unassigned.set_xlabel('Hour of Day', fontsize=11)
-    ax_unassigned.set_ylabel('Unassigned Aircraft', fontsize=11)
-    ax_unassigned.set_title('Aircraft Not Assigned Per Hour', fontsize=13, fontweight='bold')
-    ax_unassigned.grid(True, alpha=0.3, axis='y')
-    ax_unassigned.set_xticks(range(24))
-    ax_unassigned.set_xticklabels([f"{h:02d}:00" for h in range(24)], rotation=45, ha='right')
+    fig.suptitle("Ocupación de gates y aircrafts no asignados por hora")
 
-    plt.tight_layout()
-    plt.show()
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
+
+    return fig
+
+
+
+
 
 def AssignNightGates(bcn, aircrafts):
 
@@ -655,7 +437,7 @@ def FreeGate(bcn, id):
                 if gate.id == id:
                     # Free the gate
                     gate.occupancy = False
-                    gate.id = ""
+                    gate.assignes_aircraft_id=None
                     return 0
 
     # Aircraft not found in any gate

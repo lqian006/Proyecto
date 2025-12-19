@@ -114,8 +114,7 @@ def SaveSchengenAirports (airports,filename):
     return 0
 
 def DecimalToDMS(decimal, is_latitude):
-    '''Converts decimal degrees to DMS format.
-    '''
+    '''Converts decimal degrees to DMS format.'''
     if decimal < 0:
         direction = 'S' if is_latitude else 'W'
         decimal = -decimal
@@ -171,8 +170,8 @@ def PlotAirports(airports):
     ax.set_ylabel('Count')
     ax.set_title('Schengen airports')
     ax.legend()
-    
-    plt.show()
+
+    return fig
 
 
 def MapAirports(airports, base_filename="airports"):
@@ -401,9 +400,7 @@ def MapCloseAirport(airports, base_filename="AeropuertosCercanos", reference="",
 
         abs_path = os.path.abspath(filename)
 
-        #se pudo chat
         return (True, f"KML '{filename}' creado correctamente.", filename)
 
-    #no se puo chat
     except Exception as e:
         return (False, f"No se pudo crear el archivo: {str(e)}", "")

@@ -58,34 +58,27 @@ def LoadArrivals(filename):
 def PlotArrivals(aircrafts):
     if len(aircrafts) == 0:
         print("No airports to plot.")
-        return
+        return None
 
-    arrivals=[]
-    for flight in aircrafts:
-        arrivals.append(flight.TimeLanding.strip())
+    arrivals = [flight.TimeLanding.strip() for flight in aircrafts]
 
-    i=0
-    landing_frequency=[0]*24
-    while i<len(arrivals):
-        hour=int(arrivals[i][:2])
-        landing_frequency[hour]+=1
-        i+=1
+    landing_frequency = [0]*24
+    for time in arrivals:
+        hour = int(time[:2])
+        landing_frequency[hour] += 1
 
-    h=0
-    hours=[]
-    while h < 24:
-        hours.append(f'{h:02d}:00')
-        h+=1
+    hours = [f'{h:02d}:00' for h in range(24)]
 
     fig, ax = plt.subplots()
-
-    ax.bar( hours,landing_frequency,label='vuelos',color='steelblue')
+    ax.bar(hours, landing_frequency, label='vuelos', color='steelblue')
     ax.set_xlabel('Hour')
     ax.set_ylabel('Number of flights')
     ax.set_title('Landing frequency per hour')
     ax.legend()
     plt.xticks(rotation=45)
-    plt.show()
+
+    return fig
+
 
 def SaveFlights(aircrafts,filename):
     if len(aircrafts)==0:
@@ -137,7 +130,10 @@ def PlotAirlines(aircrafts):
     plt.xticks(rotation=90)
     plt.tight_layout()
     ax.grid(axis='y', alpha=0.3)
-    plt.show()
+
+    return fig
+
+
 
 
 def MapFlights(aircrafts, airports):
@@ -157,7 +153,7 @@ def MapFlights(aircrafts, airports):
     LEBL_LAT = 41.297445
     LEBL_LON = 2.0832941
 
-    filename = "../Proyecto-mainV4/Proyecto-main4/flights.kml"
+    filename = "flights.kml"
 
     # Crear contenido KML
     kml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -382,7 +378,8 @@ def PlotFlightsType(arrives):
     ax.set_ylabel("Number of Flights")
     ax.set_title("Flights by Type (Schengen / Non-Schengen)")
     ax.legend()
-    plt.show()
+
+    return fig
 
 #----- VERSION 4 --------
 

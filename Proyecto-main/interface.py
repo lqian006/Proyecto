@@ -1,272 +1,250 @@
 from LEBL import *
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox,filedialog
 import matplotlib.pyplot as plt
-from airport import *
 from aircraft import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os
-import platform
-import subprocess
+from languages import *
 
+# --------- IDIOMA --------- #
+current_language = "ES"
 
-# --------- FUNCIONES ---------
+def tr(key):
+    return LANGUAGES[current_language].get(key, key)
+
+def UpdateTexts():
+    # ---------- AIRPORTS ----------
+    btn_load_airports.config(text=tr("load_airports"))
+    btn_add.config(text=tr("add_airports"))
+    btn_delete.config(text=tr("delete_airports"))
+    btn_show.config(text=tr("show_airports"))
+    btn_schengen.config(text=tr("set_schengen"))
+    btn_save.config(text=tr("save_schengen"))
+    btn_plot_schengen_btn.config(text=tr("plot_schengen"))
+    btn_map_airports_btn.config(text=tr("map_airports"))
+
+    # ---------- FLIGHTS ----------
+    load_flights.config(text=tr("load_flights"))
+    btn_save_flights_btn.config(text=tr("save_flights"))
+    btn_plot_hour_btn.config(text=tr("plot_arrivals_hour"))
+    btn_plot_company_btn.config(text=tr("plot_arrivals_company"))
+    btn_plot_flights_btn.config(text=tr("plot_flights_type"))
+    btn_map_flights_btn.config(text=tr("map_flights"))
+    btn_long_distance_btn.config(text=tr("long_distance_arrivals"))
+
+    # ---------- GATES ----------
+    btn_load_airport_structure_btn.config(text=tr("load_structure"))
+    btn_set_gates_create.config(text=tr("set_gates"))
+    btn_load_airlines_btn.config(text=tr("load_airlines"))
+    btn_show_occupancy_btn.config(text=tr("show_gate_occupancy"))
+    btn_is_airline_btn.config(text=tr("is_airline_in_terminal"))
+    btn_search_terminal_btn.config(text=tr("search_terminal"))
+    btn_assign_gates_btn.config(text=tr("assign_gates_arrivals"))
+
+    # ---------- DEPARTURES ----------
+    btn_load_departures_btn.config(text=tr("load_departures"))
+    btn_merge_movements_btn.config(text=tr("merge_movements"))
+    btn_night_aircraft_btn.config(text=tr("night_departures"))
+    btn_assign_night_gates_btn.config(text=tr("assign_night_gates"))
+    btn_free_gate_btn.config(text=tr("free_gates"))
+    btn_assign_gates_time_btn.config(text=tr("assign_gates_at_time"))
+    btn_plot_day_occupancy_btn.config(text=tr("plot_day_occupancy"))
+
+# --------- FUNCIONES --------- #
 
 # VERSIÓN 1
-def Load_airports():
-    global airports  # hacemos global para reutilizarla en Add_Airports
 
-    filename = entry_filename.get().strip()
+# Carga el mapa
+def Load_airports():
+    global airports,entry_filename
+
+    filename=filedialog.askopenfilename(
+        title="Choose the file of departures",
+        filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+
+    entry_filename=os.path.basename(filename)
+
     if not filename:
-        messagebox.showwarning("Advertencia", "Escriba un nombre del fichero.")
         return
 
     try:
         airports = LoadAirports(filename)
     except FileNotFoundError:
-        messagebox.showerror("Error", f"No se encontró el archivo '{filename}'.")
+        messagebox.showerror("Error", f"File not found '{filename}'.")
         return
 
-    # Crear figura
-    fig, ax = plt.subplots()
-    ax.set_title("Aeropuertos")
-    ax.set_xlabel("Longitud")
-    ax.set_ylabel("Latitud")
+    fig, ax = plt.subplots(figsize=(10, 7))
 
-    # Dibujar puntos
+    ax.set_title("Aeroports", pad=20)
+    ax.set_xlabel("Longitude")
+    ax.set_ylabel("Latitude")
+
     xs = [a.lon for a in airports]
     ys = [a.lat for a in airports]
     colors = ['green' if a.schengen else 'red' for a in airports]
-    ax.scatter(xs, ys, c=colors, marker='o')
 
+    # 2. Añadir transparencia (alpha) para ver puntos solapados
+    ax.scatter(xs, ys, c=colors, marker='o', edgecolors='white', linewidth=0.5, alpha=0.8)
+
+    # 3. Desplazar el texto ligeramente para que no sature el punto
     for a in airports:
-        ax.text(a.lon, a.lat, a.code, fontsize=8)
+        ax.text(a.lon + 0.1, a.lat + 0.1, a.code, fontsize=7, alpha=0.7)
 
-    # Limpiar el frame de gráfico
+    # 4. Mantener la proporción geográfica real (evita que se vea "compactado")
+    ax.set_aspect('equal', adjustable='datalim')
+
+    # 5. Ajustar márgenes automáticos para aprovechar el espacio
+    fig.tight_layout()
+
+    # --- El resto del código de limpieza y canvas se mantiene igual ---
     for widget in picture_frame.winfo_children():
         widget.destroy()
 
-    # Crear y guardar el canvas dentro del frame
     canvas = FigureCanvasTkAgg(fig, master=picture_frame)
     canvas.draw()
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
-    # Guardamos la referencia del canvas
     picture_frame.canvas = canvas
 
 
+
+# Añadir aeropuertos
+
 def Add_Airports():
-    global airports  # usamos la lista global
+    global airports
 
-    # Si aún no existe la lista, inicialízala
+    code = entry_airport_code.get().strip().upper()
+    lat_str = entry_airport_lat.get().strip().upper()
+    lon_str = entry_airport_lon.get().strip().upper()
+
+    if not code or not lat_str or not lon_str:
+        messagebox.showwarning("Warning", "All fields are required.")
+        return
+
     try:
-        airports
-    except NameError:
-        airports = []
+        lat = ConvertCoordinate(lat_str)
+        lon = ConvertCoordinate(lon_str)
+    except Exception:
+        messagebox.showerror(
+            "Error",
+            "Invalid coordinate format.\nExample: N412851 o W0734640"
+        )
+        return
 
-    # Ventana emergente para pedir datos del nuevo aeropuerto
-    new_win = tk.Toplevel()
-    new_win.title("Añadir aeropuerto")
+    new_airport = Airport(code, lat, lon)
+    SetSchengen(new_airport)
 
-    tk.Label(new_win, text="Código (ej. LEBL):").grid(row=0, column=0, padx=5, pady=5)
-    tk.Label(new_win, text="Latitud (ej. N412851):").grid(row=1, column=0, padx=5, pady=5)
-    tk.Label(new_win, text="Longitud (ej. E0020500):").grid(row=2, column=0, padx=5, pady=5)
+    result = AddAirport(airports, new_airport)
+    if result == -1:
+        messagebox.showwarning("Warning", f"The airport {code} already exists.")
+        return
 
-    entry_code = tk.Entry(new_win)
-    entry_lat = tk.Entry(new_win)
-    entry_lon = tk.Entry(new_win)
-    entry_code.grid(row=0, column=1, padx=5, pady=5)
-    entry_lat.grid(row=1, column=1, padx=5, pady=5)
-    entry_lon.grid(row=2, column=1, padx=5, pady=5)
-    entry_code.focus()  # foco inicial en código
-
-    def confirm_add():
-        code = entry_code.get().strip().upper()
-        lat_str = entry_lat.get().strip().upper()
-        lon_str = entry_lon.get().strip().upper()
-
-        if not code or not lat_str or not lon_str:
-            messagebox.showwarning("Advertencia", "Todos los campos son obligatorios.")
-            return
-
-        # Convertir coordenadas DMS → decimal
-        try:
-            lat = ConvertCoordinate(lat_str)
-            lon = ConvertCoordinate(lon_str)
-        except Exception:
-            messagebox.showerror("Error", "Formato de coordenadas inválido. Ejemplo: N412851 o W0734640.")
-            return
-
-        # Crear el objeto aeropuerto usando Airport del módulo y SetSchengen
-        new_airport = Airport(code, lat, lon)
-        SetSchengen(new_airport)
-
-        # Añadir aeropuerto usando AddAirport del módulo airport.py
-        result = AddAirport(airports, new_airport)
-        if result == -1:
-            messagebox.showwarning("Aviso", f"El aeropuerto {code} ya existe.")
-            return
-
-        # Verificar que haya un gráfico cargado
-        if not hasattr(picture_frame, 'canvas'):
-            messagebox.showerror("Error", "No hay gráfico cargado aún. Use 'Load airports' primero.")
-            return
-
-        # Añadir el punto al gráfico actual
+    # Dibujar en el gráfico si existe
+    if hasattr(picture_frame, "canvas"):
         canvas = picture_frame.canvas
         fig = canvas.figure
         ax = fig.axes[0]
 
-        color = 'green' if new_airport.schengen else 'red'
-        ax.scatter(new_airport.lon, new_airport.lat, c=color, marker='o', s=60)
-        ax.text(new_airport.lon, new_airport.lat, new_airport.code, fontsize=8, color=color)
+        color = "green" if new_airport.schengen else "red"
+        ax.scatter(new_airport.lon, new_airport.lat, c=color, s=60)
+        ax.text(new_airport.lon, new_airport.lat, new_airport.code, fontsize=8)
 
-        canvas.draw()  # actualizar gráfico
+        canvas.draw()
 
-        messagebox.showinfo("Éxito", f"Añadido aeropuerto {code}.")
-        new_win.destroy()
-
-    # Botón "Añadir"
-    btn_add = tk.Button(new_win, text="Añadir", command=confirm_add)
-    btn_add.grid(row=3, column=0, columnspan=2, pady=10)
-    new_win.bind("<Return>", lambda event: confirm_add())
+    # Limpiar cajas
+    entry_airport_code.delete(0, tk.END)
+    entry_airport_lat.delete(0, tk.END)
+    entry_airport_lon.delete(0, tk.END)
 
 
 
+# Elimina aeropuerto
 def Remove_Airport():
     global airports
 
-    # Si no hay lista cargada
-    try:
-        airports
-    except NameError:
-        airports = []
-
-    if len(airports) == 0:
-        messagebox.showwarning("Aviso", "No hay aeropuertos cargados para borrar.")
+    code = entry_delete_code.get().strip().upper()
+    if not code:
+        messagebox.showwarning("Warning", "ID required")
         return
 
-    # Ventana emergente para pedir el código
-    new_win = tk.Toplevel()
-    new_win.title("Eliminar aeropuerto")
+    result = RemoveAirport(airports, code)
+    if result == -1:
+        messagebox.showerror("Error", f"{code} does not exist.")
+        return
 
-    tk.Label(new_win, text="Código del aeropuerto (ej. LEBL):").grid(row=0, column=0, padx=5, pady=5)
-    entry_code = tk.Entry(new_win)
-    entry_code.grid(row=0, column=1, padx=5, pady=5)
-    entry_code.focus()  # 🔹 foco inicial en código
+    if hasattr(picture_frame, "canvas"):
+        ax = picture_frame.canvas.figure.axes[0]
+        ax.clear()
 
-    def confirm_remove():
-        code = entry_code.get().strip().upper()
-        if not code:
-            messagebox.showwarning("Advertencia", "Debe introducir un código de aeropuerto.")
-            return
+        xs = [a.lon for a in airports]
+        ys = [a.lat for a in airports]
+        colors = ['green' if a.schengen else 'red' for a in airports]
+        ax.scatter(xs, ys, c=colors)
 
-        # Intentar eliminar el aeropuerto usando RemoveAirport del módulo
-        result = RemoveAirport(airports, code)
-        if result == -1:
-            messagebox.showerror("Error", f"No se encontró el aeropuerto {code}.")
-            return
+        for a in airports:
+            ax.text(a.lon, a.lat, a.code, fontsize=8)
 
-        # Redibujar el gráfico si existe
-        if hasattr(picture_frame, 'canvas'):
-            canvas = picture_frame.canvas
-            fig = canvas.figure
-            ax = fig.axes[0]
+        picture_frame.canvas.draw()
 
-            ax.clear()
-            ax.set_title("Aeropuertos")
-            ax.set_xlabel("Longitud")
-            ax.set_ylabel("Latitud")
-
-            xs = [a.lon for a in airports]
-            ys = [a.lat for a in airports]
-            colors = ['green' if a.schengen else 'red' for a in airports]
-            ax.scatter(xs, ys, c=colors, marker='o')
-
-            for a in airports:
-                ax.text(a.lon, a.lat, a.code, fontsize=8)
-
-            canvas.draw()
-
-        messagebox.showinfo("Éxito", f"Aeropuerto {code} eliminado.")
-        new_win.destroy()
-
-    # Botón "Eliminar"
-    btn_remove = tk.Button(new_win, text="Eliminar", command=confirm_remove)
-    btn_remove.grid(row=1, column=0, columnspan=2, pady=10)
-
-    # Permitir confirmar con Enter
-    new_win.bind("<Return>", lambda event: confirm_remove())
+    entry_delete_code.delete(0, tk.END)
 
 
-
+# Muestra la información del aeropuerto
 def Print_Airport():
     global airports
 
-    # Comprobar que haya lista cargada
     try:
         airports
     except NameError:
         airports = []
 
-    if len(airports) == 0:
-        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
+    if not airports:
+        messagebox.showwarning("Warning", "There is no airports loaded.")
         return
 
-    # Ventana emergente para elegir modo de visualización
-    new_win = tk.Toplevel()
-    new_win.title("Mostrar aeropuerto")
+    code = entry_show_code.get().strip().upper()
 
-    tk.Label(new_win, text="Código (opcional, ej. LEBL):").grid(row=0, column=0, padx=5, pady=5)
-    entry_code = tk.Entry(new_win)
-    entry_code.grid(row=0, column=1, padx=5, pady=5)
-    entry_code.focus()  # 🔹 foco inicial en código
-
-    def confirm_show():
-        code = entry_code.get().strip().upper()
-
-        if not code:
-            # Mostrar todos los aeropuertos usando PrintAirport del módulo
-            info = ""
-            for a in airports:
-                PrintAirport(a)  # imprime en consola
-                schengen = "Sí" if a.schengen else "No"
-                info += f"{a.code}  |  Lat: {a.lat:.4f}  |  Lon: {a.lon:.4f}  |  Schengen: {schengen}\n"
-
-            if not info:
-                info = "No hay aeropuertos cargados."
-            messagebox.showinfo("Lista de aeropuertos", info)
-            new_win.destroy()
-            return
-
-        # Buscar aeropuerto específico
-        found = None
+    if not code:
+        info = ""
         for a in airports:
-            if a.code == code:
-                found = a
-                break
+            schengen = "Sí" if a.schengen else "No"
+            info += (
+                f"{a.code}  |  "
+                f"Lat: {a.lat:.4f}  |  "
+                f"Lon: {a.lon:.4f}  |  "
+                f"Schengen: {schengen}\n"
+            )
 
-        if not found:
-            messagebox.showerror("Error", f"No se encontró el aeropuerto {code}.")
-            return
+        if not info:
+            info = "There is no airports loaded."
 
-        # Mostrar usando PrintAirport del módulo (opcional)
-        PrintAirport(found)
+        messagebox.showinfo("List of airports", info)
+        return
 
-        schengen = "Sí" if found.schengen else "No"
-        info = (f"--- Información del aeropuerto ---\n\n"
-                f"Código: {found.code}\n"
-                f"Latitud: {found.lat:.6f}\n"
-                f"Longitud: {found.lon:.6f}\n"
-                f"Espacio Schengen: {schengen}")
+    found = None
+    for a in airports:
+        if a.code == code:
+            found = a
+            break
 
-        messagebox.showinfo(f"Aeropuerto {code}", info)
-        new_win.destroy()
+    if not found:
+        messagebox.showerror("Error", f"There is no airport {code} loaded .")
+        return
 
-    # Botón "Mostrar"
-    btn_show = tk.Button(new_win, text="Mostrar", command=confirm_show)
-    btn_show.grid(row=1, column=0, columnspan=2, pady=10)
-    new_win.bind("<Return>", lambda event: confirm_show())
+    schengen = "Sí" if found.schengen else "No"
+    info = (
+        f"--- Aeroport information ---\n\n"
+        f"ID: {found.code}\n"
+        f"Latitude: {found.lat:.6f}\n"
+        f"Longitude: {found.lon:.6f}\n"
+        f"Schengen Area: {schengen}"
+    )
+
+    messagebox.showinfo(f"Airport {code}", info)
+
+    entry_show_code.delete(0, tk.END)
+
 
 
 def Set_Schengen():
@@ -277,85 +255,54 @@ def Set_Schengen():
     except NameError:
         airports = []
 
-    if len(airports) == 0:
-        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
+    if not airports:
+        messagebox.showwarning("Warning", "There is no airports loaded")
         return
 
-    new_win = tk.Toplevel()
-    new_win.title("Cambiar estado Schengen")
+    code = entry_schengen_code.get().strip().upper()
+    if not code:
+        messagebox.showwarning("Warning", "You must enter an airport ID.")
+        return
 
-    tk.Label(new_win, text="Código del aeropuerto (ej. LEBL):").grid(row=0, column=0, padx=5, pady=5)
-    entry_code = tk.Entry(new_win)
-    entry_code.grid(row=0, column=1, padx=5, pady=5)
+    found = None
+    for a in airports:
+        if a.code == code:
+            found = a
+            break
 
-    search_btn = tk.Button(new_win, text="Buscar")
-    search_btn.grid(row=1, column=0, columnspan=2, pady=10)
+    if not found:
+        messagebox.showerror("Error", f"There is no airport {code} loaded .")
+        return
 
-    def confirm_search():
-        code = entry_code.get().strip().upper()
-        if not code:
-            messagebox.showwarning("Advertencia", "Debe introducir un código de aeropuerto.")
-            return
 
-        # Buscar aeropuerto
-        found = None
+    found.schengen = schengen_var.get()
+
+    # Redibujar gráfico si existe
+    if hasattr(picture_frame, 'canvas'):
+        canvas = picture_frame.canvas
+        fig = canvas.figure
+        ax = fig.axes[0]
+        ax.clear()
+
+        ax.set_title("Airports")
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
+
+        xs = [a.lon for a in airports]
+        ys = [a.lat for a in airports]
+        colors = ['green' if a.schengen else 'red' for a in airports]
+        ax.scatter(xs, ys, c=colors)
+
         for a in airports:
-            if a.code == code:
-                found = a
-                break
+            ax.text(a.lon, a.lat, a.code, fontsize=8)
 
-        if not found:
-            messagebox.showerror("Error", f"No se encontró el aeropuerto {code}.")
-            return
+        canvas.draw()
 
-        # Eliminar controles anteriores
-        entry_code.destroy()
-        search_btn.destroy()
-
-        # Mostrar controles nuevos
-        current = tk.BooleanVar(value=found.schengen)
-
-        tk.Label(new_win, text=f"Estado actual de {code}:").grid(row=0, column=0, padx=5, pady=5)
-        cb = tk.Checkbutton(new_win, text="Schengen", variable=current)
-        cb.grid(row=0, column=1, padx=5, pady=5)
-
-        def apply_change():
-            # 🔹 Actualiza según el checkbox, no llamar SetSchengen()
-            found.schengen = current.get()
-
-            # Redibujar gráfico si hay canvas
-            if hasattr(picture_frame, 'canvas'):
-                canvas = picture_frame.canvas
-                fig = canvas.figure
-                ax = fig.axes[0]
-                ax.clear()
-
-                ax.set_title("Aeropuertos")
-                ax.set_xlabel("Longitud")
-                ax.set_ylabel("Latitud")
-
-                xs = [a.lon for a in airports]
-                ys = [a.lat for a in airports]
-                colors = ['green' if a.schengen else 'red' for a in airports]
-                ax.scatter(xs, ys, c=colors, marker='o')
-
-                for a in airports:
-                    ax.text(a.lon, a.lat, a.code, fontsize=8)
-
-                canvas.draw()
-
-            messagebox.showinfo("Éxito", f"Estado Schengen de {code} actualizado.")
-            new_win.destroy()
-
-        btn_apply = tk.Button(new_win, text="Aplicar cambio", command=apply_change)
-        btn_apply.grid(row=1, column=0, columnspan=2, pady=10)
-        new_win.bind("<Return>", lambda event: apply_change())
-
-    search_btn.config(command=confirm_search)
-    new_win.bind("<Return>", lambda event: confirm_search())
+    entry_schengen_code.delete(0, tk.END)
 
 
 
+# Guardar el nuevo aeropuerto
 def Save_SchengenAirports():
     global airports
 
@@ -364,42 +311,30 @@ def Save_SchengenAirports():
     except NameError:
         airports = []
 
-    if len(airports) == 0:
-        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
+    if not airports:
+        messagebox.showwarning("Warning", "There is no airports loaded.")
         return
 
-    # Ventana emergente para pedir nombre del fichero
-    new_win = tk.Toplevel()
-    new_win.title("Guardar aeropuertos Schengen")
+    filename = entry_save_schengen.get().strip()
+    if not filename:
+        messagebox.showwarning("Warning", "You must enter a file name.")
+        return
 
-    tk.Label(new_win, text="Nombre del fichero de salida (.txt):").grid(row=0, column=0, padx=5, pady=5)
-    entry_filename = tk.Entry(new_win)
-    entry_filename.grid(row=0, column=1, padx=5, pady=5)
+    if not filename.endswith(".txt"):
+        filename += ".txt"
 
-    def confirm_save():
-        filename = entry_filename.get().strip()
-        if not filename:
-            messagebox.showwarning("Advertencia", "Debe introducir un nombre de archivo.")
-            return
-        if not filename.endswith(".txt"):
-            filename += ".txt"
+    result = SaveSchengenAirports(airports, filename)
 
-        # 🔹 Usamos directamente la función del módulo airport.py
-        result = SaveSchengenAirports(airports, filename)
+    if result == -1:
+        messagebox.showwarning("Warning", "There are no Schengen airports to save.")
+    else:
+        messagebox.showinfo("Success", f"Schengen airports saved in '{filename}'.")
 
-        if result == -1:
-            messagebox.showwarning("Aviso", "No hay aeropuertos Schengen para guardar.")
-        else:
-            messagebox.showinfo("Éxito", f"Aeropuertos Schengen guardados en '{filename}'.")
-        new_win.destroy()
-
-    btn_save = tk.Button(new_win, text="Guardar", command=confirm_save)
-    btn_save.grid(row=1, column=0, columnspan=2, pady=10)
-
-    # 🔹 Enter también ejecuta la acción
-    new_win.bind("<Return>", lambda event: confirm_save())
+    entry_save_schengen.delete(0, tk.END)
 
 
+
+# Hace el plot de los aeropuertos schengen y no schengen
 def Plot_Airports():
     global airports
 
@@ -408,31 +343,36 @@ def Plot_Airports():
     except NameError:
         airports = []
 
-    if len(airports) == 0:
-        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
+    if not airports:
+        messagebox.showwarning("Warning", "You must enter a file name.")
         return
-    # Llamamos directamente a la función del módulo airport.py
-    PlotAirports(airports)
+
+    # Limpiar el frame del gráfico
+    for widget in picture_frame.winfo_children():
+        widget.destroy()
+
+    # Obtener la figura
+    fig = PlotAirports(airports)
+
+    # Insertarla en Tkinter
+    canvas = FigureCanvasTkAgg(fig, master=picture_frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
 
+
+# Envía al Google Earth ver los aeropuertos que hay
 def Map_Airports():
-    global airports
+    global airports, entry_filename
 
-    try:
-        airports
-    except NameError:
-        messagebox.showwarning("Aviso", "No hay aeropuertos cargados. Use 'Load airports' primero.")
+    if not airports:
+        messagebox.showwarning("Warning", "There is no airports loaded.")
         return
 
-    if len(airports) == 0:
-        messagebox.showwarning("Aviso", "No hay aeropuertos para mapear.")
-        return
-
-    original_filename = entry_filename.get().strip()
-    if not original_filename:
-        base_name = "airports"
+    if 'entry_filename' in globals():
+        base_name = entry_filename.replace(".txt", "").replace(".TXT", "")
     else:
-        base_name = original_filename.replace('.txt', '').replace('.TXT', '')
+        base_name = "airports"
 
     success, message, filename = MapAirports(airports, base_name)
 
@@ -440,27 +380,35 @@ def Map_Airports():
         messagebox.showerror("Error", message)
     elif "No se pudo abrir" in message:
         messagebox.showwarning("Aviso", message)
-    else:
-        pass
+
+
 
 # VERSIÓN 2
 
 
+
+#Carga las llegadas de aviones
 def Load_aircrafts():
     global aircrafts
 
-    filename = entry_flights.get().strip()
+    filename = filedialog.askopenfilename(
+        title="Select the departures file",
+        filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
+    )
+
     if not filename:
-        messagebox.showwarning("Advertencia", "Escriba el nombre de un fichero.")
         return
 
     aircrafts = LoadArrivals(filename)
 
     if len(aircrafts) == 0:
-        messagebox.showwarning("Advertencia", "No se pudieron cargar vuelos o el archivo no existe.")
+        messagebox.showwarning("Warning", "Flights could not be loaded or the file does not exist.")
     else:
-        messagebox.showinfo("Éxito", f"Loaded {len(aircrafts)} arrives")
+        messagebox.showinfo("Success", f"Loaded {len(aircrafts)} arrives")
 
+
+
+# Guarda las llegadas
 def Save_Flights():
     global aircrafts
 
@@ -470,41 +418,27 @@ def Save_Flights():
         aircrafts = []
 
     if len(aircrafts) == 0:
-        messagebox.showwarning("Aviso", "No hay vuelos cargados.")
+        messagebox.showwarning("Warning", "There is no airports loaded.")
         return
 
-    # Ventana emergente para pedir nombre del fichero
-    new_win = tk.Toplevel()
-    new_win.title("Guardar vuelos")
+    filename = entry_save2.get().strip()
+    if not filename:
+        messagebox.showwarning("Warning", "You must enter a file name.")
+        return
+    if not filename.endswith(".txt"):
+        filename += ".txt"
 
-    tk.Label(new_win, text="Nombre del fichero de salida (.txt):").grid(row=0, column=0, padx=5, pady=5)
-    entry_filename = tk.Entry(new_win)
-    entry_filename.grid(row=0, column=1, padx=5, pady=5)
+    result = SaveFlights(aircrafts, filename)
 
-    def confirm_save():
-        filename = entry_filename.get().strip()
-        if not filename:
-            messagebox.showwarning("Advertencia", "Debe introducir un nombre de archivo.")
-            return
-        if not filename.endswith(".txt"):
-            filename += ".txt"
+    if result == -1:
+        messagebox.showwarning("Warning", "There are no flights to save.")
+    else:
+        messagebox.showinfo("Success", f"Flghts saved in '{filename}'.")
 
-        # 🔹 Usamos directamente la función del módulo airport.py
-        result = SaveFlights(aircrafts,filename)
-
-        if result == -1:
-            messagebox.showwarning("Aviso", "No hay vuelos para guardar.")
-        else:
-            messagebox.showinfo("Éxito", f"vuelos guardados en '{filename}'.")
-        new_win.destroy()
-
-    btn_save = tk.Button(new_win, text="Guardar", command=confirm_save)
-    btn_save.grid(row=1, column=0, columnspan=2, pady=10)
-
-    # 🔹 Enter también ejecuta la acción
-    new_win.bind("<Return>", lambda event: confirm_save())
+    entry_save2.delete(0, tk.END)
 
 
+# Hace plot de las llegadas por hora
 def Plot_Arrivals_per_Hour():
     global aircrafts
 
@@ -514,34 +448,82 @@ def Plot_Arrivals_per_Hour():
         aircrafts = []
 
     if len(aircrafts) == 0:
-        messagebox.showwarning("Aviso", "No hay aeropuertos cargados.")
+        messagebox.showwarning("Warning", "There is no flight loaded")
         return
 
-    PlotArrivals(aircrafts)
+    # Limpiar frame
+    for widget in picture_frame.winfo_children():
+        widget.destroy()
 
+    # Crear figura desde matplotlib
+    fig = PlotArrivals(aircrafts)
+    if fig is None:
+        messagebox.showwarning("Warning", "The graph could not be generated..")
+        return
+
+    # Canvas
+    canvas = FigureCanvasTkAgg(fig, master=picture_frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    return fig
+
+
+
+# Hce plot de las aerolineas por llegada
 def Plot_Airlines():
     global aircrafts
 
     if len(aircrafts) == 0:
-        messagebox.showwarning("Aviso", "No hay vuelos cargados.")
+        messagebox.showwarning("Warning", "There is no flight loaded")
         return
 
     try:
-        PlotAirlines(aircrafts)
+        for widget in picture_frame.winfo_children():
+            widget.destroy()
+
+            # Crear figura desde matplotlib
+        fig = PlotAirlines(aircrafts)
+        if fig is None:
+            messagebox.showwarning("Warning", "The graph could not be generated.")
+            return
+
+        # Canvas
+        canvas = FigureCanvasTkAgg(fig, master=picture_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        return fig
+
     except Exception as e:
         messagebox.showerror("Error", f"Error al crear el gráfico: {str(e)}")
 
+
+
+# Hace plot de las llegadas de aeropuertos schenven vs no schengen
 def Plot_FlightsType():
     global aircrafts
 
     if 'aircrafts' not in globals() or len(aircrafts) == 0:
-        messagebox.showerror("Error", "No se ha cargado el archivo 'arrives.txt' o está vacío~")
+        messagebox.showerror("Error", "No se ha cargado el archivo 'arrives.txt' o está vacío")
         return
 
-    # Llamamos a la función de aircraft.py
-    PlotFlightsType(aircrafts)
+    for widget in picture_frame.winfo_children():
+        widget.destroy()
+
+        # Crear figura desde matplotlib
+    fig = PlotFlightsType(aircrafts)
+    if fig is None:
+        messagebox.showwarning("Aviso", "No se pudo generar el gráfico.")
+        return
+
+    # Canvas
+    canvas = FigureCanvasTkAgg(fig, master=picture_frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    return fig
 
 
+
+# Se ve en Google Earth las llegadas
 def Map_Flights():
 
     global aircrafts
@@ -575,6 +557,8 @@ def Map_Flights():
     MapFlights(aircrafts, airports)
 
 
+
+# Se ve en Google Earth las llegadas más lejanas
 def Long_Distance_Arrivals():
 
     global aircrafts
@@ -613,89 +597,121 @@ def Long_Distance_Arrivals():
     MapFlights(long_distance, airports)
 
 
-#-------- VERSION 3 ----------
+
+# VERSIÓN 3
+
+
+
 
 bcn = None
 
-# VERSIÓN 3 - GATE MANAGEMENT
+# Se selecciona los gates
 def Set_Gates():
     global bcn
+
     if bcn is None:
-        messagebox.showwarning("Aviso", "Primero debes cargar la estructura del aeropuerto.")
+        messagebox.showwarning(
+            "Aviso",
+            "Primero debes cargar la estructura del aeropuerto."
+        )
         return
 
-    win = tk.Toplevel()
-    win.title("Crear Puertas (SetGates)")
+    tname = entry_Terminal.get().strip()
+    aname = entry_Area.get().strip()
+    prefijo = entry_prefijo.get().strip()
 
-    tk.Label(win, text="Terminal:").grid(row=0, column=0)
-    entry_term = tk.Entry(win)
-    entry_term.grid(row=0, column=1)
+    try:
+        g_inicio = int(entry_gate_inicio.get())
+        g_final = int(entry_gate_final.get())
+    except ValueError:
+        messagebox.showerror(
+            "Error",
+            "Gate inicio y Gate final deben ser números enteros."
+        )
+        return
 
-    tk.Label(win, text="Área:").grid(row=1, column=0)
-    entry_area = tk.Entry(win)
-    entry_area.grid(row=1, column=1)
+    if not tname or not aname or not prefijo:
+        messagebox.showwarning(
+            "Advertencia",
+            "Todos los campos deben estar rellenos."
+        )
+        return
 
-    tk.Label(win, text="Gate inicio:").grid(row=2, column=0)
-    g1 = tk.Entry(win)
-    g1.grid(row=2, column=1)
+    for terminal in bcn.terms:
+        if terminal.Name == tname:
+            for area in terminal.BoardingArea:
+                if area.name == aname:
+                    result = SetGates(
+                        area,
+                        g_inicio,
+                        g_final,
+                        prefijo
+                    )
 
-    tk.Label(win, text="Gate final:").grid(row=3, column=0)
-    g2 = tk.Entry(win)
-    g2.grid(row=3, column=1)
+                    if result == 0:
+                        messagebox.showinfo(
+                            "Éxito",
+                            "Puertas creadas correctamente."
+                        )
+                    else:
+                        messagebox.showerror(
+                            "Error",
+                            "No se pudieron crear las puertas."
+                        )
+                    return
 
-    tk.Label(win, text="Prefijo:").grid(row=4, column=0)
-    pref = tk.Entry(win)
-    pref.grid(row=4, column=1)
-
-    def run():
-        tname = entry_term.get().strip()
-        aname = entry_area.get().strip()
-
-        for t in bcn.terms:
-            if t.Name == tname:
-                for area in t.BoardingArea:
-                    if area.name == aname:
-                        r = SetGates(area, int(g1.get()), int(g2.get()), pref.get())
-                        if r == 0:
-                            messagebox.showinfo("Éxito", "Puertas creadas correctamente.")
-                        else:
-                            messagebox.showerror("Error", "No se pudieron crear las puertas.")
-                        win.destroy()
-                        return
-        messagebox.showerror("Error", "Terminal o área no encontrada.")
-
-    tk.Button(win, text="Crear", command=run).grid(row=5, column=0, columnspan=2, pady=10)
+    messagebox.showerror(
+        "Error",
+        "Terminal o área no encontrada."
+    )
 
 
+
+#Carga las aerolíneas
 def Load_Airlines():
     global bcn
 
-    win = tk.Toplevel()
-    win.title("Cargar Aerolíneas")
+    if bcn is None:
+        messagebox.showwarning(
+            "Aviso",
+            "Primero debes cargar la estructura del aeropuerto."
+        )
+        return
 
-    tk.Label(win, text="Terminal:").grid(row=0, column=0)
-    entry_term = tk.Entry(win)
-    entry_term.grid(row=0, column=1)
+    tname = entry_airlines_terminal.get().strip()
 
-    def run():
-        tname = entry_term.get().strip()
+    if not tname:
+        messagebox.showwarning(
+            "Advertencia",
+            "Debe introducir un nombre de terminal."
+        )
+        return
 
-        for t in bcn.terms:
-            if t.Name == tname:
-                r = LoadAirlines(t, tname)
-                if r == 0:
-                    messagebox.showinfo("Éxito", f"Aerolíneas cargadas en {tname}.")
-                else:
-                    messagebox.showerror("Error", "No se pudo cargar el archivo.")
-                win.destroy()
-                return
+    for terminal in bcn.terms:
+        if terminal.Name == tname:
+            result = LoadAirlines(terminal, tname)
 
-        messagebox.showerror("Error", "Terminal no encontrada.")
+            if result == 0:
+                messagebox.showinfo(
+                    "Éxito",
+                    f"Aerolíneas cargadas correctamente en {tname}."
+                )
+            else:
+                messagebox.showerror(
+                    "Error",
+                    "No se pudo cargar el archivo de aerolíneas."
+                )
+            return
 
-    tk.Button(win, text="Cargar", command=run).grid(row=1, column=0, columnspan=2, pady=10)
+    messagebox.showerror(
+        "Error",
+        f"No se encontró la terminal {tname}."
+    )
 
+
+# Carga la estructura del aeropuerto LEBL desde archivo
 def Load_Airport_Structure():
-    '''Carga la estructura del aeropuerto LEBL desde archivo'''
+
     global bcn
     
     filename = filedialog.askopenfilename(
@@ -721,20 +737,22 @@ def Load_Airport_Structure():
     # Contar aerolíneas cargadas
     total_airlines = sum(len(t.codes) for t in bcn.terms)
     
-    message = (f"Estructura del aeropuerto {bcn.code} cargada.\n\n"
-               f"Terminales: {len(bcn.terms)}\n"
-               f"Total de puertas: {total_gates}\n"
-               f"Aerolíneas cargadas: {total_airlines}")
+    message = (f"Airport structure {bcn.code} loaded.\n\n"
+               f"Terminals: {len(bcn.terms)}\n"
+               f"Total gates: {total_gates}\n"
+               f"Airlines loades: {total_airlines}")
     
     if total_airlines == 0:
-        message += "\n\n⚠️ AVISO: No se cargaron aerolíneas.\n"
-        message += "Asegúrate de tener T1_Airlines.txt y T2_Airlines.txt\n"
-        message += "en la misma carpeta para asignar puertas correctamente."
+        message += "\n\n⚠️ Warning: No airlines were loaded.\n"
+        message += "Ensure to have T1_Airlines.txt y T2_Airlines.txt\n"
+        message += "in the same folder to assign doors correctly."
     
-    messagebox.showinfo("Éxito", message)
+    messagebox.showinfo("Success", message)
 
+
+# Asigna puertas a las llegadas
 def Assign_Gates_to_Arrivals():
-    '''Asigna puertas a todos los vuelos cargados'''
+
     global bcn, aircrafts
     
     if bcn is None:
@@ -768,8 +786,9 @@ def Assign_Gates_to_Arrivals():
         f"✗ Sin puerta disponible: {failed}")
 
 
+# Mira si hay una puerta libre
 def Show_Gate_Occupancy():
-    '''Muestra el estado de ocupación de todas las puertas'''
+
     global bcn
     
     if bcn is None:
@@ -790,7 +809,7 @@ def Show_Gate_Occupancy():
     # Frame con scrollbar
     frame = tk.Frame(new_win)
     frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-    
+
     scrollbar = tk.Scrollbar(frame)
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
     
@@ -816,6 +835,7 @@ def Show_Gate_Occupancy():
     text.config(state=tk.DISABLED)
 
 
+# Muestra si la aerolínea está en cierto terminal
 def IsAirline_InTerminal():
     global bcn
 
@@ -847,6 +867,8 @@ def IsAirline_InTerminal():
 
     tk.Button(win, text="Comprobar", command=run).grid(row=2, column=0, columnspan=2, pady=10)
 
+
+# Te busca un terminal
 def Search_Terminal():
 
     global bcn
@@ -871,7 +893,15 @@ def Search_Terminal():
 
     tk.Button(win, text="Buscar", command=run).grid(row=1, column=0, columnspan=2, pady=10)
 
-#-------- VERSION 4 ----------
+
+
+
+# VERSIÓN 4
+
+
+
+
+bcn = BarcelonaAP("LEBL")
 
 def Load_Departures():
     global departures
@@ -897,10 +927,10 @@ def Load_Departures():
     )
 
 
-# Suponemos que `aircrafts` es tu lista global con todos los Aircraft
 
+# Fusiona las llegadas y salidas usando aircraft.py
 def Merge_Movements():
-    """Merge arrivals and departures using aircraft.py function."""
+
     global aircrafts, departures
 
     try:
@@ -925,6 +955,9 @@ def Merge_Movements():
     aircrafts = merged
     messagebox.showinfo("Éxito", f"Fusión completada. Total aircrafts: {len(aircrafts)}")
 
+
+
+# Mira los vuelos nocturnos
 def Night_Aircraft():
     global aircrafts
 
@@ -971,156 +1004,1052 @@ def Night_Aircraft():
 
 
 
-# --------- INTERFAZ ---------
+#Asigna los vuelos nocturnos a una puerta
+def Assign_Night_Gates():
+    global aircrafts, bcn
+
+    if not aircrafts:
+        messagebox.showerror("Error", "La lista de vuelos está vacía.")
+        return
+
+    assigned=AssignNightGates(bcn,aircrafts)
+
+    if assigned==-1:
+        messagebox.showerror("Error", "No hay vuelos nocturnos para asignar.")
+    elif assigned==0:
+        messagebox.showinfo("Asignacion nocturna", "No se pudo asignar ninguna gate nocturna.")
+    else:
+        messagebox.showinfo("Asignacion noctura", f"Se asignaron {assigned} gates nocturnas correctamente")
+
+
+
+# Muestra las puertas libres
+def Free_Gate():
+    global aircrafts,bcn
+
+    if not aircrafts:
+        messagebox.showerror("Error", "La lista de vuelos está vacía.")
+        return
+
+    new_win = tk.Toplevel()
+    new_win.title("Free gate")
+
+    tk.Label(new_win, text="ID del aircraft").grid(row=0, column=0, padx=5, pady=5)
+    entry_code = tk.Entry(new_win)
+    entry_code.grid(row=0, column=1, padx=5, pady=5)
+
+    def confirm_search():
+        id = entry_code.get().strip().upper()
+        if not id:
+            messagebox.showwarning("Advertencia", "Debe introducir un el ID del aircraft")
+            return
+
+        gate=FreeGate(bcn,id)
+
+        if gate==-1:
+            messagebox.showerror("Error",f"No se encontro el aircraft {id}.")
+        elif gate==0:
+            messagebox.showinfo("Informacion",f"El aircraft {id} no esta asiganad a ninguna gate.")
+        else:
+            messagebox.showinfo("Exito",f"El aicraft {id} ha sido liberada de la gate.")
+
+        new_win.destroy()
+
+    tk.Button(new_win, text="Free gate",command=confirm_search).grid(row=1,column=0,columnspan=3,pady=10)
+
+    new_win.bind("<Return>", lambda event: confirm_search())
+
+
+
+# Te asigna a una puerta dependiendo del tiempo
+def Assign_Gates_At_Time():
+    global bcn, aircrafts
+
+    if not aircrafts:
+        messagebox.showerror("Error", "La lista de vuelos está vacía.")
+        return
+
+    new_win = tk.Toplevel()
+    new_win.title("Hora")
+
+    tk.Label(new_win, text="Exact time(XX:00): ").grid(row=0, column=0, padx=5, pady=5)
+    entry_time = tk.Entry(new_win)
+    entry_time.grid(row=0, column=1, padx=5, pady=5)
+
+    def confirm_time():
+        time = entry_time.get().strip()
+        if not time:
+            messagebox.showwarning("Advertencia", "Debe escribir una hora")
+            return
+
+        assigned = AssignGatesAtTime(bcn, aircrafts, time)
+
+        if assigned == -1:
+            messagebox.showerror("Error", "La hora no está en el formato correcto (XX:00).")
+        else:
+            messagebox.showinfo("Exito", f"No se ha podido asignar {assigned} aircraft(s) porque el aeropuerto está lleno.")
+
+        new_win.destroy()
+
+    tk.Button(new_win, text="Asignar gates", command=confirm_time).grid(row=1, column=0, columnspan=2, pady=10)
+    new_win.bind("<Return>", lambda event: confirm_time())
+
+
+
+# Hce plot de las puertas y desasigna aerolíneas por el día
+def Plot_Day_Occupacy():
+    global bcn, aircrafts
+
+    try:
+        bcn
+        aircrafts
+    except NameError:
+        messagebox.showerror(
+            "Error",
+            "Debe cargar el aeropuerto y los vuelos antes de hacer el plot."
+        )
+        return
+
+    if not aircrafts:
+        messagebox.showerror(
+            "Error",
+            "La lista de aircrafts está vacía. Cargue y fusione arrivals y departures."
+        )
+        return
+
+    if not hasattr(bcn, "terms") or len(bcn.terms) == 0:
+        messagebox.showerror(
+            "Error",
+            "El aeropuerto no tiene terminales cargadas."
+        )
+        return
+
+    fig = PlotDayOccupancy(bcn, aircrafts)
+    if fig is None:
+        messagebox.showwarning("Aviso", "No se pudo generar el gráfico.")
+        return
+
+    # Canvas
+    canvas = FigureCanvasTkAgg(fig, master=picture_frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    return fig
+
+
+# FUNCIÓN EXTRA
+
+
+#Filtro que busca el vuelo dependiendo de los parámetros que selecciones
+def Flight_Search():
+    global bcn, aircrafts, aeroports
+
+    # Mira si los datos están cargados
+    try:
+        if not aircrafts or len(aircrafts) == 0:
+            messagebox.showwarning("Warning",
+                                   "Please load flight data first!\n\n"
+                                   "1. Column 2: Load arrivals\n"
+                                   "2. Column 4: Load Departures\n"
+                                   "3. Column 4: Merge Movements")
+            return
+    except:
+        messagebox.showwarning("Warning",
+                               "Please load flight data first!")
+        return
+
+    # Crea una ventana
+    search_win = tk.Toplevel()
+    search_win.title("🔍 Advanced Flight Search")
+    search_win.geometry("900x700")
+    search_win.configure(bg='#2c3e50')
+
+    # Título
+    title_label = tk.Label(search_win, text="🔍 ADVANCED FLIGHT SEARCH",
+                           font=('Arial', 16, 'bold'), bg='#2c3e50', fg='white')
+    title_label.pack(pady=10)
+
+    # Filtros para el frame
+    filters_frame = tk.LabelFrame(search_win, text="Filters",
+                                  bg='#34495e', fg='orange', font=('Arial', 12, 'bold'))
+    filters_frame.pack(padx=10, pady=10, fill=tk.X)
+
+    # Row 1: Flight ID and Airline
+    row1 = tk.Frame(filters_frame, bg='#34495e')
+    row1.pack(fill=tk.X, padx=5, pady=5)
+
+    tk.Label(row1, text="✈️ Flight ID:", bg='#34495e', fg='white', font=('Arial', 10)).pack(side=tk.LEFT, padx=5)
+    entry_id = tk.Entry(row1, width=15, font=('Arial', 10))
+    entry_id.pack(side=tk.LEFT, padx=5)
+
+    tk.Label(row1, text="Airline:", bg='#34495e', fg='white', font=('Arial', 10)).pack(side=tk.LEFT, padx=5)
+    entry_airline = tk.Entry(row1, width=15, font=('Arial', 10))
+    entry_airline.pack(side=tk.LEFT, padx=5)
+
+    # Row 2: Origin and Time
+    row2 = tk.Frame(filters_frame, bg='#34495e')
+    row2.pack(fill=tk.X, padx=5, pady=5)
+
+    tk.Label(row2, text="🌍 Origin:", bg='#34495e', fg='white', font=('Arial', 10)).pack(side=tk.LEFT, padx=5)
+    entry_origin = tk.Entry(row2, width=15, font=('Arial', 10))
+    entry_origin.pack(side=tk.LEFT, padx=5)
+
+    tk.Label(row2, text="⏰ Time (HH:MM):", bg='#34495e', fg='white', font=('Arial', 10)).pack(side=tk.LEFT, padx=5)
+    entry_time = tk.Entry(row2, width=15, font=('Arial', 10))
+    entry_time.pack(side=tk.LEFT, padx=5)
+
+    # Row 3: Gate and Terminal
+    row3 = tk.Frame(filters_frame, bg='#34495e')
+    row3.pack(fill=tk.X, padx=5, pady=5)
+
+    tk.Label(row3, text="🚪 Gate:", bg='#34495e', fg='white', font=('Arial', 10)).pack(side=tk.LEFT, padx=5)
+    entry_gate = tk.Entry(row3, width=15, font=('Arial', 10))
+    entry_gate.pack(side=tk.LEFT, padx=5)
+
+    tk.Label(row3, text="🏢 Terminal:", bg='#34495e', fg='white', font=('Arial', 10)).pack(side=tk.LEFT, padx=5)
+    terminal_var = tk.StringVar(value="All")
+    terminal_combo = tk.OptionMenu(row3, terminal_var, "All", "T1", "T2")
+    terminal_combo.config(bg='#2c3e50', fg='white', width=10)
+    terminal_combo.pack(side=tk.LEFT, padx=5)
+
+    # Search button
+    def perform_search():
+        # Get filter values
+        filter_id = entry_id.get().strip().upper()
+        filter_airline = entry_airline.get().strip().upper()
+        filter_origin = entry_origin.get().strip().upper()
+        filter_time = entry_time.get().strip()
+        filter_gate = entry_gate.get().strip().upper()
+        filter_terminal = terminal_var.get()
+
+        # Search through aircrafts
+        results = []
+
+        for aircraft in aircrafts:
+            # Apply filters
+            if filter_id and filter_id not in aircraft.id:
+                continue
+            if filter_airline and filter_airline != aircraft.AirlineCompany:
+                continue
+            if filter_origin and filter_origin != aircraft.OriginAirport:
+                continue
+            if filter_time and filter_time != aircraft.TimeLanding:
+                continue
+
+            # Find gate info
+            gate_info = "Not Assigned"
+            terminal_info = "N/A"
+            area_info = "N/A"
+
+            if bcn is not None:
+                for terminal in bcn.terms:
+                    for area in terminal.BoardingArea:
+                        for gate in area.gate:
+                            if gate.id == aircraft.id:
+                                gate_info = gate.name
+                                terminal_info = terminal.Name
+                                area_info = area.name
+                                break
+
+            # Apply gate/terminal filters
+            if filter_gate and filter_gate not in gate_info:
+                continue
+            if filter_terminal != "All" and filter_terminal != terminal_info:
+                continue
+
+            # Get origin airport info
+            origin_name = aircraft.OriginAirport
+            origin_country = "Unknown"
+            # Try to get airport name from aeroports list
+            try:
+                if aeroports and len(aeroports) > 0:
+                    for apt in aeroports:
+                        if apt.code == aircraft.OriginAirport:
+                            origin_name = apt.name if hasattr(apt, 'name') else aircraft.OriginAirport
+                            # Extract country from code (first 2 letters)
+                            origin_country = aircraft.OriginAirport[:2]
+                            break
+            except:
+                # If aeroports not loaded, just use the code
+                origin_country = aircraft.OriginAirport[:2] if len(aircraft.OriginAirport) >= 2 else "??"
+
+            # Add to results
+            results.append({
+                'id': aircraft.id,
+                'airline': aircraft.AirlineCompany,
+                'origin': aircraft.OriginAirport,
+                'origin_name': origin_name,
+                'country': origin_country,
+                'arrival': aircraft.TimeLanding,
+                'departure': aircraft.TimeDeparture if aircraft.TimeDeparture else 'N/A',
+                'gate': gate_info,
+                'terminal': terminal_info,
+                'area': area_info
+            })
+
+        # Display results
+        results_text.delete('1.0', tk.END)
+
+        if len(results) == 0:
+            results_text.insert('end', "❌ No flights found matching your criteria.\n\n")
+            results_text.insert('end', "Try:\n")
+            results_text.insert('end', "- Using fewer filters\n")
+            results_text.insert('end', "- Checking your spelling\n")
+            results_text.insert('end', "- Searching by airline code (e.g., VLG, RYR, IBE)\n")
+        else:
+            results_text.insert('end', f"✅ Found {len(results)} flight(s)\n")
+            results_text.insert('end', "=" * 80 + "\n\n")
+
+            for i, result in enumerate(results, 1):
+                results_text.insert('end', f"{'=' * 80}\n")
+                results_text.insert('end', f"FLIGHT #{i}\n")
+                results_text.insert('end', f"{'=' * 80}\n")
+                results_text.insert('end', f"✈️  Flight ID:     {result['id']}\n")
+                results_text.insert('end', f"Airline:       {result['airline']}\n")
+                results_text.insert('end', f"🌍 Origin:        {result['origin']} ({result['origin_name']})\n")
+                results_text.insert('end', f"🌏 Country:       {result['country']}\n")
+                results_text.insert('end', f"⏰ Arrival:       {result['arrival']}\n")
+                results_text.insert('end', f"🛫 Departure:     {result['departure']}\n")
+                results_text.insert('end', f"🚪 Gate:          {result['gate']}\n")
+                results_text.insert('end', f"🏢 Terminal:      {result['terminal']}\n")
+                results_text.insert('end', f"📍 Area:          {result['area']}\n")
+                results_text.insert('end', f"\n")
+
+        # Update count label
+        count_label.config(text=f"📊 Results: {len(results)} flights")
+
+    btn_search = tk.Button(filters_frame, text="🔍 SEARCH", command=perform_search,
+                           bg='#27ae60', fg='black', font=('Arial', 12, 'bold'),
+                           width=15, height=2)
+    btn_search.pack(pady=10)
+
+    # Clear filters button
+    def clear_filters():
+        entry_id.delete(0, tk.END)
+        entry_airline.delete(0, tk.END)
+        entry_origin.delete(0, tk.END)
+        entry_time.delete(0, tk.END)
+        entry_gate.delete(0, tk.END)
+        terminal_var.set("All")
+        results_text.delete('1.0', tk.END)
+        count_label.config(text="📊 Results: 0 flights")
+
+    btn_clear = tk.Button(filters_frame, text="🗑️ Clear Filters", command=clear_filters,
+                          bg='#e74c3c', fg='black', font=('Arial', 11, 'bold'),
+                          width=15)
+    btn_clear.pack(pady=5)
+
+    # Results count
+    count_label = tk.Label(search_win, text="📊 Results: 0 flights",
+                           bg='#2c3e50', fg='white', font=('Arial', 11, 'bold'))
+    count_label.pack(pady=5)
+
+    # Results Frame
+    results_frame = tk.LabelFrame(search_win, text="Search Results",
+                                  bg='#34495e', fg='orange', font=('Arial', 13, 'bold'))
+    results_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+    # Scrollbar
+    scrollbar = tk.Scrollbar(results_frame)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    # Results text
+    results_text = tk.Text(results_frame, wrap=tk.WORD, yscrollcommand=scrollbar.set,
+                           bg='#ecf0f1', fg='#2c3e50', font=('Courier', 10),
+                           padx=10, pady=10)
+    results_text.pack(fill=tk.BOTH, expand=True)
+    scrollbar.config(command=results_text.yview)
+
+    # Initial message
+    results_text.insert('end', " Enter search criteria above and click 🔍 SEARCH\n\n")
+    results_text.insert('end', "Examples:\n")
+    results_text.insert('end', "- Search by airline: VLG, RYR, IBE\n")
+    results_text.insert('end', "- Search by time: 14:00, 08:30\n")
+    results_text.insert('end', "- Search by origin: EGCC, LMML, LGTS\n")
+    results_text.insert('end', "- Search by gate: A1, B25, M5\n")
+    results_text.insert('end', "- Combine filters for precise results!\n")
+
+def Show_Text_Window(title, text_content):
+    new_win = tk.Toplevel()
+    new_win.title(title)
+    new_win.geometry("600x400")
+
+    frame = tk.Frame(new_win)
+    frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+    scrollbar = tk.Scrollbar(frame)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    text = tk.Text(frame, wrap=tk.WORD, yscrollcommand=scrollbar.set)
+    text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    scrollbar.config(command=text.yview)
+
+    text.insert(tk.END, text_content)
+    text.config(state=tk.DISABLED)
+
+    btn_ok = tk.Button(new_win,text="Entendido",command=new_win.destroy)
+    btn_ok.pack(pady=10)
+
+def Tut_Load_Airports():
+    text = ("Con este botón puedes cargar un archivo “airports.txt” que contiene el código ICAO del aeropuerto con su latitud y longitud y te lo muestra en un gráfico en la interfaz. En el gráfico aparecen los aeropuertos según su latitud y longitud, pintados de verde si son Schengen y de rojo si no son Schengen. \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí podrás escoger el archivo que desees cargar y al darle a abrir, se te habrá cargado el archivo al programa.")
+
+    Show_Text_Window("Tutorial - Cargar aeropuertos", text)
+
+def Tut_Add_Airports():
+    text = ("Esta función te permite borrar cualquier aeropuerto que se encuentre en el mapa. \n"
+            "Para ello, debes escribir el código del aeropuerto que desees borrar y darle al botón “borrar”.\n\n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
+
+    Show_Text_Window("Tutorial - Añadir aeropuertos", text)
+
+def Tut_Delete_Airports():
+    text = ("Esta función te permite borrar cualquier aeropuerto que se encuentre en el mapa. \n"
+            "Para ello, debes escribir el código del aeropuerto que desees borrar y darle al botón “borrar”.\n\n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
+
+    Show_Text_Window("Tutorial - Eliminar aeropuertos", text)
+
+def Tut_Show_Data_of_Airports():
+    text = ("Esta función enseña los datos del aeropuerto que quieras. \n"
+            "Escribiendo el código del aeropuerto del que quieres saber datos y dándole al botón “mostrar”, te enseña el código ICAO del aeropuerto, su latitud, su longitud y si tiene propiedad Schengen o no. \n\n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
+
+    Show_Text_Window("Tutorial - Ver datos aeropuertos", text)
+
+def Tut_Set_Schengen_to_Airports():
+    text = ("Esta función te permite darle el atributo Schengen a un aeropuerto que no lo tiene. \n"
+            "Para hacerlo, escribe el código del aeropuerto al que quieras atribuir Schengen. Dándole click a la pequeña caja al lado de “Schengen” y luego al botón “Cambiar” le podrás dar el atributo Schengen al aeropuerto. \n\n"
+            "Observación: Este botón también te permite quitarle el atributo schengen a un aeropuerto que lo tiene. Al quitarle el tic a la caja y darle a “Cambiar”, se guardará ese aeropuerto como no Schengen. \n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
+
+    Show_Text_Window("Tutorial - Dar atributo Schengen a aeropuertos", text)
+
+def Tut_Save_Schengen_Airports():
+    text = ("Esta función te permite crear un archivo .txt con la información de todos los aeropuertos con el atributo Schengen. El archivo creado tendrá una estructura parecida a “airports.txt” (código, latitud, longitud). \n"
+            "Escribiendo en la caja de texto el nombre del archivo que quieras crear y dándole a “Guardar” se guardará el archivo que acabas de crear en tu ordenador. \n\n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
+
+    Show_Text_Window("Tutorial - Guardar aeropuertos Schengen", text)
+
+def Tut_Plot_Schengen():
+    text = ("Este botón te crea un gráfico de barras con el número de aeropuertos Schengen y no Schengen. \n\n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
+
+    Show_Text_Window("Tutorial - Gráficos de aeropuertos Schengen", text)
+
+def Tut_Map_Airports():
+    text = ("Este botón te abre en el Google Earth los aeropuertos Schengen y no Schengen, te muestra la gráfica que aparece en la interfaz cuando haces Load Airports en un mapa 3D de la tierra para tener una mejor visión de los aeropuertos. \n\n"
+            "Nota: Es necesario tener descargado en el ordenador el Google Earth para poder usar esta función. Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
+
+    Show_Text_Window("Tutorial - Mapa de aeropuertos", text)
+
+def Tut_Load_Flights():
+    text = ("Con este botón puedes cargar un archivo “arrivals.txt” que contiene el ID del avión, su aeropuerto de origen, la hora a la que llega al aeropuerto LEBL y la aerolínea a la que pertenece. \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí podrás escoger el archivo que desees cargar y al darle a abrir, se te habrá cargado el archivo al programa. Una vez hecho esto, aparecerá una ventana diciendo que se cargaron los 505 vuelos con éxito.")
+
+    Show_Text_Window("Tutorial - Cargar vuelos", text)
+
+def Tut_Save_Flights():
+    text = ("Con esta función, el programa creará un archivo .txt con la información de todas las llegadas que tengas cargadas en ese momento. El archivo creado tendrá una estructura igual a “arrivals.txt” (ID del avión, aeropuerto de origen, hora de llegada al aeropuerto LEBL, aerolínea a la que pertenece). \n"
+            "Escribiendo en la caja de texto el nombre que quieras dar al archivo y dándole a “Guardar” se guardará el archivo que acabas de crear en tu ordenador. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “arrivals.txt” usando el Load fights. ")
+
+    Show_Text_Window("Tutorial - Guardar vuelos", text)
+
+def Tut_Plot_Arrivals_Hour():
+    text = ("Este botón crea un gráfico mostrando el número de vuelos que aterrizan cada hora en el aeropuerto. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado archivo “arrivals.txt” usando el Load fights. ")
+
+    Show_Text_Window("Tutorial - Gráfico de vuelos por hora", text)
+
+def Tut_Plot_Arrivals_Company():
+    text = ("Este botón crea un gráfico mostrando el número de vuelos que pertenecen a cada compañía.")
+
+    Show_Text_Window("Tutorial - Gráfico de vuelos por compañías", text)
+
+def Tut_Plot_Flights():
+    text = ("Este botón crea un gráfico de barras con el número de vuelos Schengen y no Schengen.\n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “arrivals.txt” usando el Load fights. ")
+
+    Show_Text_Window("Tutorial - Gráfico de vuelos", text)
+
+def Tut_Map_Flights_LEBL():
+    text = ("Este botón abre en Google Earth todos los vuelos que llegan al aeropuerto LEBL, mostrando en verde los vuelos Schengen y en rojo los vuelos no Schengen. \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí debes de abrir el archivo “airport.txt” y se te abrira el mapa en el Google Earth. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “arrivals.txt” usando el Load Arrivals. ")
+
+    Show_Text_Window("Tutorial - Mapa de vuelos a LEBL", text)
+
+def Tut_Map_Long_Distance():
+    text = ("Este botón abre en Google Earth los vuelos que llegan al aeropuerto LEBL, mostrando en verde los vuelos Schengen y en rojo los vuelos no Schengen, que tengan una distancia mayor a 2000 Km . \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí debes de abrir el archivo “airport.txt” y se te abrirá el mapa en el Google Earth. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “arrivals.txt” usando el Load Arrivals. ")
+
+    Show_Text_Window("Tutorial - Mapa de vuelos a distancia", text)
+
+def Tut_Load_Airport_Structure():
+    text = ("Este botón carga la estructura del aeropuerto LEBL. \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí debes de abrir el archivo “Terminal.txt” y se te cargaran todos los datos que hay en el archivo.")
+
+    Show_Text_Window("Tutorial - Cargar estructura del aeropuerto", text)
+
+def Tut_Set_Gate():
+    text = ("Este botón genera puertas a partir de la información que tu le das. \n"
+            "Para generar las puertas, debes escribir en las cajas de texto la información que te pide (en qué terminal y área se generarán, el inicio y final de estas puertas y en prefijo que quieras usar para llamarlas) y luego darle al botón de “crear”. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt”. ")
+
+    Show_Text_Window("Tutorial - Generar puertas", text)
+
+def Tut_Load_Airlines():
+    text = ("Este botón carga las aerolíneas en la terminal que tu desees. \n"
+            "Para hacerlo tienes que poner en el cuadro de texto en qué terminal quieres cargar las aerolíneas. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt”. ")
+
+    Show_Text_Window("Tutorial - Cargar aerolíneas", text)
+
+def Tut_Show_Gate_Occupancy():
+    text = ("Este botón muestra una ventana con la información del número de puertas totales, el número de puertas libres y el número de puertas ocupadas. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt”. ")
+
+    Show_Text_Window("Tutorial - Ver ocupación de puertas", text)
+
+def Tut_Is_Airline_in_Terminal():
+    text = ("Este botón muestra si cierta aerolínea se encuentra en esa terminal o no. \n"
+            "Para hacerlo, hay que poner en el cuadro de texto la terminal y la aerolínea que queremos buscar y darle al botón de “buscar”. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt”. ")
+
+    Show_Text_Window("Tutorial - Ver aerolínea en terminal", text)
+
+def Tut_Search_Terminal():
+    text = ("Este botón muestra en qué terminal opera cierta aerolínea. \n"
+            "Para hacerlo, hay que poner en el cuadro de texto la aerolínea que queremos buscar y darle al botón de “buscar”. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt”. ")
+
+    Show_Text_Window("Tutorial - Buscar terminal", text)
+
+def Tut_Assign_Gates_Arrivals():
+    text = ("Este botón asigna a cada vuelo que llega al aeropuerto una gate. \n"
+            "Al darle al botón, después de asignar puertas a los vuelos, aparecerá una ventana que dirá el número de puertas que han sido asignadas y el número de vuelos que no se han podido asignar a una puerta. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt” y “arrivals.txt”.")
+
+    Show_Text_Window("Tutorial - Asignar puertas a las llegadas", text)
+
+def Tut_Load_Departures():
+    text = ("Con este botón puedes cargar un archivo “Departures.txt” que contiene el ID del avión, su aeropuerto de destino, la hora a la que sale del aeropuerto LEBL y la aerolínea a la que pertenece. \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí podrás escoger el archivo que desees cargar y al darle a abrir, se te habrá cargado el archivo al programa. Una vez hecho esto, aparecerá una ventana diciendo que se cargaron los 511 vuelos con éxito.")
+
+    Show_Text_Window("Tutorial - Cargar salidas", text)
+
+def Tut_Merge_Movements():
+    text = ("Este botón junta la información de los archivos “Arrivals.txt” y “Departures.txt” y los junta en una lista, ordenándolos del más temprano a más tarde (00:00 a 23:59). \n"
+            "Al darle al botón, aparecerá una ventana informando que la fusión ha sido completada y que hay 548 aviones en total. \n\n"
+            "Nota: Debes de tener cargados los archivos “Arrivals.txt” y “Departures.txt”")
+
+    Show_Text_Window("Tutorial - Fusionar movimientos", text)
+
+def Tut_Night_Departures():
+    text = ("Este botón busca en la lista de los vuelos fusionados y te muestra información sobre los vuelos nocturnos (vuelos que son de 20:00 a 6:00).\n"
+            "Al darle al botón, aparecerá una ventana  con el ID del avión, su aerolínea, la hora a la que despegan y el aeropuerto de destino de los vuelos nocturnos. \n\n"
+            "Nota: Debes de tener cargados los archivos “Arrivals.txt” y “Departures.txt” y haber usado la función Merge Movements.")
+
+    Show_Text_Window("Tutorial - Salidas nocturnas", text)
+
+def Tut_Assign_Night_Gates():
+    text = ("Este botón busca en la lista fusionada y asigna una puerta para pasar la noche a los aviones que necesiten una. \n"
+            "Al darle al botón, aparecerá una ventana informando de que no se pudo asignar una puerta (porque el aeropuerto está lleno) o de que se asignó puertas a cierto número de aviones. \n\n"
+            "Nota: Debes de tener cargados los archivos “Arrivals.txt” y “Departures.txt” y haber usado la función Merge Movements.")
+
+    Show_Text_Window("Tutorial - Asignar puertas noche", text)
+
+def Tut_Assign_Gates_at_Time():
+    text = ("Este botón asigna y libera puertas a aviones que lleguen o que tengan que salir dentro del periodo de una hora. \n"
+            "Para usarlo tienes que introducir en la caja de texto la hora que necesites (tiene que ser una hora exacta, es decir, en punto) y darle al botón de “asignar”. El programa te informará del número de vuelos que no pudieron ser asignados a una puerta debido a que el aeropuerto estaba lleno. \n\n"
+            "Nota: Debes de tener cargados los archivos “Arrivals.txt” y “Departures.txt” y haber usado la función Merge Movements.")
+
+    Show_Text_Window("Tutorial - Asignar puertas por hora", text)
+
+def Tut_Plot_Occupancy():
+    text = ("Este botón crea un gráfico de barras y de líneas donde muestra el número de gates que fueron ocupadas y el número de aviones que se quedaron sin puertas a lo largo de cada hora del día. \n\n"
+            "Nota: Debes de tener cargados los archivos “Arrivals.txt” y “Departures.txt” y haber usado la función Merge Movements.")
+
+    Show_Text_Window("Tutorial - Gráfico de ocupaciones en un dia", text)
+
+def Tut_Filtro():
+    text = ("Este botón te permite encontrar información sobre los vuelos aplicando unos filtros. \n"
+            "Al darle al botón, se crea una nueva ventana donde se hará la búsqueda por filtración. Se puede filtrar los vuelos por el ID del avión, a qué compañía pertenece, el país de origen, la hora de llegada o de salida, la puerta a la que están asignadas y la terminal en la que se encuentran. Puedes insertar estos datos por teclado (no hace falta rellenar todos) y al darle al botón de “Buscar” aparece la información en el cuadro de texto de abajo. La información que aparece es la siguiente: ID del avión del vuelo, aerolínea que realiza el vuelo, aeropuerto y país de origen o destino, hora de llegada o salida, puerta asignada, terminal, asignada y área asignada.")
+
+    Show_Text_Window("Tutorial - Filtro", text)
+
+
+
+# Para crear los signos de interrogación
+
+def help_button(parent, command):return tk.Button(parent,text="?",width=2,command=command)
+
+
+
+# --------- INTERFAZ --------- #
 
 root = tk.Tk()
 root.title("Interface")
-root.geometry("1300x600")
+root.geometry("1400x700")
+root.configure(bg='#2c3e50')
 
-root.columnconfigure(0, weight=1) #columna 1 para los botones
-root.columnconfigure(1, weight=10) #columna 2 para los gráficos
-root.rowconfigure(0, weight=1) #fila 1
-#Para añadir más filas es: root.rowconfigure((1,2,3, etc), weight=1)
+# LAYOUT PRINCIPAL
+main_pane = tk.PanedWindow(root, orient=tk.HORIZONTAL, sashwidth=6, bg='#2c3e50')
+main_pane.pack(fill=tk.BOTH, expand=True)
 
-#-----COLUMNA [0], FILA [0] (Botones)
-button_frame=tk.LabelFrame(root, text= 'Airports')
-button_frame.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW) #Definimos el espacio entre botones
+# NOTEBOOK IZQUIERDA
+notebook = ttk.Notebook(main_pane)
+main_pane.add(notebook, width=350)
 
-#-----COLUMNA [1], FILA [0]
-picture_frame=tk.LabelFrame(root, text='Gráfico')
-picture_frame.grid(row=0, column=1, padx=5, pady=5, sticky=tk.NSEW)
-picture_frame.columnconfigure(0,weight=1)
+# FRAME DERECHO (GRÁFICO)
+picture_frame = tk.LabelFrame(main_pane,text='Graphic',bg='#34495e',fg='orange',font=('Arial', 12, 'bold'))
+picture_frame.columnconfigure(0, weight=1)
 picture_frame.rowconfigure(0, weight=1)
 
+main_pane.add(picture_frame)
 
-#Definimos que dentro de este frame tiene una columna y dos filas
-label_filename = tk.Label(button_frame, text="Nombre del fichero en .txt:")
-label_filename.pack(padx=5, pady=5)
-
-entry_filename = tk.Entry(button_frame, width=30)
-entry_filename.pack(padx=5, pady=5)
-entry_filename.bind("<Return>", lambda event: Load_airports())
-
-# ----- COLUMNA [2], FILA [0]
-flights_frame = tk.LabelFrame(root, text='Flights')
-flights_frame.grid(row=0, column=2, padx=5, pady=5, sticky=tk.NSEW)
-
-label_flights = tk.Label(flights_frame, text="Archivo de vuelos (.txt):")
-label_flights.pack(padx=5, pady=5)
-
-# COLUMNA 3 - Gates (V3)
-gates_frame = tk.LabelFrame(root, text='Gates')
-gates_frame.grid(row=0, column=3, padx=5, pady=5, sticky=tk.NSEW)
-label_gates = tk.Label(gates_frame, text="Gestión de Puertas")
-label_gates.pack(padx=5, pady=10)
-
-# COLUMNA 4 - Departures (V4)
-departures_frame = tk.LabelFrame(root, text='Departures')
-departures_frame.grid(row=0, column=4, padx=5, pady=5, sticky=tk.NSEW)
-label_departures = tk.Label(departures_frame, text="Salidas")
-label_departures.pack(padx=5, pady=10)
-
-# Cajita para flights
-entry_flights = tk.Entry(flights_frame, width=30)
-entry_flights.pack(padx=5, pady=5)
-entry_flights.bind("<Return>", lambda event: Load_aircrafts())
+content_frame = tk.Frame(picture_frame, bg='#2c3e50')
+content_frame.pack(fill=tk.BOTH, expand=True)
 
 
-# BOTONES COLUMNA 1
+
+# -----  AIRPORTS (VERSIÓN 1) ----- #
+
+
+tab_airports = tk.Frame(notebook, bg='#2c3e50')
+notebook.add(tab_airports, text='🛫 Airports')
+
+button_frame = tk.LabelFrame(tab_airports, text='Airports')
+button_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
 
 # Botón para cargar grafo
-button1=tk.Button(button_frame, text='Load airports',command=Load_airports)
-button1.pack(padx=5, pady=10, fill=tk.X)
+button_Load_airports = tk.Frame(button_frame)
+button_Load_airports.pack(fill=tk.X, pady=10)
+
+btn_load_airports = tk.Button(
+    button_Load_airports,
+    text=tr("load_airports"),
+    command=Load_airports
+)
+btn_load_airports.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+
+#Botón de ayuda
+help_button(button_Load_airports, Tut_Load_Airports).pack(side=tk.LEFT, padx=5)
+
 
 # Botón para añadir aeropuertos
-button2=tk.Button(button_frame, text='Add airports',command=Add_Airports)
-button2.pack(padx=5, pady=10, fill=tk.X)
+btn_add_airport = tk.LabelFrame(button_frame, text=tr("add_airports"))
+btn_add_airport.pack(fill=tk.X, pady=5)
+
+lbl_airport_code = tk.Label(btn_add_airport, text=tr("airport_code"))
+lbl_airport_code.pack(padx=5, pady=2)
+
+entry_airport_code = tk.Entry(btn_add_airport, width=20)
+entry_airport_code.pack(padx=5, pady=2)
+
+lbl_airport_lat = tk.Label(btn_add_airport, text=tr("latitude"))
+lbl_airport_lat.pack(padx=5, pady=2)
+
+entry_airport_lat = tk.Entry(btn_add_airport, width=20)
+entry_airport_lat.pack(padx=5, pady=2)
+
+lbl_airport_lon = tk.Label(btn_add_airport, text=tr("longitude"))
+lbl_airport_lon.pack(padx=5, pady=2)
+
+entry_airport_lon = tk.Entry(btn_add_airport, width=20)
+entry_airport_lon.pack(padx=5, pady=2)
+
+
+#(Este es el botón)
+button_add_airport = tk.Frame(btn_add)
+button_add_airport.pack(fill=tk.X, pady=5)
+
+tk.Button(button_add_airport, text='Add', command=Add_Airports)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+#Botón de ayuda
+help_button(button_add_airport, Tut_Add_Airports).pack(side=tk.LEFT, padx=5)
+
 
 # Botón para borrar aeropuertos
-button3=tk.Button(button_frame, text='Delete airports',command=Remove_Airport)
-button3.pack(padx=5, pady=10, fill=tk.X)
+btn_delete = tk.LabelFrame(button_frame, text="Delete airport")
+btn_delete.pack(fill=tk.X, pady=5)
+
+tk.Label(btn_delete, text="ID").grid(row=0, column=0, padx=5, pady=5)
+entry_delete_code = tk.Entry(btn_delete, width=15)
+entry_delete_code.grid(row=0, column=1, padx=5, pady=5)
+
+#(Este es el botón)
+row_delete = tk.Frame(btn_delete)
+row_delete.grid(row=0, column=3, padx=5)
+
+tk.Button(row_delete, text="Delete", command=Remove_Airport)\
+    .pack(side=tk.LEFT)
+
+#Botón de ayuda
+help_button(row_delete, Tut_Delete_Airports).pack(side=tk.LEFT, padx=3)
+
 
 # Botón para mostrar la información de los aeropuertos en la lista
-button4=tk.Button(button_frame, text='Show data of airports in the list',command=Print_Airport)
-button4.pack(padx=5, pady=10, fill=tk.X)
+btn_show = tk.LabelFrame(button_frame, text="Show airport data")
+btn_show.pack(fill=tk.X, pady=5)
 
-# Botón para definir Schengen attribute aeropuertos
-button5=tk.Button(button_frame, text='Set Schengen attribute to airports',command=Set_Schengen)
-button5.pack(padx=5, pady=10, fill=tk.X)
+tk.Label(btn_show, text="ID").grid(row=0, column=0, padx=5, pady=5)
+entry_show_code = tk.Entry(btn_show, width=15)
+entry_show_code.grid(row=0, column=1, padx=5, pady=5)
+
+#(Este es el botón)
+row_show = tk.Frame(btn_show)
+row_show.grid(row=0, column=3, padx=5)
+
+tk.Button(row_show, text="Show", command=Print_Airport)\
+    .pack(side=tk.LEFT)
+
+help_button(row_show, Tut_Show_Data_of_Airports).pack(side=tk.LEFT, padx=3)
+
+
+# Botón para definir los aeropuertos Schengen o no
+btn_schengen = tk.LabelFrame(button_frame,text="Set Schengen attribute")
+btn_schengen.pack(fill=tk.X, pady=5)
+
+tk.Label(btn_schengen, text="ID").grid(row=0, column=0, padx=5, pady=5)
+
+entry_schengen_code = tk.Entry(btn_schengen, width=15)
+entry_schengen_code.grid(row=0, column=1, padx=5, pady=5)
+
+#(Este es el tick)
+schengen_var = tk.BooleanVar()
+tk.Checkbutton(btn_schengen,text="Schengen",variable=schengen_var,).grid(row=0, column=2, padx=5, pady=5)
+
+#(Este es el botón)
+row_set = tk.Frame(btn_schengen)
+row_set.grid(row=0, column=4, padx=5)
+
+tk.Button(row_set, text='Set', command=Set_Schengen)\
+    .pack(side=tk.LEFT)
+
+help_button(row_set, Tut_Set_Schengen_to_Airports).pack(side=tk.LEFT, padx=3)
+
+
 
 # Botón para guardar Schengen aeropuertos en el archivo
-button6=tk.Button(button_frame, text='Save Schengen airports in file',command=Save_SchengenAirports)
-button6.pack(padx=5, pady=10, fill=tk.X)
+btn_save = tk.LabelFrame(button_frame, text="Save Schengen airports")
+btn_save.pack(fill=tk.X, pady=5)
+
+tk.Label(btn_save, text="File name").grid(row=0, column=0, padx=5, pady=5)
+entry_save_schengen = tk.Entry(btn_save, width=20)
+entry_save_schengen.grid(row=0, column=1, padx=5, pady=5)
+
+#(Este es el botón)
+row_save = tk.Frame(btn_save)
+row_save.grid(row=0, column=3, padx=5)
+
+tk.Button(row_save, text='Save', command=Save_SchengenAirports)\
+    .pack(side=tk.LEFT)
+
+help_button(row_save,Tut_Save_Schengen_Airports).pack(side=tk.LEFT, padx=3)
+
+
 
 # Botón para hacer plot de los schengen aeropuertos en la barra
-button7=tk.Button(button_frame, text='Plot Schengen airports in a stacked bar',command=Plot_Airports)
-button7.pack(padx=5, pady=10, fill=tk.X)
+button_plot_schengen = tk.Frame(button_frame)
+button_plot_schengen.pack(fill=tk.X, pady=5)
 
-button9=tk.Button(button_frame, text='Map airports',command=Map_Airports)
-button9.pack(padx=5, pady=10, fill=tk.X)
+tk.Button(button_plot_schengen, text='Plot Schengen airports in a stacked bar', command=Plot_Airports)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-# BOTONES COLUMNA 2
+help_button(button_plot_schengen,Tut_Plot_Schengen).pack(side=tk.LEFT, padx=5)
+
+
+#Botón para ver en el Google Earth los aeropuertos
+button_map_airports = tk.Frame(button_frame)
+button_map_airports.pack(fill=tk.X, pady=5)
+
+tk.Button(button_map_airports, text='Map airports', command=Map_Airports)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(button_map_airports, Tut_Map_Airports).pack(side=tk.LEFT, padx=5)
+
+
+
+
+# ----- FLIGHTS (VERSIÓN 2) ----- #
+
+tab_flights = tk.Frame(notebook, bg='#2c3e50')
+notebook.add(tab_flights, text='✈️ Flights')
+
+flights_frame = tk.LabelFrame(tab_flights, text='Flights')
+flights_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
 #boton para cargar vuelos
-load_flights = tk.Button(flights_frame, text='Load flights', command=Load_aircrafts)
-load_flights.pack(padx=5, pady=10, fill=tk.X)
+row_load_flights = tk.Frame(flights_frame)
+row_load_flights.pack(fill=tk.X, pady=10)
+
+load_flights = tk.Button(row_load_flights, text='Load flights', command=Load_aircrafts)
+load_flights.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(row_load_flights, Tut_Load_Flights).pack(side=tk.RIGHT, padx=5)
 
 # Botón para guardar la info de vuelos en un archivo
-button3=tk.Button(flights_frame, text='Save flights',command=Save_Flights)
-button3.pack(padx=5, pady=10, fill=tk.X)
+save_flights_frame = tk.LabelFrame(flights_frame, text="Save flights")
+save_flights_frame.pack(fill=tk.X,pady=5)
+
+tk.Label(save_flights_frame, text="File name(.txt)").pack(padx=5, pady=2)
+
+entry_save2 = tk.Entry(save_flights_frame)
+entry_save2.pack(padx=5, pady=2, fill=tk.X)
+
+#(Este es el botón)
+row_save = tk.Frame(save_flights_frame)
+row_save.pack(fill=tk.X, pady=5)
+
+tk.Button(row_save, text='Save', command=Save_Flights).pack(side=tk.LEFT,fill=tk.X, expand=True)
+
+help_button(row_save,Tut_Save_Flights).pack(side=tk.LEFT, padx=3)
 
 # Botón para mapear vuelos por hora
-button9=tk.Button(flights_frame, text='Map arrivals per hours',command=Plot_Arrivals_per_Hour)
-button9.pack(padx=5, pady=10, fill=tk.X)
+button_plot_flight_hour = tk.Frame(flights_frame)
+button_plot_flight_hour.pack(fill=tk.X, pady=5)
 
+tk.Button(button_plot_flight_hour, text='Plot flights per hour', command=Plot_Arrivals_per_Hour).pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-button4 = tk.Button(flights_frame, text='Plot arrivals per company', command=Plot_Airlines)
-button4.pack(padx=5, pady=5, fill=tk.X)
+help_button(button_plot_flight_hour,Tut_Plot_Arrivals_Hour).pack(side=tk.LEFT, padx=5)
 
-#boton para plotar tipos de vuelos
-button10 = tk.Button(flights_frame, text='Plot Flights', command=Plot_FlightsType)
-button10.pack(padx=5, pady=10, fill=tk.X)
+#Botón para ver las aerolineas por llegada
+button_plot_flight_company = tk.Frame(flights_frame)
+button_plot_flight_company.pack(fill=tk.X, pady=5)
+
+tk.Button(button_plot_flight_company, text='Plot flights per company', command=Plot_Airlines).pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(button_plot_flight_company,Tut_Plot_Arrivals_Company).pack(side=tk.LEFT, padx=5)
+
+#Botón para hacer plot de los tipos de aviones que llegan
+button_plot_flight = tk.Frame(flights_frame)
+button_plot_flight.pack(fill=tk.X, pady=5)
+
+tk.Button(button_plot_flight, text='Plot Flights', command=Plot_FlightsType).pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(button_plot_flight,Tut_Plot_Flights).pack(side=tk.LEFT, padx=5)
 
 # Botón para Show trajectories in Google Earth
-button2 = tk.Button(flights_frame, text='Map Flights to LEBL', command=Map_Flights)
-button2.pack(padx=5, pady=10, fill=tk.X)
+button_map_flights_LEBL = tk.Frame(flights_frame)
+button_map_flights_LEBL.pack(fill=tk.X, pady=5)
 
-#Botón para Show only long-distance trajectories in Google Earth
-button3 = tk.Button(flights_frame, text='Long Distance Arrivals (>2000km)', command=Long_Distance_Arrivals)
-button3.pack(padx=5, pady=10, fill=tk.X)
+tk.Button(button_map_flights_LEBL, text='Map Flights to LEBL', command=Map_Flights).pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(button_map_flights_LEBL, Tut_Map_Flights_LEBL).pack(side=tk.LEFT, padx=5)
+
+# Botón para Show only long-distance trajectories in Google Earth
+button_map_flights_distance = tk.Frame(flights_frame)
+button_map_flights_distance.pack(fill=tk.X, pady=5)
+
+tk.Button(button_map_flights_distance, text='Map Long Distance Arrivals (>2000km)', command=Long_Distance_Arrivals).pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(button_map_flights_distance, Tut_Map_Long_Distance).pack(side=tk.LEFT, padx=5)
+
+# ----- GATES (VERSIÓN 3) ----- #
+
+tab_gates = tk.Frame(notebook, bg='#2c3e50')
+notebook.add(tab_gates, text='🚪 Gates')
+
+gates_frame = tk.LabelFrame(tab_gates, text='Gates')
+gates_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
 
-# BOTONES VERSION 3 --
-btn_load_structure = tk.Button(gates_frame, text='Load Airport Structure', command=Load_Airport_Structure)
-btn_load_structure.pack(padx=5, pady=10, fill=tk.X)
+# Botón para cargar la estructura del aeropuerto
+row_load_airport_structure = tk.Frame(gates_frame)
+row_load_airport_structure.pack(fill=tk.X, pady=10)
 
-btn_set_gates = tk.Button(gates_frame, text='Set Gates', command=Set_Gates)
-btn_set_gates.pack(padx=5, pady=5, fill=tk.X)
+load_airport_structure = tk.Button(row_load_airport_structure, text='Load Airport Structure', command=Load_Airport_Structure)
+load_airport_structure.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-btn_load_airlines = tk.Button(gates_frame, text='Load Airlines', command=Load_Airlines)
-btn_load_airlines.pack(padx=5, pady=5, fill=tk.X)
+help_button(row_load_airport_structure, Tut_Load_Airport_Structure).pack(side=tk.RIGHT, padx=5)
 
-btn_show_occupancy = tk.Button(gates_frame, text='Show Gate Occupancy', command=Show_Gate_Occupancy)
-btn_show_occupancy.pack(padx=5, pady=10, fill=tk.X)
+# Botón para set gates
+btn_set_gates = tk.LabelFrame(gates_frame, text="Set Gates")
+btn_set_gates.pack(fill=tk.X, pady=5, padx=5)
 
-btn_is_airline_in_terminal = tk.Button(gates_frame, text='Is Airline In Terminal', command=IsAirline_InTerminal)
-btn_is_airline_in_terminal.pack(padx=5, pady=5, fill=tk.X)
+# Frames internos para columnas
+col1 = tk.Frame(btn_set_gates)
+col1.pack(side=tk.LEFT, padx=5, pady=5)
 
-btn_search_terminal = tk.Button(gates_frame, text='Search Terminal', command=Search_Terminal)
-btn_search_terminal.pack(padx=5, pady=5, fill=tk.X)
+col2 = tk.Frame(btn_set_gates)
+col2.pack(side=tk.LEFT, padx=5, pady=5)
 
-btn_assign_gates = tk.Button(gates_frame, text='Assign Gates to Arrivals', command=Assign_Gates_to_Arrivals)
-btn_assign_gates.pack(padx=5, pady=10, fill=tk.X)
+# ---- Columna 1 ----
+tk.Label(col1, text="Terminal:").pack(anchor="w", pady=2)
+entry_Terminal = tk.Entry(col1, width=20)
+entry_Terminal.pack(pady=2)
 
-# BOTONES VERSION 4 --
-btn_load_departures = tk.Button(departures_frame, text='Load Departures', command=Load_Departures)
-btn_load_departures.pack(padx=5, pady=5, fill=tk.X)
+tk.Label(col1, text="Área:").pack(anchor="w", pady=2)
+entry_Area = tk.Entry(col1, width=20)
+entry_Area.pack(pady=2)
 
-btn_merge_movements = tk.Button(departures_frame, text='Merge Movements', command=Merge_Movements)
-btn_merge_movements.pack(padx=5, pady=5, fill=tk.X)
+tk.Label(col1, text="Prefijo:").pack(anchor="w", pady=2)
+entry_prefijo = tk.Entry(col1, width=20)
+entry_prefijo.pack(pady=2)
 
-btn_night_aircraft = tk.Button(departures_frame, text='Night departures', command=Night_Aircraft)
-btn_night_aircraft.pack(padx=5, pady=5, fill=tk.X)
+# ---- Columna 2 ----
+tk.Label(col2, text="Gate inicio:").pack(anchor="w", pady=2)
+entry_gate_inicio = tk.Entry(col2, width=20)
+entry_gate_inicio.pack(pady=2)
 
+tk.Label(col2, text="Gate final:").pack(anchor="w", pady=2)
+entry_gate_final = tk.Entry(col2, width=20)
+entry_gate_final.pack(pady=2)
+
+# Botón Crear al final de la segunda columna
+tk.Button(col2, text="Crear", command=Set_Gates).pack(pady=10)
+
+help_button(btn_set_gates, Tut_Set_Gate).pack(side=tk.RIGHT, padx=5)
+
+
+# Botón para cargar aerolíneas
+btn_load_airlines = tk.Frame(gates_frame)
+btn_load_airlines.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_load_airlines, text='Load Airlines', command=Load_Airlines)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_load_airlines,Tut_Load_Airlines).pack(side=tk.LEFT, padx=5)
+
+
+# Botón para mostrar disponibilidad en las puertas
+btn_show_occupancy = tk.Frame(gates_frame)
+btn_show_occupancy.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_show_occupancy, text='Show Gate Occupancy', command=Show_Gate_Occupancy)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_show_occupancy,Tut_Show_Gate_Occupancy).pack(side=tk.LEFT, padx=5)
+
+
+# Botón para determinar si hay una aerolínea en la terminal
+btn_is_airline_in_terminal = tk.Frame(gates_frame)
+btn_is_airline_in_terminal.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_is_airline_in_terminal, text='Is Airline In Terminal', command=IsAirline_InTerminal)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_is_airline_in_terminal,Tut_Is_Airline_in_Terminal).pack(side=tk.LEFT, padx=5)
+
+
+# Botón para buscar terminal
+btn_search_terminal = tk.Frame(gates_frame)
+btn_search_terminal.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_search_terminal, text='Search Terminal', command=Search_Terminal)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_search_terminal,Tut_Search_Terminal).pack(side=tk.LEFT, padx=5)
+
+
+#Botón para asignar puertas a las llegadas
+btn_assign_gates = tk.Frame(gates_frame)
+btn_assign_gates.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_assign_gates, text='Assign Gates to Arrivals', command=Assign_Gates_to_Arrivals)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_assign_gates,Tut_Assign_Gates_Arrivals).pack(side=tk.LEFT, padx=5)
+
+
+# ----- DEPARTURES (VERSIÓN 4) ----- #
+
+
+tab_departures = tk.Frame(notebook, bg='#2c3e50')
+notebook.add(tab_departures, text='🛫 Departures')
+
+departures_frame = tk.LabelFrame(tab_departures, text='Departures')
+departures_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+
+
+# Botón para cargar salidas
+
+btn_load_departures = tk.Frame(departures_frame)
+btn_load_departures.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_load_departures, text='Load Departures', command=Load_Departures)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_load_departures,Tut_Load_Departures).pack(side=tk.LEFT, padx=5)
+
+
+#Botón para juntar llegadas y salidas usando aircraft.py
+btn_merge_movements = tk.Frame(departures_frame)
+btn_merge_movements.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_merge_movements, text='Merge Movements', command=Merge_Movements)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_merge_movements,Tut_Merge_Movements).pack(side=tk.LEFT, padx=5)
+
+
+
+# Botón para ver las salidas nocturnas
+btn_night_aircraft = tk.Frame(departures_frame)
+btn_night_aircraft.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_night_aircraft, text='Night departures', command=Night_Aircraft)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_night_aircraft,Tut_Night_Departures).pack(side=tk.LEFT, padx=5)
+
+#Botón que asigna las puertas por la noche
+btn_assign_night_gates = tk.Frame(departures_frame)
+btn_assign_night_gates.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_assign_night_gates, text='Assign night gates', command=Assign_Night_Gates)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_assign_night_gates,Tut_Assign_Night_Gates).pack(side=tk.LEFT, padx=5)
+
+
+#Botón que ve qué puertas están libres
+btn_free_gate = tk.Frame(departures_frame)
+btn_free_gate.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_free_gate, text='Free gates', command=Free_Gate)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+
+#Botón que asigna puertas por hora
+btn_assign_gates_at_time = tk.Frame(departures_frame)
+btn_assign_gates_at_time.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_assign_gates_at_time, text='Assing gates at time', command=Assign_Gates_At_Time)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_assign_gates_at_time,Tut_Assign_Gates_at_Time).pack(side=tk.LEFT, padx=5)
+
+
+#Botón que hace un plot de la disponibilidad en un día
+btn_plot_day_occupancy = tk.Frame(departures_frame)
+btn_plot_day_occupancy.pack(fill=tk.X, pady=10)
+
+tk.Button(btn_plot_day_occupancy, text='Plot occupacy in a day', command=Plot_Day_Occupacy)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+#Botón de ayuda
+help_button(btn_plot_day_occupancy, Tut_Plot_Occupancy).pack(side=tk.LEFT, padx=5)
+
+
+
+#Botón extra
+btn_search = tk.Frame(departures_frame)
+btn_search.pack(fill=tk.X, pady=10)
+
+tk.Button(btn_search, text='🔍 Flight Search', command=Flight_Search)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+#Botón de ayuda
+help_button(btn_search,Tut_Search_Terminal).pack(side=tk.LEFT, padx=5)
+
+UpdateTexts()
 root.mainloop()
-

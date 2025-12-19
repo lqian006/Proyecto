@@ -3,7 +3,7 @@ from airport import *
 
 #Aquí cargamos todos los ficheros que vayamos a usar
 arrives = LoadArrivals('arrivals.txt')
-airports = LoadAirports("../Proyecto-mainV4/Proyecto-main4/airports.txt")
+airports = LoadAirports("airports.txt")
 
 
 #test 1 LoadArrivals
@@ -17,7 +17,7 @@ PlotArrivals(arrives)
 
 
 #test 3 SaveFlights (hace falta retoque)
-SaveFlights(arrives,'caca.txt')
+SaveFlights(arrives,'arrivals.txt')
 
 
 
