@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Airport Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { height: 100vh; width: 100%; }
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        .legend-item {
+            margin: 5px 0;
+        }
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 50%;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Inicializar el mapa
+        var map = L.map('map').setView([42.211488095238096, -15.424801587301587], 5);
+
+        // Añadir capa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Definir iconos
+        var schengenIcon = L.divIcon({
+            className: 'custom-icon',
+            html: '<div style="background-color: #00ff00; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        var nonSchengenIcon = L.divIcon({
+            className: 'custom-icon',
+            html: '<div style="background-color: #ff0000; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        // Añadir aeropuertos
+        L.marker([0.0, 0.0], {icon: nonSchengenIcon})
+            .addTo(map)
+            .bindPopup('<b>CODE</b><br>Non-Schengen Airport');
+        L.marker([63.985, -22.605555555555558], {icon: schengenIcon})
+            .addTo(map)
+            .bindPopup('<b>BIKF</b><br>Schengen Airport');
+        L.marker([45.46805555555556, -73.74138888888889], {icon: nonSchengenIcon})
+            .addTo(map)
+            .bindPopup('<b>CYUL</b><br>Non-Schengen Airport');
+        L.marker([43.67722222222222, -79.63055555555555], {icon: nonSchengenIcon})
+            .addTo(map)
+            .bindPopup('<b>CYYZ</b><br>Non-Schengen Airport');
+        L.marker([36.693888888888885, 3.2144444444444447], {icon: nonSchengenIcon})
+            .addTo(map)
+            .bindPopup('<b>DAAG</b><br>Non-Schengen Airport');
+        L.marker([36.85111111111111, 10.226944444444445], {icon: nonSchengenIcon})
+            .addTo(map)
+            .bindPopup('<b>DTTA</b><br>Non-Schengen Airport');
+        L.marker([51.18944444444444, 4.460277777777778], {icon: schengenIcon})
+            .addTo(map)
+            .bindPopup('<b>EBAW</b><br>Schengen Airport');
+        L.marker([41.48083333333334, 2.0833333333333335], {icon: schengenIcon})
+            .addTo(map)
+            .bindPopup('<b>LEBL</b><br>Schengen Airport');
+        L.marker([49.009166666666665, 2.414722222222222], {icon: schengenIcon})
+            .addTo(map)
+            .bindPopup('<b>LFPG</b><br>Schengen Airport');
+        L.marker([51.5, -0.42333333333333334], {icon: nonSchengenIcon})
+            .addTo(map)
+            .bindPopup('<b>EGLL</b><br>Non-Schengen Airport');
+        L.marker([40.474444444444444, -73.77777777777777], {icon: nonSchengenIcon})
+            .addTo(map)
+            .bindPopup('<b>KJFK</b><br>Non-Schengen Airport');
+        L.marker([50.03333333333333, 8.572777777777777], {icon: schengenIcon})
+            .addTo(map)
+            .bindPopup('<b>EDDF</b><br>Schengen Airport');
+        L.marker([41.834722222222226, 12.397222222222222], {icon: schengenIcon})
+            .addTo(map)
+            .bindPopup('<b>LIRF</b><br>Schengen Airport');
+        L.marker([38.76361111111111, -9.138333333333334], {icon: schengenIcon})
+            .addTo(map)
+            .bindPopup('<b>LPPT</b><br>Schengen Airport');
+
+        // Añadir leyenda
+        var legend = L.control({position: 'bottomright'});
+        legend.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = '<h4>Leyenda</h4>' +
+                '<div class="legend-item"><span class="legend-color" style="background-color: #00ff00;"></span>Schengen</div>' +
+                '<div class="legend-item"><span class="legend-color" style="background-color: #ff0000;"></span>Non-Schengen</div>';
+            return div;
+        };
+        legend.addTo(map);
+    </script>
+</body>
+</html>
