@@ -445,30 +445,30 @@ def SearchTerminal(bcn, name):
 
 def AssignGate(bcn, aircraft):
     terminal_name = SearchTerminal(bcn, aircraft.AirlineCompany)
-    
+
     if terminal_name == "":
         return -1
-    
+
     terminal = None
     for t in bcn.terms:
         if t.Name == terminal_name:
             terminal = t
             break
-    
+
     if terminal is None:
         return -1
-    
+
     is_schengen = IsSchengenAirport(aircraft.OriginAirport)
     flight_type = "Schengen" if is_schengen else "non-Schengen"
-    
+
     for area in terminal.BoardingArea:
         if area.type == flight_type:
             for gate in area.gate:
-                if not gate.occupancy and gate.assignes_aircraft_id==aircraft.id:
+                if not gate.occupancy:
                     gate.occupancy = True
-                    gate.assignes_aircraft_id = aircraft.id
+                    gate.id = aircraft.id
                     return 0
-    
+
     return -1
 
 #-----VERSIÓN 4-----#
@@ -610,32 +610,34 @@ import copy
 def PlotDayOccupancy(bcn, aircrafts):
     import matplotlib.pyplot as plt
 
+    if not aircrafts:
+        print("Error: lista de aircrafts vacía.")
+        return
+
+    hours = list(range(24))
     terminal_names = [t.Name for t in bcn.terms]
+
+    # Inicializar estructuras
     terminal_occupancy = {name: [] for name in terminal_names}
     unassigned_per_hour = []
-    hours = list(range(24))
 
+    # Simulación hora a hora
     for hour in hours:
-        # 🔹 Copias independientes para no modificar el estado original
-        terminal_names = [t.Name for t in bcn.terms]
-        terminal_occupancy = {name: [] for name in terminal_names}
-        unassigned_per_hour = []
-        hours = list(range(24))
+        time_str = f"{hour:02d}:00"
 
-        for hour in hours:
-            time_str = f"{hour:02d}:00"
-            # Assign gates at this hour; bcn se modifica directamente
-            unassigned = AssignGatesAtTime(bcn, aircrafts, time_str)
-            unassigned_per_hour.append(unassigned)
+        # Asignar gates en esta hora
+        unassigned = AssignGatesAtTime(bcn, aircrafts, time_str)
+        unassigned_per_hour.append(unassigned)
 
-            # Contar gates ocupadas por terminal
-            for terminal in bcn.terms:
-                occupied = 0
-                for area in terminal.BoardingArea:
-                    for gate in area.gate:
-                        if gate.occupancy:
-                            occupied += 1
-                terminal_occupancy[terminal.Name].append(occupied)
+        # Contar gates ocupadas por terminal
+        for terminal in bcn.terms:
+            occupied = 0
+            for area in terminal.BoardingArea:
+                for gate in area.gate:
+                    if gate.occupancy:
+                        occupied += 1
+            terminal_occupancy[terminal.Name].append(occupied)
+
     # -------- PLOT --------
     fig, ax1 = plt.subplots(figsize=(14, 6))
 
@@ -671,7 +673,6 @@ def PlotDayOccupancy(bcn, aircrafts):
     plt.title("Ocupación de gates y aircrafts no asignados por hora")
     plt.tight_layout()
     plt.show()
-
 
 
 def AssignNightGates(bcn, aircrafts):

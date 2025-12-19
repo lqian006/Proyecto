@@ -598,6 +598,14 @@
     </Point>
   </Placemark>
   <Placemark>
+    <name>KJFK</name>
+    <description>Non-Schengen Airport<br/>Lat: 40.6403<br/>Lon: -73.7783</description>
+    <styleUrl>#nonschengen</styleUrl>
+    <Point>
+      <coordinates>-73.77833333333334,40.640277777777776,0</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
     <name>KMIA</name>
     <description>Non-Schengen Airport<br/>Lat: 25.8000<br/>Lon: -80.2833</description>
     <styleUrl>#nonschengen</styleUrl>
