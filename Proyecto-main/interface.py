@@ -8,49 +8,89 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os
 from languages import *
 
-# --------- IDIOMA --------- #
+# --------- IDIOMA ---------#
+# Variable de idioma global
 current_language = "ES"
 
 def tr(key):
     return LANGUAGES[current_language].get(key, key)
 
+# ========== PORTADA ==========
+def create_splash_screen():
+    global current_language
+
+    splash = tk.Tk()
+    splash.title("Airport Management System")
+    splash.geometry("800x600")
+    splash.configure(bg='#2c3e50')
+    splash.resizable(False, False)
+
+    splash.update_idletasks()
+    x = (splash.winfo_screenwidth() // 2) - 400
+    y = (splash.winfo_screenheight() // 2) - 300
+    splash.geometry(f'800x600+{x}+{y}')
+
+    main_frame = tk.Frame(splash, bg='#2c3e50')
+    main_frame.pack(expand=True, fill=tk.BOTH)
+
+    tk.Label(
+        main_frame,
+        text="✈️",
+        font=('Arial', 80),
+        bg='#2c3e50',
+        fg='#3498db'
+    ).pack(pady=20)
+
+    tk.Label(
+        main_frame,
+        text="AIRPORT MANAGEMENT SYSTEM",
+        font=('Arial', 28, 'bold'),
+        bg='#2c3e50',
+        fg='white'
+    ).pack(pady=10)
+
+    def select_language(lang):
+        global current_language
+        current_language = lang
+        splash.destroy()
+
+    btn_frame = tk.Frame(main_frame, bg='#2c3e50')
+    btn_frame.pack(pady=40)
+
+    tk.Button(
+        btn_frame,
+        text="EN",
+        width=10,
+        height=2,
+        font=('Arial', 16, 'bold'),
+        bg='#3498db',
+        fg='white',
+        command=lambda: select_language("EN")
+    ).pack(side=tk.LEFT, padx=20)
+
+    tk.Button(
+        btn_frame,
+        text="ES",
+        width=10,
+        height=2,
+        font=('Arial', 16, 'bold'),
+        bg='#3498db',
+        fg='white',
+        command=lambda: select_language("ES")
+    ).pack(side=tk.LEFT, padx=20)
+
+    splash.mainloop()
+
+# ========== PROGRAMA ==========
+if __name__ == "__main__":
+    create_splash_screen()
+
 def UpdateTexts():
-    # ---------- AIRPORTS ----------
     btn_load_airports.config(text=tr("load_airports"))
-    btn_add.config(text=tr("add_airports"))
-    btn_delete.config(text=tr("delete_airports"))
-    btn_show.config(text=tr("show_airports"))
-    btn_schengen.config(text=tr("set_schengen"))
-    btn_save.config(text=tr("save_schengen"))
-    btn_plot_schengen_btn.config(text=tr("plot_schengen"))
-    btn_map_airports_btn.config(text=tr("map_airports"))
-
-    # ---------- FLIGHTS ----------
-    load_flights.config(text=tr("load_flights"))
-    btn_save_flights_btn.config(text=tr("save_flights"))
-    btn_plot_hour_btn.config(text=tr("plot_arrivals_hour"))
-    btn_plot_company_btn.config(text=tr("plot_arrivals_company"))
-    btn_plot_flights_btn.config(text=tr("plot_flights_type"))
-    btn_map_flights_btn.config(text=tr("map_flights"))
-    btn_long_distance_btn.config(text=tr("long_distance_arrivals"))
-
-    # ---------- GATES ----------
-    btn_load_airport_structure_btn.config(text=tr("load_structure"))
-    btn_set_gates_create.config(text=tr("set_gates"))
-    btn_load_airlines_btn.config(text=tr("load_airlines"))
-    btn_show_occupancy_btn.config(text=tr("show_gate_occupancy"))
-    btn_is_airline_btn.config(text=tr("is_airline_in_terminal"))
-    btn_search_terminal_btn.config(text=tr("search_terminal"))
-    btn_assign_gates_btn.config(text=tr("assign_gates_arrivals"))
-
-    # ---------- DEPARTURES ----------
-    btn_load_departures_btn.config(text=tr("load_departures"))
-    btn_merge_movements_btn.config(text=tr("merge_movements"))
-    btn_night_aircraft_btn.config(text=tr("night_departures"))
-    btn_assign_night_gates_btn.config(text=tr("assign_night_gates"))
-    btn_free_gate_btn.config(text=tr("free_gates"))
-    btn_assign_gates_time_btn.config(text=tr("assign_gates_at_time"))
-    btn_plot_day_occupancy_btn.config(text=tr("plot_day_occupancy"))
+    btn_add_airport.config(text=tr("add_airports"))
+    lbl_airport_code.config(text=tr("airport_code"))
+    lbl_airport_lat.config(text=tr("latitude"))
+    lbl_airport_lon.config(text=tr("longitude"))
 
 # --------- FUNCIONES --------- #
 
@@ -1620,9 +1660,9 @@ content_frame.pack(fill=tk.BOTH, expand=True)
 
 
 tab_airports = tk.Frame(notebook, bg='#2c3e50')
-notebook.add(tab_airports, text='🛫 Airports')
+notebook.add(tab_airports, text=tr('🛫 Airports'))
 
-button_frame = tk.LabelFrame(tab_airports, text='Airports')
+button_frame = tk.LabelFrame(tab_airports, text=tr('Airports'))
 button_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
 
@@ -1666,11 +1706,15 @@ entry_airport_lon.pack(padx=5, pady=2)
 
 
 #(Este es el botón)
-button_add_airport = tk.Frame(btn_add)
+button_add_airport = tk.Frame(btn_add_airport)
 button_add_airport.pack(fill=tk.X, pady=5)
 
-tk.Button(button_add_airport, text='Add', command=Add_Airports)\
-    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+btn_confirm_add_airport = tk.Button(
+    button_add_airport,
+    text=tr("add"),
+    command=Add_Airports
+)
+btn_confirm_add_airport.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
 #Botón de ayuda
 help_button(button_add_airport, Tut_Add_Airports).pack(side=tk.LEFT, padx=5)
@@ -1910,13 +1954,23 @@ help_button(btn_set_gates, Tut_Set_Gate).pack(side=tk.RIGHT, padx=5)
 
 
 # Botón para cargar aerolíneas
+
+button_load_airlines = tk.LabelFrame(button_frame, text="Load airlines")
+button_load_airlines.pack(fill=tk.X, pady=5)
+
+tk.Label(button_load_airlines, text="Terminal").grid(row=0, column=0, padx=5, pady=5)
+entry_load_airlines = tk.Entry(button_load_airlines, width=15)
+entry_load_airlines.grid(row=0, column=1, padx=5, pady=5)
+
+#(Este es el botón)
 btn_load_airlines = tk.Frame(gates_frame)
 btn_load_airlines.pack(fill=tk.X, pady=5)
 
-tk.Button(btn_load_airlines, text='Load Airlines', command=Load_Airlines)\
-    .pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-help_button(btn_load_airlines,Tut_Load_Airlines).pack(side=tk.LEFT, padx=5)
+tk.Button(btn_load_airlines, text="Enter", command=Load_Airlines)\
+    .pack(side=tk.LEFT)
+
+#Botón de ayuda
 
 
 # Botón para mostrar disponibilidad en las puertas
