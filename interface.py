@@ -6,7 +6,91 @@ import matplotlib.pyplot as plt
 from aircraft import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os
+from languages import *
 
+# --------- IDIOMA ---------#
+# Variable de idioma global
+current_language = "ES"
+
+def tr(key):
+    return LANGUAGES[current_language].get(key, key)
+
+# ========== PORTADA ==========
+def create_splash_screen():
+    global current_language
+
+    splash = tk.Tk()
+    splash.title("Airport Management System")
+    splash.geometry("800x600")
+    splash.configure(bg='#2c3e50')
+    splash.resizable(False, False)
+
+    splash.update_idletasks()
+    x = (splash.winfo_screenwidth() // 2) - 400
+    y = (splash.winfo_screenheight() // 2) - 300
+    splash.geometry(f'800x600+{x}+{y}')
+
+    main_frame = tk.Frame(splash, bg='#2c3e50')
+    main_frame.pack(expand=True, fill=tk.BOTH)
+
+    tk.Label(
+        main_frame,
+        text="✈️",
+        font=('Arial', 80),
+        bg='#2c3e50',
+        fg='#3498db'
+    ).pack(pady=20)
+
+    tk.Label(
+        main_frame,
+        text="AIRPORT MANAGEMENT SYSTEM",
+        font=('Arial', 28, 'bold'),
+        bg='#2c3e50',
+        fg='white'
+    ).pack(pady=10)
+
+    def select_language(lang):
+        global current_language
+        current_language = lang
+        splash.destroy()
+
+    btn_frame = tk.Frame(main_frame, bg='#2c3e50')
+    btn_frame.pack(pady=40)
+
+    tk.Button(
+        btn_frame,
+        text="EN",
+        width=10,
+        height=2,
+        font=('Arial', 16, 'bold'),
+        bg='#3498db',
+        fg='white',
+        command=lambda: select_language("EN")
+    ).pack(side=tk.LEFT, padx=20)
+
+    tk.Button(
+        btn_frame,
+        text="ES",
+        width=10,
+        height=2,
+        font=('Arial', 16, 'bold'),
+        bg='#3498db',
+        fg='white',
+        command=lambda: select_language("ES")
+    ).pack(side=tk.LEFT, padx=20)
+
+    splash.mainloop()
+
+# ========== PROGRAMA ==========
+if __name__ == "__main__":
+    create_splash_screen()
+
+def UpdateTexts():
+    btn_load_airports.config(text=tr("load_airports"))
+    btn_add_airport.config(text=tr("add_airports"))
+    lbl_airport_code.config(text=tr("airport_code"))
+    lbl_airport_lat.config(text=tr("latitude"))
+    lbl_airport_lon.config(text=tr("longitude"))
 
 # --------- FUNCIONES --------- #
 
@@ -564,51 +648,62 @@ bcn = None
 # Se selecciona los gates
 def Set_Gates():
     global bcn
+
     if bcn is None:
-        messagebox.showwarning("Aviso", "Primero debes cargar la estructura del aeropuerto.")
+        messagebox.showwarning(
+            "Aviso",
+            "Primero debes cargar la estructura del aeropuerto."
+        )
         return
 
-    win = tk.Toplevel()
-    win.title("Crear Puertas (SetGates)")
+    tname = entry_Terminal.get().strip()
+    aname = entry_Area.get().strip()
+    prefijo = entry_prefijo.get().strip()
 
-    tk.Label(win, text="Terminal:").grid(row=0, column=0)
-    entry_term = tk.Entry(win)
-    entry_term.grid(row=0, column=1)
+    try:
+        g_inicio = int(entry_gate_inicio.get())
+        g_final = int(entry_gate_final.get())
+    except ValueError:
+        messagebox.showerror(
+            "Error",
+            "Gate inicio y Gate final deben ser números enteros."
+        )
+        return
 
-    tk.Label(win, text="Área:").grid(row=1, column=0)
-    entry_area = tk.Entry(win)
-    entry_area.grid(row=1, column=1)
+    if not tname or not aname or not prefijo:
+        messagebox.showwarning(
+            "Advertencia",
+            "Todos los campos deben estar rellenos."
+        )
+        return
 
-    tk.Label(win, text="Gate inicio:").grid(row=2, column=0)
-    g1 = tk.Entry(win)
-    g1.grid(row=2, column=1)
+    for terminal in bcn.terms:
+        if terminal.Name == tname:
+            for area in terminal.BoardingArea:
+                if area.name == aname:
+                    result = SetGates(
+                        area,
+                        g_inicio,
+                        g_final,
+                        prefijo
+                    )
 
-    tk.Label(win, text="Gate final:").grid(row=3, column=0)
-    g2 = tk.Entry(win)
-    g2.grid(row=3, column=1)
+                    if result == 0:
+                        messagebox.showinfo(
+                            "Éxito",
+                            "Puertas creadas correctamente."
+                        )
+                    else:
+                        messagebox.showerror(
+                            "Error",
+                            "No se pudieron crear las puertas."
+                        )
+                    return
 
-    tk.Label(win, text="Prefijo:").grid(row=4, column=0)
-    pref = tk.Entry(win)
-    pref.grid(row=4, column=1)
-
-    def run():
-        tname = entry_term.get().strip()
-        aname = entry_area.get().strip()
-
-        for t in bcn.terms:
-            if t.Name == tname:
-                for area in t.BoardingArea:
-                    if area.name == aname:
-                        r = SetGates(area, int(g1.get()), int(g2.get()), pref.get())
-                        if r == 0:
-                            messagebox.showinfo("Éxito", "Puertas creadas correctamente.")
-                        else:
-                            messagebox.showerror("Error", "No se pudieron crear las puertas.")
-                        win.destroy()
-                        return
-        messagebox.showerror("Error", "Terminal o área no encontrada.")
-
-    tk.Button(win, text="Crear", command=run).grid(row=5, column=0, columnspan=2, pady=10)
+    messagebox.showerror(
+        "Error",
+        "Terminal o área no encontrada."
+    )
 
 
 
@@ -616,29 +711,42 @@ def Set_Gates():
 def Load_Airlines():
     global bcn
 
-    win = tk.Toplevel()
-    win.title("Load Airlines")
+    if bcn is None:
+        messagebox.showwarning(
+            "Aviso",
+            "Primero debes cargar la estructura del aeropuerto."
+        )
+        return
 
-    tk.Label(win, text="Terminal:").grid(row=0, column=0)
-    entry_term = tk.Entry(win)
-    entry_term.grid(row=0, column=1)
+    tname = entry_airlines_terminal.get().strip()
 
-    def run():
-        tname = entry_term.get().strip()
+    if not tname:
+        messagebox.showwarning(
+            "Advertencia",
+            "Debe introducir un nombre de terminal."
+        )
+        return
 
-        for t in bcn.terms:
-            if t.Name == tname:
-                r = LoadAirlines(t, tname)
-                if r == 0:
-                    messagebox.showinfo("Success", f"Airline loaded in {tname}.")
-                else:
-                    messagebox.showerror("Error", "The file could not be loaded.")
-                win.destroy()
-                return
+    for terminal in bcn.terms:
+        if terminal.Name == tname:
+            result = LoadAirlines(terminal, tname)
 
-        messagebox.showerror("Error", "Terminal not found.")
+            if result == 0:
+                messagebox.showinfo(
+                    "Éxito",
+                    f"Aerolíneas cargadas correctamente en {tname}."
+                )
+            else:
+                messagebox.showerror(
+                    "Error",
+                    "No se pudo cargar el archivo de aerolíneas."
+                )
+            return
 
-    tk.Button(win, text="Load", command=run).grid(row=1, column=0, columnspan=2, pady=10)
+    messagebox.showerror(
+        "Error",
+        f"No se encontró la terminal {tname}."
+    )
 
 
 # Carga la estructura del aeropuerto LEBL desde archivo
@@ -767,65 +875,68 @@ def Show_Gate_Occupancy():
     text.config(state=tk.DISABLED)
 
 
-# Muestra si la aerolínea está en cierto terminal
-def IsAirline_InTerminal():
+# Muestra si la aerolínea está en cierto terminal (versión integrada en interfaz)
+def Check_Airline_In_Terminal():
     global bcn
 
-    win = tk.Toplevel()
-    win.title("Comprobar Aerolínea en Terminal")
+    if bcn is None:
+        messagebox.showwarning(
+            "Aviso",
+            "Primero debes cargar la estructura del aeropuerto."
+        )
+        return
 
-    tk.Label(win, text="Terminal:").grid(row=0, column=0)
-    entry_term = tk.Entry(win)
-    entry_term.grid(row=0, column=1)
+    tname = entry_ait_terminal.get().strip()
+    code = entry_ait_airline.get().strip().upper()
 
-    tk.Label(win, text="Aerolínea (ICAO):").grid(row=1, column=0)
-    entry_code = tk.Entry(win)
-    entry_code.grid(row=1, column=1)
+    if not tname or not code:
+        messagebox.showwarning(
+            "Advertencia",
+            "Debe introducir terminal y ICAO de aerolínea."
+        )
+        return
 
-    def run():
-        tname = entry_term.get().strip()
-        code = entry_code.get().strip()
+    for t in bcn.terms:
+        if t.Name == tname:
+            if IsAirlineInTerminal(t, code):
+                messagebox.showinfo("Resultado", f"La aerolínea {code} opera en {tname}.")
+            else:
+                messagebox.showinfo("Resultado", f"{code} NO opera en esta terminal.")
+            entry_ait_terminal.delete(0, tk.END)
+            entry_ait_airline.delete(0, tk.END)
+            return
 
-        for t in bcn.terms:
-            if t.Name == tname:
-                if IsAirlineInTerminal(t, code):
-                    messagebox.showinfo("Resultado", f"La aerolínea {code} opera en {tname}.")
-                else:
-                    messagebox.showinfo("Resultado", f"{code} NO opera en esta terminal.")
-                win.destroy()
-                return
-
-        messagebox.showerror("Error", "Terminal no encontrada.")
-
-    tk.Button(win, text="Comprobar", command=run).grid(row=2, column=0, columnspan=2, pady=10)
+    messagebox.showerror("Error", "Terminal no encontrada.")
 
 
-# Te busca un terminal
-def Search_Terminal():
-
+# Te busca un terminal (versión integrada en interfaz)
+def Search_Terminal_Interface():
     global bcn
 
-    win = tk.Toplevel()
-    win.title("Buscar Terminal de Aerolínea")
+    if bcn is None:
+        messagebox.showwarning(
+            "Aviso",
+            "Primero debes cargar la estructura del aeropuerto."
+        )
+        return
 
-    tk.Label(win, text="Aerolínea (ICAO):").grid(row=0, column=0)
-    entry_code = tk.Entry(win)
-    entry_code.grid(row=0, column=1)
+    code = entry_st_airline.get().strip().upper()
 
-    def run():
-        code = entry_code.get().strip()
-        t = SearchTerminal(bcn, code)
+    if not code:
+        messagebox.showwarning(
+            "Advertencia",
+            "Debe introducir ICAO de aerolínea."
+        )
+        return
 
-        if t != "":
-            messagebox.showinfo("Resultado", f"La aerolínea {code} opera en la terminal {t}.")
-        else:
-            messagebox.showerror("Error", "No se encontró ninguna terminal para esta aerolínea.")
+    t = SearchTerminal(bcn, code)
 
-        win.destroy()
+    if t != "":
+        messagebox.showinfo("Resultado", f"La aerolínea {code} opera en la terminal {t}.")
+    else:
+        messagebox.showerror("Error", "No se encontró ninguna terminal para esta aerolínea.")
 
-    tk.Button(win, text="Buscar", command=run).grid(row=1, column=0, columnspan=2, pady=10)
-
-
+    entry_st_airline.delete(0, tk.END)
 
 
 # VERSIÓN 4
@@ -1056,9 +1167,16 @@ def Plot_Day_Occupacy():
         )
         return
 
-    # Llamada directa a la función lógica
-    PlotDayOccupancy(bcn, aircrafts)
+    fig = PlotDayOccupancy(bcn, aircrafts)
+    if fig is None:
+        messagebox.showwarning("Aviso", "No se pudo generar el gráfico.")
+        return
 
+    # Canvas
+    canvas = FigureCanvasTkAgg(fig, master=picture_frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    return fig
 
 
 # FUNCIÓN EXTRA
@@ -1316,91 +1434,75 @@ def Show_Text_Window(title, text_content):
     btn_ok.pack(pady=10)
 
 def Tut_Load_Airports():
-    text = ("Con este botón puedes cargar un archivo “airports.txt” que contiene el código ICAO\n\n"
-            " del aeropuerto con su latitud y longitud y te lo muestra en un gráfico en la interfaz.\n\n"
-            " En el gráfico aparecen los aeropuertos según su latitud y longitud, pintados de verde\n\n"
-            " si son Schengen y de rojo si no son Schengen. Al darle al botón, el programa te \n\n"
-            "abrirá el explorador de archivos, ahí podrás escoger el archivo que desees cargar y\n\n"
-            " al darle a abrir, se te habrá cargado el archivo al programa.")
+    text = ("Con este botón puedes cargar un archivo “airports.txt” que contiene el código ICAO del aeropuerto con su latitud y longitud y te lo muestra en un gráfico en la interfaz. En el gráfico aparecen los aeropuertos según su latitud y longitud, pintados de verde si son Schengen y de rojo si no son Schengen. \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí podrás escoger el archivo que desees cargar y al darle a abrir, se te habrá cargado el archivo al programa.")
 
     Show_Text_Window("Tutorial - Cargar aeropuertos", text)
 
 def Tut_Add_Airports():
-    text = ("Este botón te permite añadir un aeropuerto en cualquier coordenada que desees \n\n"
-            "ponerla. Para añadir un aeropuerto, debes escribir el nombre usando su código \n\n"
-            "ICAO y la latitud y longitud en la que quieras que este.")
+    text = ("Esta función te permite borrar cualquier aeropuerto que se encuentre en el mapa. \n"
+            "Para ello, debes escribir el código del aeropuerto que desees borrar y darle al botón “borrar”.\n\n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
 
     Show_Text_Window("Tutorial - Añadir aeropuertos", text)
 
 def Tut_Delete_Airports():
-    text = ("Este botón te permite borrar cualquier aeropuerto que se encuentre en el mapa.\n\n"
-            " Para ello, debes escribir el código del aeropuerto que desees borrar.")
+    text = ("Esta función te permite borrar cualquier aeropuerto que se encuentre en el mapa. \n"
+            "Para ello, debes escribir el código del aeropuerto que desees borrar y darle al botón “borrar”.\n\n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
 
     Show_Text_Window("Tutorial - Eliminar aeropuertos", text)
 
 def Tut_Show_Data_of_Airports():
-    text = ("Este botón te enseña los datos del aeropuerto que quieras. Escribiendo el codigo del \n\n"
-            "aeropuerto del que quieres saber datos, te enseña el código ICAO del aeropuerto, su \n\n"
-            "latitud, su longitud y si tiene propiedad Schengen o no.")
+    text = ("Esta función enseña los datos del aeropuerto que quieras. \n"
+            "Escribiendo el código del aeropuerto del que quieres saber datos y dándole al botón “mostrar”, te enseña el código ICAO del aeropuerto, su latitud, su longitud y si tiene propiedad Schengen o no. \n\n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
 
     Show_Text_Window("Tutorial - Ver datos aeropuertos", text)
 
 def Tut_Set_Schengen_to_Airports():
-    text = ("Este botón te permite darle el atributo Schengen a un aeropuerto que no lo tiene.\n\n"
-            "Para hacerlo, escribe el código del aeropuerto al que quieras atribuir Schengen. \n\n"
-            "Una vez lo hagas, te saldrá una ventana con una pequeña caja para darle tic con \n\n"
-            "Schengen escrito al lado. Dándole click a la caja y luego al botón “aplicar cambios” \n\n"
-            "le podrás dar atributo Schengen al aeropuerto.\n\n"
-            "Observación: Este botón también te permite quitarle el atributo schengen a un aeropuerto \n\n"
-            "que lo tiene. Usando el mismo procedimiento, al quitarle el tic a la caja y darle a \n\n"
-            "“aplicar cambios”, se guardará ese aeropuerto como no Schengen.")
+    text = ("Esta función te permite darle el atributo Schengen a un aeropuerto que no lo tiene. \n"
+            "Para hacerlo, escribe el código del aeropuerto al que quieras atribuir Schengen. Dándole click a la pequeña caja al lado de “Schengen” y luego al botón “Cambiar” le podrás dar el atributo Schengen al aeropuerto. \n\n"
+            "Observación: Este botón también te permite quitarle el atributo schengen a un aeropuerto que lo tiene. Al quitarle el tic a la caja y darle a “Cambiar”, se guardará ese aeropuerto como no Schengen. \n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
 
     Show_Text_Window("Tutorial - Dar atributo Schengen a aeropuertos", text)
 
 def Tut_Save_Schengen_Airports():
-    text = ("Al darle a este botón, el programa creará un archivo .txt con la información de \n\n"
-            "todos los aeropuertos con el atributo Schengen. El archivo creado tendrá una estructura \n\n"
-            "parecida a “airports.txt” (código, latitud, longitud). Una vez le hayas dado click al \n\n"
-            "botón, se abrirá una ventana donde tendrás que escribir el nombre del archivo que quieras \n\n"
-            "crear. Dándole a “Guardar” se guardará el archivo que acabas de crear en tu ordenador.")
+    text = ("Esta función te permite crear un archivo .txt con la información de todos los aeropuertos con el atributo Schengen. El archivo creado tendrá una estructura parecida a “airports.txt” (código, latitud, longitud). \n"
+            "Escribiendo en la caja de texto el nombre del archivo que quieras crear y dándole a “Guardar” se guardará el archivo que acabas de crear en tu ordenador. \n\n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
 
     Show_Text_Window("Tutorial - Guardar aeropuertos Schengen", text)
 
 def Tut_Plot_Schengen():
-    text = ("Este botón te crea un gráfico de barras con el número de aeropuertos Schengen y no Schengen.")
+    text = ("Este botón te crea un gráfico de barras con el número de aeropuertos Schengen y no Schengen. \n\n"
+            "Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
 
     Show_Text_Window("Tutorial - Gráficos de aeropuertos Schengen", text)
 
 def Tut_Map_Airports():
-    text = ("Este botón te abre en el Google Earth los aeropuertos Schengen y no Schengen, \n\n"
-            "te muestra la gráfica que aparece en la interfaz cuando haces Load Airports en un mapa \n\n"
-            "3D de la tierra para tener una mejor visión de los aeropuertos.\n\n"
-            "Nota: Es necesario tener descargado en el ordenador el Google Earth para poder usar esta función.")
+    text = ("Este botón te abre en el Google Earth los aeropuertos Schengen y no Schengen, te muestra la gráfica que aparece en la interfaz cuando haces Load Airports en un mapa 3D de la tierra para tener una mejor visión de los aeropuertos. \n\n"
+            "Nota: Es necesario tener descargado en el ordenador el Google Earth para poder usar esta función. Nota: Es necesario tener cargado el archivo “airports.txt” para poder usar esta función.")
 
     Show_Text_Window("Tutorial - Mapa de aeropuertos", text)
 
 def Tut_Load_Flights():
-    text = ("Con este botón puedes cargar un archivo “arrivals.txt” que contiene el ID del avión, \n\n"
-            "su aeropuerto de origen, la hora a la que llega al aeropuerto LEBL y la aerolínea a \n\n"
-            "la que pertenece. Al darle al botón, el programa te abrirá el explorador de archivos,\n\n"
-            "ahí podrás escoger el archivo que desees cargar y al darle a abrir, se te habrá cargado \n\n"
-            "el archivo al programa. Una vez hecho esto, aparecerá una ventana diciendo que se cargaron los\n\n"
-            "505 vuelos con éxito.")
+    text = ("Con este botón puedes cargar un archivo “arrivals.txt” que contiene el ID del avión, su aeropuerto de origen, la hora a la que llega al aeropuerto LEBL y la aerolínea a la que pertenece. \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí podrás escoger el archivo que desees cargar y al darle a abrir, se te habrá cargado el archivo al programa. Una vez hecho esto, aparecerá una ventana diciendo que se cargaron los 505 vuelos con éxito.")
 
     Show_Text_Window("Tutorial - Cargar vuelos", text)
 
 def Tut_Save_Flights():
-    text = ("Al darle a este botón, el programa creará un archivo .txt con la información de todas \n\n"
-            "las llegadas que tengas cargadas en ese momento. El archivo creado tendrá una estructura \n\n"
-            "igual a “arrivals.txt” (ID del avión, aeropuerto de origen, hora de llegada al aeropuerto LEBL, \n\n"
-            "aerolínea a la que pertenece). Una vez le hayas dado click al botón, se abrirá una ventana donde\n\n"
-            " tendrás que escribir el nombre del archivo que quieras crear. Dándole a “Guardar” se guardará \n\n"
-            "el archivo que acabas de crear en tu ordenador.")
+    text = ("Con esta función, el programa creará un archivo .txt con la información de todas las llegadas que tengas cargadas en ese momento. El archivo creado tendrá una estructura igual a “arrivals.txt” (ID del avión, aeropuerto de origen, hora de llegada al aeropuerto LEBL, aerolínea a la que pertenece). \n"
+            "Escribiendo en la caja de texto el nombre que quieras dar al archivo y dándole a “Guardar” se guardará el archivo que acabas de crear en tu ordenador. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “arrivals.txt” usando el Load fights. ")
 
     Show_Text_Window("Tutorial - Guardar vuelos", text)
 
 def Tut_Plot_Arrivals_Hour():
-    text = ("Este botón crea un gráfico mostrando el número de vuelos que aterrizan cada hora en el aeropuerto.")
+    text = ("Este botón crea un gráfico mostrando el número de vuelos que aterrizan cada hora en el aeropuerto. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado archivo “arrivals.txt” usando el Load fights. ")
 
     Show_Text_Window("Tutorial - Gráfico de vuelos por hora", text)
 
@@ -1410,142 +1512,115 @@ def Tut_Plot_Arrivals_Company():
     Show_Text_Window("Tutorial - Gráfico de vuelos por compañías", text)
 
 def Tut_Plot_Flights():
-    text = ("Este botón crea un gráfico de barras con el número de vuelos Schengen y no Schengen.")
+    text = ("Este botón crea un gráfico de barras con el número de vuelos Schengen y no Schengen.\n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “arrivals.txt” usando el Load fights. ")
 
     Show_Text_Window("Tutorial - Gráfico de vuelos", text)
 
 def Tut_Map_Flights_LEBL():
-    text = ("Este botón abre en Google Earth todos los vuelos que llegan al aeropuerto LEBL, \n\n"
-            "mostrando en verde los vuelos Schengen y en rojo los vuelos no Schengen. Al darle \n\n"
-            "al botón, el programa te abrirá el explorador de archivos, ahí debes de abrir el \n\n"
-            "archivo “airport.txt” y se te abrira el mapa en el Google Earth.\n\n"""
-            "Nota: Para poder usarlo, debes de haber cargado el archivo “arrivals.txt” usando el \n\n"
-            "Load Arrivals. ")
+    text = ("Este botón abre en Google Earth todos los vuelos que llegan al aeropuerto LEBL, mostrando en verde los vuelos Schengen y en rojo los vuelos no Schengen. \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí debes de abrir el archivo “airport.txt” y se te abrira el mapa en el Google Earth. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “arrivals.txt” usando el Load Arrivals. ")
 
     Show_Text_Window("Tutorial - Mapa de vuelos a LEBL", text)
 
 def Tut_Map_Long_Distance():
-    text = ("Este botón abre en Google Earth los vuelos que llegan al aeropuerto LEBL, \n\n"
-            "mostrando en verde los vuelos Schengen y en rojo los vuelos no Schengen, que \n\n"
-            "tengan una distancia mayor a 2000 Km . Al darle al botón, el programa te abrirá el \n\n"
-            "explorador de archivos, ahí debes de abrir el archivo “airport.txt” y se te abrira el \n\n"
-            "mapa en el Google Earth.\n\n"
-            "Nota: Para poder usarlo, debes de haber cargado el archivo “arrivals.txt” usando el \n\n"
-            "Load Arrivals.  ")
+    text = ("Este botón abre en Google Earth los vuelos que llegan al aeropuerto LEBL, mostrando en verde los vuelos Schengen y en rojo los vuelos no Schengen, que tengan una distancia mayor a 2000 Km . \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí debes de abrir el archivo “airport.txt” y se te abrirá el mapa en el Google Earth. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “arrivals.txt” usando el Load Arrivals. ")
 
     Show_Text_Window("Tutorial - Mapa de vuelos a distancia", text)
 
 def Tut_Load_Airport_Structure():
-    text = ("Este botón carga la estructura del aeropuerto LEBL. Al darle al botón, el programa te \n\n"
-            "abrirá el explorador de archivos, ahí debes de abrir el archivo “Terminal.txt” y se te \n\n"
-            "cargaran todos los datos que hay en el archivo.")
+    text = ("Este botón carga la estructura del aeropuerto LEBL. \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí debes de abrir el archivo “Terminal.txt” y se te cargaran todos los datos que hay en el archivo.")
 
     Show_Text_Window("Tutorial - Cargar estructura del aeropuerto", text)
 
 def Tut_Set_Gate():
-    text = ("Este botón genera puertas a partir de la información que tu le das. Al darle al botón, \n\n"
-            "aparecerá una ventana donde te pide la terminal y el área en el que encontrarán \n\n"
-            "estas puertas, el inicio y final de estas puertas y el prefijo que quieras usar para \n\n"
-            "llamarlas.")
+    text = ("Este botón genera puertas a partir de la información que tu le das. \n"
+            "Para generar las puertas, debes escribir en las cajas de texto la información que te pide (en qué terminal y área se generarán, el inicio y final de estas puertas y en prefijo que quieras usar para llamarlas) y luego darle al botón de “crear”. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt”. ")
 
     Show_Text_Window("Tutorial - Generar puertas", text)
 
 def Tut_Load_Airlines():
-    text = ("Este botón carga las aerolíneas en la terminal que tu desees. Al darle al botón, \n\n"
-            "aparecerá una ventana donde tienes que poner en el cuadro de texto en qué\n\n"
-            "terminal quieres cargar las aerolíneas. ")
+    text = ("Este botón carga las aerolíneas en la terminal que tu desees. \n"
+            "Para hacerlo tienes que poner en el cuadro de texto en qué terminal quieres cargar las aerolíneas. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt”. ")
 
     Show_Text_Window("Tutorial - Cargar aerolíneas", text)
 
 def Tut_Show_Gate_Occupancy():
-    text = ("Este botón muestra una ventana con la información del número de puertas totales, \n\n"
-            "el número de puertas libres y el número de puertas ocupados.")
+    text = ("Este botón muestra una ventana con la información del número de puertas totales, el número de puertas libres y el número de puertas ocupadas. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt”. ")
 
     Show_Text_Window("Tutorial - Ver ocupación de puertas", text)
 
 def Tut_Is_Airline_in_Terminal():
-    text = ("Este botón muestra si cierta aerolínea se encuentra en esa terminal o no. Al darle al  \n\n"
-            "botón, aparecerá una ventana donde hay que poner en el cuadro de texto la terminal y la  \n\n"
-            "aerolínea que queremos buscar.")
+    text = ("Este botón muestra si cierta aerolínea se encuentra en esa terminal o no. \n"
+            "Para hacerlo, hay que poner en el cuadro de texto la terminal y la aerolínea que queremos buscar y darle al botón de “buscar”. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt”. ")
 
     Show_Text_Window("Tutorial - Ver aerolínea en terminal", text)
 
 def Tut_Search_Terminal():
-    text = ("Este botón muestra en qué terminal opera cierta aerolínea. Al darle al botón, \n\n"
-            "aparecerá una ventana donde hay que poner en el cuadro de texto la aerolínea que \n\n"
-            "queremos buscar.")
+    text = ("Este botón muestra en qué terminal opera cierta aerolínea. \n"
+            "Para hacerlo, hay que poner en el cuadro de texto la aerolínea que queremos buscar y darle al botón de “buscar”. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt”. ")
 
     Show_Text_Window("Tutorial - Buscar terminal", text)
 
 def Tut_Assign_Gates_Arrivals():
-    text = ("Este botón asigna a cada vuelo que llega al aeropuerto una gate. Al darle al botón, \n\n"
-            "después de asignar puertas a los vuelos, aparecerá una ventana que dirá el número \n\n"
-            "de puertas que han sido asignadas y el número de vuelos que no se han podido \n\n"
-            "asignar a una puerta.")
+    text = ("Este botón asigna a cada vuelo que llega al aeropuerto una gate. \n"
+            "Al darle al botón, después de asignar puertas a los vuelos, aparecerá una ventana que dirá el número de puertas que han sido asignadas y el número de vuelos que no se han podido asignar a una puerta. \n\n"
+            "Nota: Para poder usarlo, debes de haber cargado el archivo “Terminals.txt” y “arrivals.txt”.")
 
     Show_Text_Window("Tutorial - Asignar puertas a las llegadas", text)
 
 def Tut_Load_Departures():
-    text = ("Con este botón puedes cargar un archivo “Departures.txt” que contiene el ID del \n\n"
-            "avión, su aeropuerto de destino, la hora a la que sale del aeropuerto LEBL y la \n\n"
-            "aerolínea a la que pertenece. Al darle al botón, el programa te abrirá el explorador \n\n"
-            "de archivos, ahí podrás escoger el archivo que desees cargar y al darle a abrir, se te \n\n"
-            "habrá cargado el archivo al programa. Una vez hecho esto, aparecerá una ventana \n\n"
-            "diciendo que se cargaron los 511 vuelos con éxito.")
+    text = ("Con este botón puedes cargar un archivo “Departures.txt” que contiene el ID del avión, su aeropuerto de destino, la hora a la que sale del aeropuerto LEBL y la aerolínea a la que pertenece. \n"
+            "Al darle al botón, el programa te abrirá el explorador de archivos, ahí podrás escoger el archivo que desees cargar y al darle a abrir, se te habrá cargado el archivo al programa. Una vez hecho esto, aparecerá una ventana diciendo que se cargaron los 511 vuelos con éxito.")
 
     Show_Text_Window("Tutorial - Cargar salidas", text)
 
 def Tut_Merge_Movements():
-    text = ("Este botón junta la información de los archivos “Arrivals.txt” y “Departures.txt” y los \n\n"
-            "junta en una lista, ordenándolos del más temprano a más tarde (00:00 a 23:59). Al \n\n"
-            "darle al botón, aparecerá una ventana informando que la fusión ha sido completada \n\n"
-            "y que hay 548 aviones en total.\n\n"
+    text = ("Este botón junta la información de los archivos “Arrivals.txt” y “Departures.txt” y los junta en una lista, ordenándolos del más temprano a más tarde (00:00 a 23:59). \n"
+            "Al darle al botón, aparecerá una ventana informando que la fusión ha sido completada y que hay 548 aviones en total. \n\n"
             "Nota: Debes de tener cargados los archivos “Arrivals.txt” y “Departures.txt”")
 
     Show_Text_Window("Tutorial - Fusionar movimientos", text)
 
 def Tut_Night_Departures():
-    text = ("Este botón busca en la lista de los vuelos fusionados y te muestra información sobre \n\n"
-            "los vuelos nocturnos (vuelos que son de 20:00 a 6:00). Al darle al botón, aparecerá \n\n"
-            "una ventana con el ID del avión, su aerolínea, la hora a la que despegan y el \n\n"
-            "aeropuerto de destino de los vuelos nocturnos.")
+    text = ("Este botón busca en la lista de los vuelos fusionados y te muestra información sobre los vuelos nocturnos (vuelos que son de 20:00 a 6:00).\n"
+            "Al darle al botón, aparecerá una ventana  con el ID del avión, su aerolínea, la hora a la que despegan y el aeropuerto de destino de los vuelos nocturnos. \n\n"
+            "Nota: Debes de tener cargados los archivos “Arrivals.txt” y “Departures.txt” y haber usado la función Merge Movements.")
 
     Show_Text_Window("Tutorial - Salidas nocturnas", text)
 
 def Tut_Assign_Night_Gates():
-    text = ("Este botón busca de la lista fusionada y asigna una puerta para pasar la noche a los \n\n"
-            "aviones que necesiten una. Al darle al botón, aparecerá una ventana informando de \n\n"
-            "que no se pudo asignar una puerta (porque el aeropuerto está lleno) o de que se \n\n"
-            "asignó puertas a cierto número de aviones.")
+    text = ("Este botón busca en la lista fusionada y asigna una puerta para pasar la noche a los aviones que necesiten una. \n"
+            "Al darle al botón, aparecerá una ventana informando de que no se pudo asignar una puerta (porque el aeropuerto está lleno) o de que se asignó puertas a cierto número de aviones. \n\n"
+            "Nota: Debes de tener cargados los archivos “Arrivals.txt” y “Departures.txt” y haber usado la función Merge Movements.")
 
     Show_Text_Window("Tutorial - Asignar puertas noche", text)
 
 def Tut_Assign_Gates_at_Time():
-    text = ("Este botón asigna y libera puertas a aviones que lleguen o que tengan que salir \n\n"
-            "dentro del periodo de una hora. Al darle al botón, aparecerá una ventana donde \n\n"
-            "tienes que introducir la hora que necesites (tiene que ser una hora exacta, es decir, \n\n"
-            "en punto) que te informará del número de vuelos que no pudieron ser asignados a \n\n"
-            "una puerta debido a que el aeropuerto estaba lleno.")
+    text = ("Este botón asigna y libera puertas a aviones que lleguen o que tengan que salir dentro del periodo de una hora. \n"
+            "Para usarlo tienes que introducir en la caja de texto la hora que necesites (tiene que ser una hora exacta, es decir, en punto) y darle al botón de “asignar”. El programa te informará del número de vuelos que no pudieron ser asignados a una puerta debido a que el aeropuerto estaba lleno. \n\n"
+            "Nota: Debes de tener cargados los archivos “Arrivals.txt” y “Departures.txt” y haber usado la función Merge Movements.")
 
     Show_Text_Window("Tutorial - Asignar puertas por hora", text)
 
 def Tut_Plot_Occupancy():
-    text = ("Este botón crea un gráfico de barras y de líneas donde muestra el número de gates \n\n"
-            "que fueron ocupadas y el número de aviones que se quedaron sin puertas a lo largo \n\n"
-            "de cada hora del día. ")
+    text = ("Este botón crea un gráfico de barras y de líneas donde muestra el número de gates que fueron ocupadas y el número de aviones que se quedaron sin puertas a lo largo de cada hora del día. \n\n"
+            "Nota: Debes de tener cargados los archivos “Arrivals.txt” y “Departures.txt” y haber usado la función Merge Movements.")
 
     Show_Text_Window("Tutorial - Gráfico de ocupaciones en un dia", text)
 
 def Tut_Filtro():
-    text = ("Este botón te permite encontrar información sobre los vuelos aplicando unos filtros. \n\n"
-            "Al darle al botón, se crea una nueva ventana donde se hará la búsqueda por filtración. \n\n"
-            "Se puede filtrar los vuelos por el ID del avión, a qué compañía pertenece, el país de \n\n"
-            "origen, la hora de llegada o de salida, la puerta a la que están asignadas y la terminal \n\n"
-            "en la que se encuentran. Puedes insertar estos datos por teclado (no hace falta rellenar \n\n"
-            "todos) \n\ny al darle al botón de “Buscar” aparece la información en el cuadro de texto \n\n"
-            "de abajo. La información que aparece es la siguiente: ID del avión del vuelo, aerolínea \n\n"
-            "que realiza el vuelo, aeropuerto y país de origen o destino, hora de llegada o salida, \n\n"
-            "puerta asignada, terminal, asignada y área asignada.")
+    text = ("Este botón te permite encontrar información sobre los vuelos aplicando unos filtros. \n"
+            "Al darle al botón, se crea una nueva ventana donde se hará la búsqueda por filtración. Se puede filtrar los vuelos por el ID del avión, a qué compañía pertenece, el país de origen, la hora de llegada o de salida, la puerta a la que están asignadas y la terminal en la que se encuentran. Puedes insertar estos datos por teclado (no hace falta rellenar todos) y al darle al botón de “Buscar” aparece la información en el cuadro de texto de abajo. La información que aparece es la siguiente: ID del avión del vuelo, aerolínea que realiza el vuelo, aeropuerto y país de origen o destino, hora de llegada o salida, puerta asignada, terminal, asignada y área asignada.")
 
     Show_Text_Window("Tutorial - Filtro", text)
 
@@ -1588,9 +1663,9 @@ content_frame.pack(fill=tk.BOTH, expand=True)
 
 
 tab_airports = tk.Frame(notebook, bg='#2c3e50')
-notebook.add(tab_airports, text='🛫 Airports')
+notebook.add(tab_airports, text=tr('🛫 Airports'))
 
-button_frame = tk.LabelFrame(tab_airports, text='Airports')
+button_frame = tk.LabelFrame(tab_airports, text=tr('Airports'))
 button_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
 
@@ -1598,35 +1673,51 @@ button_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 button_Load_airports = tk.Frame(button_frame)
 button_Load_airports.pack(fill=tk.X, pady=10)
 
-tk.Button(button_Load_airports, text='Load airports', command=Load_airports)\
-    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+btn_load_airports = tk.Button(
+    button_Load_airports,
+    text=tr("load_airports"),
+    command=Load_airports
+)
+btn_load_airports.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
 
 #Botón de ayuda
 help_button(button_Load_airports, Tut_Load_Airports).pack(side=tk.LEFT, padx=5)
 
 
 # Botón para añadir aeropuertos
-btn_add = tk.LabelFrame(button_frame, text="Add airport")
-btn_add.pack(fill=tk.X, pady=5)
+btn_add_airport = tk.LabelFrame(button_frame, text=tr("add_airports"))
+btn_add_airport.pack(fill=tk.X, pady=5)
 
-tk.Label(btn_add, text="ID (ej. LEBL):").pack(padx=5, pady=2)
-entry_airport_code = tk.Entry(btn_add, width=20)
+lbl_airport_code = tk.Label(btn_add_airport, text=tr("airport_code"))
+lbl_airport_code.pack(padx=5, pady=2)
+
+entry_airport_code = tk.Entry(btn_add_airport, width=20)
 entry_airport_code.pack(padx=5, pady=2)
 
-tk.Label(btn_add, text="Latitude (ej. N412851):").pack(padx=5, pady=2)
-entry_airport_lat = tk.Entry(btn_add, width=20)
+lbl_airport_lat = tk.Label(btn_add_airport, text=tr("latitude"))
+lbl_airport_lat.pack(padx=5, pady=2)
+
+entry_airport_lat = tk.Entry(btn_add_airport, width=20)
 entry_airport_lat.pack(padx=5, pady=2)
 
-tk.Label(btn_add, text="Longitude (ej. E0020500):").pack(padx=5, pady=2)
-entry_airport_lon = tk.Entry(btn_add, width=20)
+lbl_airport_lon = tk.Label(btn_add_airport, text=tr("longitude"))
+lbl_airport_lon.pack(padx=5, pady=2)
+
+entry_airport_lon = tk.Entry(btn_add_airport, width=20)
 entry_airport_lon.pack(padx=5, pady=2)
 
+
 #(Este es el botón)
-button_add_airport = tk.Frame(btn_add)
+button_add_airport = tk.Frame(btn_add_airport)
 button_add_airport.pack(fill=tk.X, pady=5)
 
-tk.Button(button_add_airport, text='Add', command=Add_Airports)\
-    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+btn_confirm_add_airport = tk.Button(
+    button_add_airport,
+    text=tr("add"),
+    command=Add_Airports
+)
+btn_confirm_add_airport.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
 #Botón de ayuda
 help_button(button_add_airport, Tut_Add_Airports).pack(side=tk.LEFT, padx=5)
@@ -1796,7 +1887,7 @@ help_button(button_plot_flight,Tut_Plot_Flights).pack(side=tk.LEFT, padx=5)
 button_map_flights_LEBL = tk.Frame(flights_frame)
 button_map_flights_LEBL.pack(fill=tk.X, pady=5)
 
-tk.Button(button_map_flights_LEBL, text='Map Flights to LEBL', command=Tut_Map_Flights_LEBL).pack(side=tk.LEFT, fill=tk.X, expand=True)
+tk.Button(button_map_flights_LEBL, text='Map Flights to LEBL', command=Map_Flights).pack(side=tk.LEFT, fill=tk.X, expand=True)
 
 help_button(button_map_flights_LEBL, Tut_Map_Flights_LEBL).pack(side=tk.LEFT, padx=5)
 
@@ -1809,6 +1900,7 @@ tk.Button(button_map_flights_distance, text='Map Long Distance Arrivals (>2000km
 help_button(button_map_flights_distance, Tut_Map_Long_Distance).pack(side=tk.LEFT, padx=5)
 
 # ----- GATES (VERSIÓN 3) ----- #
+
 tab_gates = tk.Frame(notebook, bg='#2c3e50')
 notebook.add(tab_gates, text='🚪 Gates')
 
@@ -1861,34 +1953,94 @@ entry_gate_final.pack(pady=2)
 # Botón Crear al final de la segunda columna
 tk.Button(col2, text="Crear", command=Set_Gates).pack(pady=10)
 
+help_button(btn_set_gates, Tut_Set_Gate).pack(side=tk.RIGHT, padx=5)
+
+
 # Botón para cargar aerolíneas
-btn_load_airlines = tk.Button(gates_frame, text='Load Airlines', command=Load_Airlines)
-btn_load_airlines.pack(padx=5, pady=5, fill=tk.X)
+btn_load_airlines = tk.LabelFrame(gates_frame, text="Load Airlines")
+btn_load_airlines.pack(fill=tk.X, pady=5, padx=5)
+
+# Frames para dos columnas
+col_la1 = tk.Frame(btn_load_airlines)
+col_la1.pack(side=tk.LEFT, padx=5, pady=5)
+
+col_la2 = tk.Frame(btn_load_airlines)
+col_la2.pack(side=tk.LEFT, padx=5, pady=5)
+
+tk.Label(col_la1, text="Terminal:").pack(anchor="w", pady=2)
+entry_airlines_terminal = tk.Entry(col_la1, width=20)
+entry_airlines_terminal.pack(pady=2)
+
+tk.Button(col_la2, text="Load Airlines", command=Load_Airlines).pack(pady=10)
+
+help_button(btn_load_airlines, Tut_Load_Airport_Structure).pack(side=tk.RIGHT, padx=5)
 
 
 # Botón para mostrar disponibilidad en las puertas
-btn_show_occupancy = tk.Button(gates_frame, text='Show Gate Occupancy', command=Show_Gate_Occupancy)
-btn_show_occupancy.pack(padx=5, pady=10, fill=tk.X)
+btn_show_occupancy = tk.Frame(gates_frame)
+btn_show_occupancy.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_show_occupancy, text='Show Gate Occupancy', command=Show_Gate_Occupancy)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_show_occupancy,Tut_Show_Gate_Occupancy).pack(side=tk.LEFT, padx=5)
 
 
 # Botón para determinar si hay una aerolínea en la terminal
-btn_is_airline_in_terminal = tk.Button(gates_frame, text='Is Airline In Terminal', command=IsAirline_InTerminal)
-btn_is_airline_in_terminal.pack(padx=5, pady=5, fill=tk.X)
+btn_is_airline_in_terminal = tk.LabelFrame(gates_frame, text="Is Airline In Terminal")
+btn_is_airline_in_terminal.pack(fill=tk.X, pady=5, padx=5)
+
+# Frames para dos columnas
+col_ait1 = tk.Frame(btn_is_airline_in_terminal)
+col_ait1.pack(side=tk.LEFT, padx=5, pady=5)
+
+col_ait2 = tk.Frame(btn_is_airline_in_terminal)
+col_ait2.pack(side=tk.LEFT, padx=5, pady=5)
+
+tk.Label(col_ait1, text="Terminal:").pack(anchor="w", pady=2)
+entry_ait_terminal = tk.Entry(col_ait1, width=20)
+entry_ait_terminal.pack(pady=2)
+
+tk.Label(col_ait1, text="Airline (ICAO):").pack(anchor="w", pady=2)
+entry_ait_airline = tk.Entry(col_ait1, width=20)
+entry_ait_airline.pack(pady=2)
+
+tk.Button(col_ait2, text="Check Airline", command=lambda: Check_Airline_In_Terminal()).pack(pady=10)
+
+help_button(btn_is_airline_in_terminal,Tut_Is_Airline_in_Terminal).pack(side=tk.RIGHT, padx=5)
 
 
 # Botón para buscar terminal
-btn_search_terminal = tk.Button(gates_frame, text='Search Terminal', command=Search_Terminal)
-btn_search_terminal.pack(padx=5, pady=5, fill=tk.X)
+btn_search_terminal = tk.LabelFrame(gates_frame, text="Search Terminal")
+btn_search_terminal.pack(fill=tk.X, pady=5, padx=5)
+
+col_st1 = tk.Frame(btn_search_terminal)
+col_st1.pack(side=tk.LEFT, padx=5, pady=5)
+
+col_st2 = tk.Frame(btn_search_terminal)
+col_st2.pack(side=tk.LEFT, padx=5, pady=5)
+
+tk.Label(col_st1, text="Airline (ICAO):").pack(anchor="w", pady=2)
+entry_st_airline = tk.Entry(col_st1, width=20)
+entry_st_airline.pack(pady=2)
+
+tk.Button(col_st2, text="Search Terminal", command=lambda: Search_Terminal_Interface()).pack(pady=10)
+
+help_button(btn_search_terminal,Tut_Search_Terminal).pack(side=tk.RIGHT, padx=5)
 
 
 #Botón para asignar puertas a las llegadas
-btn_assign_gates = tk.Button(gates_frame, text='Assign Gates to Arrivals', command=Assign_Gates_to_Arrivals)
-btn_assign_gates.pack(padx=5, pady=10, fill=tk.X)
+btn_assign_gates = tk.Frame(gates_frame)
+btn_assign_gates.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_assign_gates, text='Assign Gates to Arrivals', command=Assign_Gates_to_Arrivals)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_assign_gates,Tut_Assign_Gates_Arrivals).pack(side=tk.LEFT, padx=5)
 
 
 
 # ----- DEPARTURES (VERSIÓN 4) ----- #
-
 
 
 tab_departures = tk.Frame(notebook, bg='#2c3e50')
@@ -1900,47 +2052,85 @@ departures_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
 
 # Botón para cargar salidas
-btn_load_departures = tk.Button(departures_frame, text='Load Departures', command=Load_Departures)
-btn_load_departures.pack(padx=5, pady=5, fill=tk.X)
+
+btn_load_departures = tk.Frame(departures_frame)
+btn_load_departures.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_load_departures, text='Load Departures', command=Load_Departures)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_load_departures,Tut_Load_Departures).pack(side=tk.LEFT, padx=5)
 
 
 #Botón para juntar llegadas y salidas usando aircraft.py
-btn_merge_movements = tk.Button(departures_frame, text='Merge Movements', command=Merge_Movements)
-btn_merge_movements.pack(padx=5, pady=5, fill=tk.X)
+btn_merge_movements = tk.Frame(departures_frame)
+btn_merge_movements.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_merge_movements, text='Merge Movements', command=Merge_Movements)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_merge_movements,Tut_Merge_Movements).pack(side=tk.LEFT, padx=5)
+
 
 
 # Botón para ver las salidas nocturnas
-btn_night_aircraft = tk.Button(departures_frame, text='Night departures', command=Night_Aircraft)
-btn_night_aircraft.pack(padx=5, pady=5, fill=tk.X)
+btn_night_aircraft = tk.Frame(departures_frame)
+btn_night_aircraft.pack(fill=tk.X, pady=5)
 
+tk.Button(btn_night_aircraft, text='Night departures', command=Night_Aircraft)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_night_aircraft,Tut_Night_Departures).pack(side=tk.LEFT, padx=5)
 
 #Botón que asigna las puertas por la noche
-btn_assign_night_gates = tk.Button(departures_frame, text='Assign night gates', command=Assign_Night_Gates)
-btn_assign_night_gates.pack(padx=5, pady=5, fill=tk.X)
+btn_assign_night_gates = tk.Frame(departures_frame)
+btn_assign_night_gates.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_assign_night_gates, text='Assign night gates', command=Assign_Night_Gates)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_assign_night_gates,Tut_Assign_Night_Gates).pack(side=tk.LEFT, padx=5)
 
 
 #Botón que ve qué puertas están libres
-btn_free_gate = tk.Button(departures_frame, text='Free gates', command=Free_Gate)
-btn_free_gate.pack(padx=5, pady=5, fill=tk.X)
+btn_free_gate = tk.Frame(departures_frame)
+btn_free_gate.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_free_gate, text='Free gates', command=Free_Gate)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
 
 
 #Botón que asigna puertas por hora
-btn_assign_gates_at_time = tk.Button(departures_frame, text='Assing gates at time', command=Assign_Gates_At_Time)
-btn_assign_gates_at_time.pack(padx=5, pady=5, fill=tk.X)
+btn_assign_gates_at_time = tk.Frame(departures_frame)
+btn_assign_gates_at_time.pack(fill=tk.X, pady=5)
+
+tk.Button(btn_assign_gates_at_time, text='Assing gates at time', command=Assign_Gates_At_Time)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+help_button(btn_assign_gates_at_time,Tut_Assign_Gates_at_Time).pack(side=tk.LEFT, padx=5)
 
 
 #Botón que hace un plot de la disponibilidad en un día
-btn_plot_day_occupancy = tk.Button(departures_frame, text='Plot occupacy in a day', command=Plot_Day_Occupacy)
-btn_plot_day_occupancy.pack(padx=5, pady=5, fill=tk.X)
+btn_plot_day_occupancy = tk.Frame(departures_frame)
+btn_plot_day_occupancy.pack(fill=tk.X, pady=10)
 
+tk.Button(btn_plot_day_occupancy, text='Plot occupacy in a day', command=Plot_Day_Occupacy)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-#Botón para el tutorial de la versión 4
-btn_tutorial4 = tk.Button(departures_frame, text='Tutorial of DEPERATURES', command=Plot_Day_Occupacy)
-btn_tutorial4.pack(padx=5, pady=5, fill=tk.X)
+#Botón de ayuda
+help_button(btn_plot_day_occupancy, Tut_Plot_Occupancy).pack(side=tk.LEFT, padx=5)
+
 
 
 #Botón extra
-btn_search = tk.Button(departures_frame, text='🔍 Flight Search', command=Flight_Search)
-btn_search.pack(padx=5, pady=5, fill=tk.X)
+btn_search = tk.Frame(departures_frame)
+btn_search.pack(fill=tk.X, pady=10)
 
+tk.Button(btn_search, text='🔍 Flight Search', command=Flight_Search)\
+    .pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+#Botón de ayuda
+help_button(btn_search,Tut_Search_Terminal).pack(side=tk.LEFT, padx=5)
+
+UpdateTexts()
 root.mainloop()
